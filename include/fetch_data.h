@@ -5,6 +5,7 @@
 // #include <regex>
 #include <string>
 #include <vector>
+//#include "binance.h"
 
 /*
 Basic class for Fetch Data of Cryptoconcurrency
@@ -13,6 +14,7 @@ It contains relevant attributes as shown below
 class FetchData {
  public:
   FetchData();
+  void fetchData();
 //   int Pid();                             
 //   std::string User();                     
 //   std::string Command();                   
@@ -25,6 +27,10 @@ class FetchData {
 //   long getActiveJiffiesPrev();
 
  private:
+    
+    //Binance _bin;
+    
+    
     // int pid_;
     // std::string user_;
     // long total_time_prev_{0};  //ELIMINAR
