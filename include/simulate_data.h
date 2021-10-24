@@ -16,6 +16,7 @@ class SimulateData : public FetchData{
   SimulateData();
   void fetchData() override;
 
+  std::deque<double> returnData() {return _data;};
 
  private:
     std::deque<double> _data;

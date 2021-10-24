@@ -1,16 +1,23 @@
 #include <iostream>
-#include <simulate_data.h>
 #include <future>
+
+#include "simulate_data.h"
+#include "strategy.h"
 
 
 int main() {
-    std::cout << "Hello World!" << "\n";
+    std::cout << "Main start!" << "\n";
 
     SimulateData* data = new SimulateData();
+    Strategy* crypto = new Strategy();
 
-    std::thread t =std::thread(&SimulateData::fetchData, data);
+    std::thread fetchData =std::thread(&SimulateData::fetchData, data);
 
-    t.join();
-    
+    std::deque<double> data_returned = data->returnData();
+    std::thread cryptoBot =std::thread(&Strategy::cryptoBot, crypto, data_returned);
+
+    fetchData.join();
+    cryptoBot.join();
+
     return 0;
 }
