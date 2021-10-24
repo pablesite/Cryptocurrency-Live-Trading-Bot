@@ -1,14 +1,14 @@
 #include <iostream>
-#include <fetch_data.h>
+#include <simulate_data.h>
 #include <future>
 
 
 int main() {
     std::cout << "Hello World!" << "\n";
 
-    FetchData* data = new FetchData();
+    SimulateData* data = new SimulateData();
 
-    std::thread t =std::thread(&FetchData::fetchData, data);
+    std::thread t =std::thread(&SimulateData::fetchData, data);
 
     t.join();
     
