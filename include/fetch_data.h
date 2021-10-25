@@ -7,7 +7,7 @@ Abstract class for Fetch Data of Cryptoconcurrency
 
 class FetchData {
  public:
-  virtual void fetchData() = 0;
+  virtual void fetchData(double myCoin) = 0;
 
 };
 

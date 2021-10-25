@@ -7,14 +7,14 @@
 
 int main() {
     std::cout << "Main start!" << "\n";
+    double myCoin = 50000;
 
-    SimulateData* data = new SimulateData();
-    Strategy* crypto = new Strategy();
+    std::shared_ptr<SimulateData> data = std::make_shared<SimulateData>();
+    std::shared_ptr<Strategy> crypto = std::make_shared<Strategy>();
+  
 
-    std::thread fetchData =std::thread(&SimulateData::fetchData, data);
-
-    std::deque<double> data_returned = data->returnData();
-    std::thread cryptoBot =std::thread(&Strategy::cryptoBot, crypto, data_returned);
+    std::thread fetchData =std::thread(&SimulateData::fetchData, data, myCoin);
+    std::thread cryptoBot =std::thread(&Strategy::cryptoBot, crypto, data, myCoin);
 
     fetchData.join();
     cryptoBot.join();

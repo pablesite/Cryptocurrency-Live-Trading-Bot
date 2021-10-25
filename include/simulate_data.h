@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <mutex>
 #include <deque>
 
 #include "fetch_data.h"
@@ -11,18 +12,20 @@
 /*
 Basic class for Fetch Data of Cryptoconcurrency
 */
-class SimulateData : public FetchData{
- public:
-  SimulateData();
-  void fetchData() override;
+class SimulateData : public FetchData
+{
+public:
+    SimulateData();
+    void fetchData(double myCoin) override;
 
-  std::deque<double> returnData() {return _data;};
+    std::deque<double> returnData() { return _data; };
 
- private:
+protected:
+    static std::mutex _mutexSD;
+
+private:
     std::deque<double> _data;
     //Binance _bin;
-
 };
 
 #endif
-

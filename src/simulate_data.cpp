@@ -10,6 +10,8 @@
 using std::string;
 using std::vector;
 
+std::mutex SimulateData::_mutexSD;
+
 SimulateData::SimulateData() {
 
     std::cout << "Constructor of FetchData " << std::endl;
@@ -17,7 +19,7 @@ SimulateData::SimulateData() {
     //_bin (Binance);
 }
 
-void SimulateData::fetchData() {
+void SimulateData::fetchData(double myCoin) {
     //double data;
     // Connect with Binance
     //_bin.connect();
@@ -27,7 +29,7 @@ void SimulateData::fetchData() {
 
     std::cout << "Retrieving data " << std::endl;
 
-    double x = 50000;
+    double x = myCoin;
 
     while (true) {
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -36,6 +38,7 @@ void SimulateData::fetchData() {
         std::cout << "Retrieve Data: " << x << std::endl;
 
         // store the last minute
+        std::lock_guard<std::mutex> lock(_mutexSD);
         if (_data.size() > 60 ){
             _data.pop_front();
         }
