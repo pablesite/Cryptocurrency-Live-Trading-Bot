@@ -18,7 +18,7 @@ public:
     SimulateData();
     void fetchData(double myCoin) override;
 
-    std::deque<double> returnData() { return _data; };
+    std::deque<double> returnData() { return _data; }; //Sería mejor un waitForData que hiciera un receive de una cola de mensajes...
 
 protected:
     static std::mutex _mutexSD;

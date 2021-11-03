@@ -32,10 +32,10 @@ void SimulateData::fetchData(double myCoin) {
     double x = myCoin;
 
     while (true) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         x = x * ( 1 + (rand() % 2000 - 1000)/1000000.0);        
         
-        std::cout << "Retrieve Data: " << x << std::endl;
+      //  std::cout << "Retrieve Data: " << x << std::endl;
 
         // store the last minute
         std::lock_guard<std::mutex> lock(_mutexSD);
