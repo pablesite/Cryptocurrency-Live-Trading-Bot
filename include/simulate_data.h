@@ -5,9 +5,23 @@
 #include <vector>
 #include <mutex>
 #include <deque>
+#include <condition_variable>
 
 #include "fetch_data.h"
 //#include "binance.h"
+
+template <class T>
+class MessageQueue
+{
+public:
+    void send(T &&msg);
+    T receive();
+
+private:
+    std::condition_variable _cdtMQ;
+    std::mutex _mtxMQ;
+    std::deque<T> _queue;
+};
 
 /*
 Basic class for Fetch Data of Cryptoconcurrency
@@ -17,15 +31,15 @@ class SimulateData : public FetchData
 public:
     SimulateData();
     void fetchData(double myCoin) override;
-
-    std::deque<double> returnData() { return _data; }; //Sería mejor un waitForData que hiciera un receive de una cola de mensajes...
+    double retrieveData(double lookbackperiod);
 
 protected:
     static std::mutex _mutexSD;
 
 private:
-    std::deque<double> _data;
     //Binance _bin;
+    double _currentData;
+    std::shared_ptr<MessageQueue<double>> _mqData;
 };
 
 #endif

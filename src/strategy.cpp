@@ -27,10 +27,11 @@ void Strategy::cryptoBot(std::shared_ptr<SimulateData> data, double myCoin)
     bool open_position = false;
     double commission = 0.00075;
     double base = 50000;
-    double entry = 2*0.00075; // to make robust my positions
+    double entry = 2 * 0.00075; // to make robust my positions
     double rupture = 0.0015;
     double recession = -0.0015;
     double invest_qty = 0.004;
+    double lookbackperiod = 30;
 
     double actual_value;
     double order;
@@ -65,81 +66,73 @@ void Strategy::cryptoBot(std::shared_ptr<SimulateData> data, double myCoin)
 
     // (1 + % commission)/(1 - % commission)  >  (1 + %rupture) //This is not too clear
 
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
     while (true)
     {
-        //Read data
-        //std::lock_guard<std::mutex> lock(SimulateData::_mutexSD);
+
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        //En vez de esperar x tiempo, debe leer una cola de mensajes que lea cuando haya dato en la cola. Como los semáforos...
-        // Quizá lo más inteligente es  hacer un lector de colas en la clase simulate_data
-        //std::unique_lock<std::mutex> lck(_mtxMQ);
-        //_cdtMQ.wait(lck, [this] { return !_queue.empty(); });
 
         // retrieve data
-        if (data->returnData().size() > 0)
+        actual_value = data->retrieveData(lookbackperiod);
+
+        // to update base if the trend is negative
+        if ((actual_value / base - 1) < -entry * 2)
         {
-            std::cout << "Data received in first loop: " << data->returnData().back() << std::endl; //a lock is needed.
-            actual_value = data->returnData().back();
+            std::cout << "Update the base " << actual_value << " "
+                      << " " << base << " " << actual_value / base << std::endl;
+            base = actual_value;
         }
 
-        if (actual_value < 100000 && actual_value > 0.0000001)  //only for remove false data
-        {   
-            // to update base if the trend is negative
-            if ((actual_value / base - 1) < -entry * 2)
-            {
-                std::cout << "Update the base " << actual_value << " "
-                          << " " << base << " " << actual_value / base << std::endl;
-                base = actual_value;
-            }
+        // to make an order
+        if ((actual_value / base - 1) > entry)
+        {
+            order = invest_qty * (1 + commission) * actual_value * (actual_value / base); //simulate the bought
+            std::cout << "A comprar " << invest_qty << " quantity. Order = " << order << " $. " << actual_value / base << std::endl;
 
-            // to make an order
-            if ((actual_value / base - 1) > entry)
-            {
-                order = invest_qty * (1 + commission) * actual_value * (actual_value / base); //simulate the bought
-                std::cout << "A comprar " << invest_qty << " quantity. Order = " << order << " $. " << actual_value / base << std::endl;
+            base = actual_value; // Define new base
+            std::cout << "base: " << base << std::endl;
+            open_position = true;
+            //break;
+        }
 
-                base = actual_value; // Define new base
-                std::cout << "base: " << base << std::endl;
-                open_position = true;
-                //break;
-            }
-
-            // to return the order
-            if (open_position == true)
+        // to return the order
+        if (open_position == true)
+        {
+            while (true)
             {
-                while (true)
+                std::this_thread::sleep_for(std::chrono::milliseconds(30));
+
+                // retrieve data
+                // if (data->returnData().size() > 0)
+                // {
+                //     std::cout << "Data received in second loop: " << data->returnData().back() << std::endl; //a lock is needed.
+                //     actual_value = data->returnData().back();
+                // }
+
+                actual_value = data->retrieveData(lookbackperiod);
+
+                // update base while the value is rissing
+                if ((actual_value / base - 1) > rupture)
                 {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                    std::cout << "actual value in update: " << actual_value << std::endl;
+                    base = actual_value; // Define new base
+                }
 
-                    // retrieve data
-                    if (data->returnData().size() > 0)
-                    {
-                        std::cout << "Data received in second loop: " << data->returnData().back() << std::endl; //a lock is needed.
-                        actual_value = data->returnData().back();
-                    }
+                // std::cout << "actual_value: " << actual_value << " base " << base << " " << actual_value / base << std::endl;
+                // if last_entry > x or last_entry < x --> Sell
+                if ((actual_value / base - 1) < recession)
+                {
 
-                    // update base while the value is rissing
-                    if ((actual_value / base - 1) > rupture)
-                    {
-                        std::cout << "actual value in update: " << actual_value << std::endl;
-                        base = actual_value; // Define new base
-                    }
+                    benefits = (invest_qty * actual_value * (1 - commission)) - order; //simulate the sell
+                    std::cout << "To sell my position: " << invest_qty << " quantity. Benefits = " << benefits << " $." << std::endl;
 
-                    // std::cout << "actual_value: " << actual_value << " base " << base << " " << actual_value / base << std::endl;
-                    // if last_entry > x or last_entry < x --> Sell
-                    if ((actual_value / base - 1) < recession)
-                    {
-
-                        benefits = (invest_qty * actual_value * (1 - commission)) - order; //simulate the sell
-                        std::cout << "To sell my position: " << invest_qty << " quantity. Benefits = " << benefits << " $." << std::endl;
-
-                        base = actual_value; // Define new base
-                        open_position = false;
-                        benefits_acc += benefits;
-                        std::cout << std::endl
-                                  << "TOTAL BENEFITS: " << benefits_acc << "$." << std::endl;
-                        break;
-                    }
+                    base = actual_value; // Define new base
+                    open_position = false;
+                    benefits_acc += benefits;
+                    std::cout << std::endl
+                              << "TOTAL BENEFITS: " << benefits_acc << "$." << std::endl;
+                    break;
                 }
             }
         }
