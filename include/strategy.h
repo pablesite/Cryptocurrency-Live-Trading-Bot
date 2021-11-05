@@ -12,7 +12,7 @@ Basic class for Fetch Data of Cryptoconcurrency
 class Strategy {
  public:
   Strategy();
-  void cryptoBot(std::shared_ptr<SimulateData> data, double myCoin);
+  void cryptoBot(std::shared_ptr<SimulateData> data);
 
 
  private:

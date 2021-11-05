@@ -15,7 +15,7 @@ class MessageQueue
 {
 public:
     void send(T &&msg);
-    T receive();
+    std::deque<T> receive(double &lookbackperiod);
 
 private:
     std::condition_variable _cdtMQ;
@@ -31,7 +31,7 @@ class SimulateData : public FetchData
 public:
     SimulateData();
     void fetchData(double myCoin) override;
-    double retrieveData(double lookbackperiod);
+    double retrieveData(double &lookbackperiod);
 
 protected:
     static std::mutex _mutexSD;

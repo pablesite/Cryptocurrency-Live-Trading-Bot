@@ -19,24 +19,27 @@ Strategy::Strategy()
     //_bin (Binance);
 }
 
-void Strategy::cryptoBot(std::shared_ptr<SimulateData> data, double myCoin)
+void Strategy::cryptoBot(std::shared_ptr<SimulateData> data)
 {
 
     std::cout << "CryptoBot working " << std::endl;
 
     bool open_position = false;
     double commission = 0.00075;
-    double base = 50000;
     double entry = 2 * 0.00075; // to make robust my positions
-    double rupture = 0.0015;
+    double rupture = 0.0025;
     double recession = -0.0015;
     double invest_qty = 0.004;
-    double lookbackperiod = 30;
+    double lookbackperiod = 60;
 
+    double base;
     double actual_value;
     double order;
     double benefits;
     double benefits_acc = 0;
+
+    double count = 0;
+    double invest;
 
     // base price (2€/crypto)
     // invest_qty ( 10 crypto)
@@ -66,21 +69,24 @@ void Strategy::cryptoBot(std::shared_ptr<SimulateData> data, double myCoin)
 
     // (1 + % commission)/(1 - % commission)  >  (1 + %rupture) //This is not too clear
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    base = data->retrieveData(lookbackperiod);
+    invest = invest_qty * base;
 
     while (true)
     {
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
+        
+        //std::this_thread::sleep_for(std::chrono::milliseconds(100));
         // retrieve data
         actual_value = data->retrieveData(lookbackperiod);
+        count += 1;
+        
 
         // to update base if the trend is negative
-        if ((actual_value / base - 1) < -entry * 2)
+        if ((actual_value / base - 1) < - entry * 2)
         {
-            std::cout << "Update the base " << actual_value << " "
-                      << " " << base << " " << actual_value / base << std::endl;
+            std::cout << "Update the base: Descending " << actual_value << " " << std::endl;
             base = actual_value;
         }
 
@@ -88,10 +94,9 @@ void Strategy::cryptoBot(std::shared_ptr<SimulateData> data, double myCoin)
         if ((actual_value / base - 1) > entry)
         {
             order = invest_qty * (1 + commission) * actual_value * (actual_value / base); //simulate the bought
-            std::cout << "A comprar " << invest_qty << " quantity. Order = " << order << " $. " << actual_value / base << std::endl;
-
+            std::cout << std::endl << "Buying my position " << invest_qty << " bitcoint. Actual value: " << actual_value << ". Order = " << order << " $. " << std::endl;
+        
             base = actual_value; // Define new base
-            std::cout << "base: " << base << std::endl;
             open_position = true;
             //break;
         }
@@ -101,7 +106,7 @@ void Strategy::cryptoBot(std::shared_ptr<SimulateData> data, double myCoin)
         {
             while (true)
             {
-                std::this_thread::sleep_for(std::chrono::milliseconds(30));
+                //std::this_thread::sleep_for(std::chrono::milliseconds(30));
 
                 // retrieve data
                 // if (data->returnData().size() > 0)
@@ -111,11 +116,12 @@ void Strategy::cryptoBot(std::shared_ptr<SimulateData> data, double myCoin)
                 // }
 
                 actual_value = data->retrieveData(lookbackperiod);
+                count += 1;
 
                 // update base while the value is rissing
                 if ((actual_value / base - 1) > rupture)
                 {
-                    std::cout << "actual value in update: " << actual_value << std::endl;
+                    std::cout << "Update the base: Rising " << actual_value << std::endl;
                     base = actual_value; // Define new base
                 }
 
@@ -125,17 +131,17 @@ void Strategy::cryptoBot(std::shared_ptr<SimulateData> data, double myCoin)
                 {
 
                     benefits = (invest_qty * actual_value * (1 - commission)) - order; //simulate the sell
-                    std::cout << "To sell my position: " << invest_qty << " quantity. Benefits = " << benefits << " $." << std::endl;
+                    std::cout << std::endl << "Selling my position: " << invest_qty << " bitcoint. Actual value: " << actual_value << ". Benefits = " << benefits << " $." << std::endl;
 
                     base = actual_value; // Define new base
                     open_position = false;
                     benefits_acc += benefits;
-                    std::cout << std::endl
-                              << "TOTAL BENEFITS: " << benefits_acc << "$." << std::endl;
+                    std::cout << std::endl << "TOTAL BENEFITS: " << benefits_acc << "$. " << benefits_acc/invest*100 << "%. " << count <<std::endl << std::endl;
                     break;
                 }
             }
         }
+
     }
 
     return;
