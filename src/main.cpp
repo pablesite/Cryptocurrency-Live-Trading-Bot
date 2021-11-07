@@ -15,11 +15,11 @@ int main() {
 
     //std::shared_ptr<SimulateData> data = std::make_shared<SimulateData>();
     std::shared_ptr<Binance> binancePtr = std::make_shared<Binance>();
-    // std::shared_ptr<Strategy> crypto = std::make_shared<Strategy>();
+    std::shared_ptr<Strategy> crypto = std::make_shared<Strategy>();
   
     // std::thread fetchData = std::thread(&SimulateData::fetchData, data, myCoinBase);
     std::thread binanceData = std::thread(&Binance::fetchData, binancePtr, myCoinBase);
-    // std::thread cryptoBot = std::thread(&Strategy::cryptoBot, crypto, data);
+    std::thread cryptoBot = std::thread(&Strategy::cryptoBot, crypto, binancePtr);
 
     binanceData.join();
     // cryptoBot.join();

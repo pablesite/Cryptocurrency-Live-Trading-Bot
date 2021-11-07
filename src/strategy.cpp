@@ -7,7 +7,9 @@
 
 #include "strategy.h"
 #include "simulate_data.h"
+#include "binance.h"
 #include "message_queue.h"
+#include <iomanip>
 
 using std::string;
 using std::vector;
@@ -20,7 +22,7 @@ Strategy::Strategy()
     //_bin (Binance);
 }
 
-void Strategy::cryptoBot(std::shared_ptr<SimulateData> data)
+void Strategy::cryptoBot(std::shared_ptr<Binance> data)
 {
 
     std::cout << "CryptoBot working " << std::endl;
@@ -31,7 +33,7 @@ void Strategy::cryptoBot(std::shared_ptr<SimulateData> data)
     double rupture = 0.0025;
     double recession = -0.0015;
     double invest_qty = 0.004;
-    double lookbackperiod = 60;
+    double lookbackperiod = 1;
 
     double base;
     double actual_value;
@@ -83,7 +85,7 @@ void Strategy::cryptoBot(std::shared_ptr<SimulateData> data)
         actual_value = data->retrieveData(lookbackperiod);
         count += 1;
         
-
+        std::cout <<  std::setprecision(4) << std::fixed << "To buy " << actual_value << " => " << (1-entry*2)*base <<" < "<<  base << " > " << (1 + entry)*base<< std::endl;
         // to update base if the trend is negative
         if ((actual_value / base - 1) < - entry * 2)
         {
@@ -118,6 +120,8 @@ void Strategy::cryptoBot(std::shared_ptr<SimulateData> data)
 
                 actual_value = data->retrieveData(lookbackperiod);
                 count += 1;
+                std::cout <<  std::setprecision(4) << std::fixed << "To sell " << actual_value << " => " << (1-recession)*base <<" < "<<  base << " > " << (1-rupture)*base << std::endl;
+                
 
                 // update base while the value is rissing
                 if ((actual_value / base - 1) > rupture)

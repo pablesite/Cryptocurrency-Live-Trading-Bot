@@ -33,6 +33,10 @@ else()
     message(FATAL_ERROR "Could not find curl.")
  endif()
 
- target_link_libraries(CryptoTradingBot ${CURL_LIBRARIES})
+#  target_link_libraries(CryptoTradingBot ${CURL_LIBRARIES})
 # ##### CURL STUFF END #####
+
+find_package(jsoncpp CONFIG REQUIRED)
+target_link_libraries(CryptoTradingBot PRIVATE jsoncpp_lib jsoncpp_object ${CURL_LIBRARIES})
+
 

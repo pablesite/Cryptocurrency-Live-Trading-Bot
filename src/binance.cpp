@@ -6,6 +6,9 @@
 #include <deque>
 
 #include <curl/curl.h>
+#include <json/json.h>
+#include <iomanip>
+
 #include "binance.h"
 #include "message_queue.h"
 
@@ -39,18 +42,27 @@ double Binance::retrieveData(double &lookbackperiod)
 
 static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
 {
-    ((std::string*)userp)->append((char*)contents, size * nmemb);
+    ((std::string *)userp)->append((char *)contents, size * nmemb);
     return size * nmemb;
 }
 
 void Binance::fetchData(double myCoinBase)
 {
+
+    // TO DO:
+    // To make the URL dynamic
+    // To make a error control. (To use Curlcode )
+    // To refactor te code (function to connect (stablish the culr object), and another one for fetching data )
+
     //double data;
     // Connect with Binance
     //_bin.connect();
 
     // Fetch Data
     //_bin.fetch();
+
+    long long cycleDuration = 1000; //1 sec.
+    std::chrono::time_point<std::chrono::system_clock> lastUpdate;
 
     std::cout << "Generating data " << std::endl;
 
@@ -63,6 +75,9 @@ void Binance::fetchData(double myCoinBase)
 
     double x = myCoinBase;
     double count = 0;
+    double total;
+    //double connect;
+    double timeacc = 0;
 
     CURL *curl;
     CURLcode res;
@@ -76,6 +91,15 @@ void Binance::fetchData(double myCoinBase)
     // }
     // s.ptr[0] = '\0';
     std::string readBuffer;
+
+    // Json::Value val;
+    // Json::Reader reader;
+
+    Json::CharReaderBuilder builder;
+    const std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
+    
+    JSONCPP_STRING err;
+    Json::Value root;
 
     curl = curl_easy_init();
     if (curl)
@@ -93,16 +117,48 @@ void Binance::fetchData(double myCoinBase)
     }
     //curl_easy_cleanup(curl);
 
+    // init stop watch
+    lastUpdate = std::chrono::system_clock::now();
+
     while (true)
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        res = curl_easy_perform(curl);
-        
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
-        std::cout << "meto un dato a la cola: " << readBuffer << " " << count << std::endl;
-        //_mqData->MessageQueue::send(std::move(res));
-        readBuffer = "";
-        count += 1;
+        // compute time difference to stop watch
+        auto timeSinceLastUpdate = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lastUpdate).count();
+
+        if (timeSinceLastUpdate >= cycleDuration)
+        {
+            res = curl_easy_perform(curl);
+            if (CURLE_OK == res)
+            {
+                const auto rawJsonLength = static_cast<int>(readBuffer.length());
+                res = curl_easy_getinfo(curl, CURLINFO_TOTAL_TIME, &total);
+                if (CURLE_OK == res)
+                {
+                    //  printf("Time: %.1f", total);
+
+                    if (!reader->parse(readBuffer.c_str(), readBuffer.c_str() + rawJsonLength, &root,
+                                       &err))
+                    {
+                        std::cout << "error" << std::endl;
+                        //return EXIT_FAILURE;
+                    }
+
+                    double x = std::stod(root["price"].asString());
+
+                    //std::cout << "meto un dato a la cola: " << std::setprecision(8) << std::fixed << readBuffer << " Count: " << count << " " << x << std::endl;
+
+                    _mqData->MessageQueue::send(std::move(x));
+                    readBuffer = "";
+                    count += 1;
+                }
+            }
+
+            // adjuts cycleDuration and reset lastUpdate for next cycle
+            cycleDuration = 1000 - (timeSinceLastUpdate - cycleDuration) - (long) total * 1000;
+            lastUpdate = std::chrono::system_clock::now();
+        }
     }
 
     return;
