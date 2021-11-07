@@ -7,6 +7,7 @@
 
 #include "strategy.h"
 #include "simulate_data.h"
+#include "message_queue.h"
 
 using std::string;
 using std::vector;

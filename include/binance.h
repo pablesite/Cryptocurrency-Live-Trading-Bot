@@ -1,5 +1,5 @@
-#ifndef SIMULATE_DATA_H
-#define SIMULATE_DATA_H
+#ifndef BINANCE_H
+#define BINANCE_H
 
 #include <string>
 #include <vector>
@@ -8,24 +8,21 @@
 #include <condition_variable>
 
 #include "fetch_data.h"
- #include "message_queue.h"
-//#include "binance.h"
-
+#include "message_queue.h"
 
 
 /*
 Basic class for Fetch Data of Cryptoconcurrency
 */
-class SimulateData : public FetchData
+class Binance : public FetchData
 {
 public:
-    SimulateData();
+    Binance();
     void fetchData(double myCoin) override;
     double retrieveData(double &lookbackperiod);
 
 protected:
-    static std::mutex _mutexSD;
-
+ 
 private:
     //Binance _bin;
     double _currentData;
