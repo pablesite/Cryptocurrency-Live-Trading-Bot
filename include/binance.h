@@ -6,10 +6,10 @@
 #include <mutex>
 #include <deque>
 #include <condition_variable>
+#include <curl/curl.h>
 
 #include "fetch_data.h"
 #include "message_queue.h"
-
 
 /*
 Basic class for Fetch Data of Cryptoconcurrency
@@ -18,15 +18,18 @@ class Binance : public FetchData
 {
 public:
     Binance();
-    void fetchData(double myCoin) override;
+    void fetchData() override;
+    void configureAPI(const char * URL);
     double retrieveData(double &lookbackperiod);
 
 protected:
- 
 private:
     //Binance _bin;
     double _currentData;
     std::shared_ptr<MessageQueue<double>> _mqData;
+    CURL *_curl;
+    CURLcode _res;
+    std::string _readBuffer;
 };
 
 #endif

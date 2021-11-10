@@ -20,7 +20,7 @@ class SimulateData : public FetchData
 {
 public:
     SimulateData();
-    void fetchData(double myCoin) override;
+    void fetchData() override;
     double retrieveData(double &lookbackperiod);
 
 protected:

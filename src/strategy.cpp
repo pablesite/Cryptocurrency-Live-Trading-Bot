@@ -109,18 +109,11 @@ void Strategy::cryptoBot(std::shared_ptr<Binance> data)
         {
             while (true)
             {
-                //std::this_thread::sleep_for(std::chrono::milliseconds(30));
 
                 // retrieve data
-                // if (data->returnData().size() > 0)
-                // {
-                //     std::cout << "Data received in second loop: " << data->returnData().back() << std::endl; //a lock is needed.
-                //     actual_value = data->returnData().back();
-                // }
-
                 actual_value = data->retrieveData(lookbackperiod);
                 count += 1;
-                std::cout <<  std::setprecision(4) << std::fixed << "To sell " << actual_value << " => " << (1-recession)*base <<" < "<<  base << " > " << (1-rupture)*base << std::endl;
+                std::cout <<  std::setprecision(4) << std::fixed << "To sell " << actual_value << " => " << (1+recession)*base <<" < "<<  base << " > " << (1+rupture)*base << std::endl;
                 
 
                 // update base while the value is rissing
@@ -130,7 +123,6 @@ void Strategy::cryptoBot(std::shared_ptr<Binance> data)
                     base = actual_value; // Define new base
                 }
 
-                // std::cout << "actual_value: " << actual_value << " base " << base << " " << actual_value / base << std::endl;
                 // if last_entry > x or last_entry < x --> Sell
                 if ((actual_value / base - 1) < recession)
                 {
@@ -148,6 +140,6 @@ void Strategy::cryptoBot(std::shared_ptr<Binance> data)
         }
 
     }
-
+    
     return;
 }
