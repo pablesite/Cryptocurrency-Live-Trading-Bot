@@ -9,7 +9,7 @@
 
 #include "fetch_data.h"
 #include "message_queue.h"
-//#include "binance.h"
+#include "binance.h"
 
 
 namespace locations {
@@ -29,6 +29,7 @@ public:
     HistoricData();
     void fetchData() override;
     double retrieveData(double &lookbackperiod);
+    void createHistoricData(std::shared_ptr<Binance> data);
 
 protected:
     static std::mutex _mutexSD;
