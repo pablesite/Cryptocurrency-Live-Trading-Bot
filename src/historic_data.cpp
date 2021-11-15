@@ -2,6 +2,7 @@
 #include <vector>
 #include <iostream>
 #include <chrono>
+#include <ctime>
 #include <future>
 #include <deque>
 #include <fstream>
@@ -47,14 +48,43 @@ void HistoricData::createHistoricData(std::shared_ptr<Binance> data)
     double lookbackperiod = 1;
     int count = 0;
 
+    // std::chrono::time_point<std::chrono::system_clock> dateData;
+    // dateData = std::chrono::system_clock::now();
+    // std::time_t dateData_time = std::chrono::system_clock::to_time_t(dateData);
+    // std::cout << std::ctime(&dateData_time) << std::endl;
+
+    // time_t tmNow;
+    // tmNow = time(NULL);
+    // struct tm t = *localtime(&tmNow);
+    // std::cout << "Current Time: " << t.tm_hour << ":" << t.tm_min << ":" << t.tm_sec << 'test' << std::endl;
+
+
+    // std::tm time_in = {0, 0, 0,             // second, minute, hour
+    //                    9, 10, 2016 - 1900}; // 1-based day, 0-based month, year since 1900
+    std::time_t time_temp = std::time(0);
+    //Note: Return value of localtime is not threadsafe, because it might be
+    // (and will be) reused in subsequent calls to std::localtime!
+    const std::tm *time_out = std::localtime(&time_temp);
+    //Sunday == 0, Monday == 1, and so on ...
+    std::cout << "Date:" << time_out->tm_mday << "/" << time_out->tm_mon+1 << "/" << time_out->tm_year+1900 << " " << time_out->tm_hour << ":" << time_out->tm_min << ":" << time_out->tm_sec <<"\n";
+    std::cout << "\n";
+
+
+    std::time_t now = std::time(0);
+    char *dt = std::ctime(&now);
+    std::cout << "Todays Date is " << dt << '\n';
+
     if (myfile.is_open())
     {
         while (count < 100)
         {
-            std::cout << "test before retrieveData" << std::endl;
-            actual_value = data->retrieveData(lookbackperiod);
 
-            myfile << actual_value << "\n";
+            actual_value = data->retrieveData(lookbackperiod);
+            // std::cout <<  std::setprecision(8) < < std::fixed << "test before retrieveData:" << actual_value << std::endl;
+            now = std::time(0);
+            dt = std::ctime(&now);
+
+            myfile << std::setprecision(8) << std::fixed << dt << " " << actual_value << "\n";
             count++;
         }
         myfile.close();
@@ -104,7 +134,8 @@ void HistoricData::fetchData()
                 lastUpdate = std::chrono::system_clock::now();
             }
         }
-    } else
+    }
+    else
         std::cout << "Unable to open file";
 
     return;

@@ -102,7 +102,7 @@ void Binance::fetchData()
                     {
                         std::cout << "error" << std::endl;
                     }
-                    std::cout << _readBuffer << std::endl; // IMPORTANT: Check out about decimals.
+                    // std::cout << _readBuffer << std::endl; 
                     _mqData->MessageQueue::send(std::stod(jsonValue["price"].asString()));
                     _readBuffer = "";
                     dataFetched += 1;
