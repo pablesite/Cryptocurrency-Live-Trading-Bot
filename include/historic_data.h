@@ -29,6 +29,7 @@ public:
     HistoricData();
     void fetchData() override;
     double retrieveData(double &lookbackperiod);
+    std::string OutputFormat(int unit_time);
     void createHistoricData(std::shared_ptr<Binance> data);
 
 protected:

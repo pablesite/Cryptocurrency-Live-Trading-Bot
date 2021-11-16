@@ -26,6 +26,7 @@ HistoricData::HistoricData()
     //_bin (Binance);
 }
 
+// Esta función es igual en todas las clases. Implementarla en fetch_data class (clase padre)
 double HistoricData::retrieveData(double &lookbackperiod)
 {
     double value = 0;
@@ -41,9 +42,17 @@ double HistoricData::retrieveData(double &lookbackperiod)
     return value / lookbackperiod;
 }
 
+std::string HistoricData::OutputFormat(int unit_time) {
+  if (unit_time < 10) {
+    return "0" + std::to_string(unit_time);
+  } else {
+    return std::to_string(unit_time);
+  }
+}
+
 void HistoricData::createHistoricData(std::shared_ptr<Binance> data)
 {
-    std::ofstream myfile("bitcoin.txt");
+    
     double actual_value;
     double lookbackperiod = 1;
     int count = 0;
@@ -51,40 +60,30 @@ void HistoricData::createHistoricData(std::shared_ptr<Binance> data)
     // std::chrono::time_point<std::chrono::system_clock> dateData;
     // dateData = std::chrono::system_clock::now();
     // std::time_t dateData_time = std::chrono::system_clock::to_time_t(dateData);
-    // std::cout << std::ctime(&dateData_time) << std::endl;
-
-    // time_t tmNow;
-    // tmNow = time(NULL);
-    // struct tm t = *localtime(&tmNow);
-    // std::cout << "Current Time: " << t.tm_hour << ":" << t.tm_min << ":" << t.tm_sec << 'test' << std::endl;
-
-
-    // std::tm time_in = {0, 0, 0,             // second, minute, hour
-    //                    9, 10, 2016 - 1900}; // 1-based day, 0-based month, year since 1900
-    std::time_t time_temp = std::time(0);
-    //Note: Return value of localtime is not threadsafe, because it might be
-    // (and will be) reused in subsequent calls to std::localtime!
-    const std::tm *time_out = std::localtime(&time_temp);
-    //Sunday == 0, Monday == 1, and so on ...
-    std::cout << "Date:" << time_out->tm_mday << "/" << time_out->tm_mon+1 << "/" << time_out->tm_year+1900 << " " << time_out->tm_hour << ":" << time_out->tm_min << ":" << time_out->tm_sec <<"\n";
-    std::cout << "\n";
-
-
+       
     std::time_t now = std::time(0);
-    char *dt = std::ctime(&now);
-    std::cout << "Todays Date is " << dt << '\n';
 
+    std::tm *now_tm = std::localtime(&now);
+    //char *dt = std::ctime(&now);
+    std::string date = std::to_string(now_tm->tm_mday) + "_" + std::to_string(now_tm->tm_mon + 1) + "_" + std::to_string(now_tm->tm_year + 1900) + ".txt";
+    std::string time;
+
+    std::ofstream myfile(date);
+    
     if (myfile.is_open())
     {
-        while (count < 100)
+        while (count < 28800) // 8horas
         {
-
+            // retrieve new data
             actual_value = data->retrieveData(lookbackperiod);
-            // std::cout <<  std::setprecision(8) < < std::fixed << "test before retrieveData:" << actual_value << std::endl;
+            
+            // new time
             now = std::time(0);
-            dt = std::ctime(&now);
+            now_tm = std::localtime(&now);
+            time = OutputFormat(now_tm->tm_hour) + ":" + OutputFormat(now_tm->tm_min) + ":" + OutputFormat(now_tm->tm_sec);
 
-            myfile << std::setprecision(8) << std::fixed << dt << " " << actual_value << "\n";
+            // save into file
+            myfile << std::setprecision(8) << std::fixed << time << " " << actual_value << "\n";
             count++;
         }
         myfile.close();
