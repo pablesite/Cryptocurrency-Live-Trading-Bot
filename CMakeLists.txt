@@ -21,7 +21,7 @@ target_include_directories(CryptoTradingBot PUBLIC include)
 
 # ##### CURL STUFF INI #####
 message(STATUS "Looking for curl...")
-set(CURL_DIR "C:/Users/pablo/proyectos/udacity-trainning/vcpkg/installed/x64-windows/share/curl")  #This could be better in environment file (.env)
+set(CURL_DIR "C:/Users/PabloRuiz/Proyectos/vcpkg/installed/x64-windows/share/curl")  #This could be better in environment file (.env)
 find_package(CURL CONFIG REQUIRED)
 
 if (CURL_FOUND)

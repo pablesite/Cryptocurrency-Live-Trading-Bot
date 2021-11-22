@@ -8,6 +8,7 @@
 #include <fstream>
 #include <filesystem>
 // #include <unistd.h>
+#include <sstream>
 
 #include "historic_data.h"
 #include "message_queue.h"
@@ -101,17 +102,19 @@ void HistoricData::fetchData()
 
     //std::filesystem::path myPath = std::filesystem::current_path().string() + "\\bitcoin.txt";
     //std::ifstream myfile("C:\\Users\\pablo\\proyectos\\udacity-trainning\\Cryptocurrency-Live-Trading-Bot\\src\\bitcoin.txt");
-    std::ifstream myfile("bitcoin.txt");
-    std::string myline;
+    std::ifstream file("22_11_2021.txt");
+    std::string line;
+    std::string date;
+    std::string value{""};
 
     // Init watch
     long long cycleDuration = 1000; // Change that to improve speed in reading data
     std::chrono::time_point<std::chrono::system_clock> lastUpdate;
     lastUpdate = std::chrono::system_clock::now();
 
-    if (myfile.is_open())
+    if (file.is_open())
     { // always check whether the file is open
-        while (myfile)
+        while (file)
         {
 
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -123,10 +126,13 @@ void HistoricData::fetchData()
             {
                 // myfile >> mystring;
                 // pipe file's content into stream
-                std::getline(myfile, myline);
-                std::cout << myline << '\n';
-                _mqData->MessageQueue::send(std::move(std::stod(myline)));
-
+                std::getline(file, line);
+                std::istringstream linestream(line);
+                while (linestream >> date >> value) {
+                    std::cout << date << " " << value << '\n';
+                    _mqData->MessageQueue::send(std::move(std::stod(value)));
+                }
+                
                 // std::cout << mystring << std::endl; // pipe stream's content to standard output
 
                 // Update lastUpdate for next cycle
