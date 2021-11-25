@@ -5,11 +5,12 @@
 Abstract class for Fetch Data of Cryptoconcurrency
 */
 
-class FetchData {
- public:
+class FetchData
+{
+public:
   virtual void fetchData() = 0;
+
 
 };
 
 #endif
-

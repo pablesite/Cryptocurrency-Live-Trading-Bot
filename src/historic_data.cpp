@@ -33,11 +33,9 @@ double HistoricData::retrieveData(double &lookbackperiod)
     double value = 0;
     std::deque<double> data = _mqData->MessageQueue::receive(lookbackperiod);
 
-    // std::cout << data.size() << std::endl;
     for (int i = 0; i < lookbackperiod; i++)
     {
         value += data[i];
-        // value += _mqData->receive();
     }
 
     return value / lookbackperiod;

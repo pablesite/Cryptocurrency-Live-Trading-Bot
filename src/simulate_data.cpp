@@ -22,21 +22,18 @@ SimulateData::SimulateData()
     //_bin (Binance);
 }
 
-double SimulateData::retrieveData(double &lookbackperiod)
-{
-    // Aquí debo ver cómo cojo todo el vector... en el receive de la cola no sería porque necesito los datos en la siguiente iteración
-    double value = 0;
-    std::deque<double> data = _mqData->MessageQueue::receive(lookbackperiod);
+// double SimulateData::retrieveData(double &lookbackperiod)
+// {
+//     double value = 0;
+//     std::deque<double> data = _mqData->MessageQueue::receive(lookbackperiod);
 
-    // std::cout << data.size() << std::endl;
-    for (int i = 0; i < lookbackperiod; i++)
-    {
-        value += data[i];
-        // value += _mqData->receive();
-    }
+//     for (int i = 0; i < lookbackperiod; i++)
+//     {
+//         value += data[i];
+//     }
 
-    return value / lookbackperiod;
-}
+//     return value / lookbackperiod;
+// }
 
 void SimulateData::fetchData()
 {

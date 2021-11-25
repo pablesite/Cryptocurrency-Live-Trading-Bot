@@ -22,7 +22,7 @@ Strategy::Strategy()
     //_bin (Binance);
 }
 
-void Strategy::cryptoBot(std::shared_ptr<Binance> data)
+void Strategy::cryptoBot(std::shared_ptr<RetrieveData> data)
 {
 
     std::cout << "CryptoBot working " << std::endl;
@@ -74,7 +74,7 @@ void Strategy::cryptoBot(std::shared_ptr<Binance> data)
 
     //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-    base = data->retrieveData(lookbackperiod);
+    base = data->retrieveDataFromQueue(lookbackperiod);
     invest = invest_qty * base;
 
     while (true)
@@ -82,7 +82,7 @@ void Strategy::cryptoBot(std::shared_ptr<Binance> data)
         
         //std::this_thread::sleep_for(std::chrono::milliseconds(100));
         // retrieve data
-        actual_value = data->retrieveData(lookbackperiod);
+        actual_value = data->retrieveDataFromQueue(lookbackperiod);
         count += 1;
         
         std::cout <<  std::setprecision(4) << std::fixed << "To buy " << actual_value << " => " << (1-entry*2)*base <<" < "<<  base << " > " << (1 + entry)*base<< std::endl;
@@ -111,7 +111,7 @@ void Strategy::cryptoBot(std::shared_ptr<Binance> data)
             {
 
                 // retrieve data
-                actual_value = data->retrieveData(lookbackperiod);
+                actual_value = data->retrieveDataFromQueue(lookbackperiod);
                 count += 1;
                 std::cout <<  std::setprecision(4) << std::fixed << "To sell " << actual_value << " => " << (1+recession)*base <<" < "<<  base << " > " << (1+rupture)*base << std::endl;
                 
