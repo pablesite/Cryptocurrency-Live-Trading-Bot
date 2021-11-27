@@ -22,18 +22,18 @@ SimulateData::SimulateData()
     //_bin (Binance);
 }
 
-// double SimulateData::retrieveData(double &lookbackperiod)
-// {
-//     double value = 0;
-//     std::deque<double> data = _mqData->MessageQueue::receive(lookbackperiod);
+double SimulateData::retrieveData(double &lookbackperiod)
+{
+    double value = 0;
+    std::deque<double> data = _mqData->MessageQueue::receive(lookbackperiod);
 
-//     for (int i = 0; i < lookbackperiod; i++)
-//     {
-//         value += data[i];
-//     }
+    for (int i = 0; i < lookbackperiod; i++)
+    {
+        value += data[i];
+    }
 
-//     return value / lookbackperiod;
-// }
+    return value / lookbackperiod;
+}
 
 void SimulateData::fetchData()
 {
@@ -44,7 +44,7 @@ void SimulateData::fetchData()
     // Fetch Data
     //_bin.fetch();
 
-    std::cout << "Generating data " << std::endl;
+    std::cout << "Generating simulated data " << std::endl;
 
     double myCoinBase = 50000;
     double x = myCoinBase;
@@ -55,7 +55,7 @@ void SimulateData::fetchData()
         std::this_thread::sleep_for(std::chrono::milliseconds(1)); //Check: Max velocity is every 15 msecs aprox.
         x = x * (1 + (rand() % 2000 - 980) / 1000000.0);
 
-        //std::cout << "meto un dato a la cola: " << x << " " << count << std::endl;
+        std::cout << "meto un dato a la cola: " << x << " " << count << std::endl; //DEBUG
         _mqData->MessageQueue::send(std::move(x));
 
         count += 1;

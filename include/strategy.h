@@ -6,20 +6,35 @@
 // #include <vector>
 #include "simulate_data.h"
 #include "binance.h"
-#include "retrieve_data.h"
+#include "historic_data.h"
 #include "message_queue.h"
 
 /*
 Basic class for Fetch Data of Cryptoconcurrency
 */
-class Strategy {
- public:
-  Strategy();
-  void cryptoBot(std::shared_ptr<RetrieveData> data);
 
- private:
+enum class TypesOfData
+{
+    Binance,
+    SimulateData,
+    HistoricData
+};
 
+class Strategy
+{
+public:
+    Strategy(std::shared_ptr<Binance> data);
+    Strategy(std::shared_ptr<SimulateData> data);
+    Strategy(std::shared_ptr<HistoricData> data);
+    double getData(double lookbackperiod);
+    void cryptoBot();
+
+private:
+    std::shared_ptr<Binance> data_binance;
+    std::shared_ptr<SimulateData> data_simulated;
+    std::shared_ptr<HistoricData> data_historic;
+
+    TypesOfData _type;
 };
 
 #endif
-

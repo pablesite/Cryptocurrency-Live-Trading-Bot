@@ -6,7 +6,6 @@
 #include "binance.h"
 #include "strategy.h"
 #include "historic_data.h"
-#include "retrieve_data.h"
 
 int main()
 {
@@ -62,11 +61,11 @@ int main()
             std::thread binanceData = std::thread(&Binance::fetchData, binancePtr);
 
             // STRATEGY
-            // std::shared_ptr<Strategy> crypto = std::make_shared<Strategy>();
-            // std::thread cryptoBot = std::thread(&Strategy::cryptoBot, crypto, binancePtr);
+            std::shared_ptr<Strategy> crypto = std::make_shared<Strategy>(binancePtr);
+            std::thread cryptoBot = std::thread(&Strategy::cryptoBot, crypto);
 
             binanceData.join();
-            //cryptoBot.join();
+            cryptoBot.join();
 
             break;
         }
@@ -77,13 +76,9 @@ int main()
             std::shared_ptr<SimulateData> data = std::make_shared<SimulateData>();
             std::thread fetchData = std::thread(&SimulateData::fetchData, data);
 
-            // STRATEGY
-
-            //REVISAR ESTO. HE HECHO UNA CLASE RETRIEVEDATA PARA OBTENER DATOS DE LA COLA DE MENSAJES PERO YO NO SE SI ESTO ESTÁ TOMANDO DATOS DE VERDAD... REPENSAR MEJOR.
-            
-            std::shared_ptr<Strategy> crypto = std::make_shared<Strategy>();
-            std::shared_ptr<RetrieveData> retrieveData = std::make_shared<RetrieveData>();
-            std::thread cryptoBot = std::thread(&Strategy::cryptoBot, crypto, retrieveData);
+            // STRATEGY            
+            std::shared_ptr<Strategy> crypto = std::make_shared<Strategy>(data);
+            std::thread cryptoBot = std::thread(&Strategy::cryptoBot, crypto);
 
             fetchData.join();
             cryptoBot.join();

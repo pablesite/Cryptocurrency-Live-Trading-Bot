@@ -14,15 +14,61 @@
 using std::string;
 using std::vector;
 
-Strategy::Strategy()
+Strategy::Strategy(std::shared_ptr<Binance> data) : data_binance(move(data))
 {
-
-    std::cout << "Constructor of Strategy " << std::endl;
-    // Constructor of Binance
-    //_bin (Binance);
+    std::cout << "Constructor of Strategy with real data from Binance " << std::endl;
+    _type = TypesOfData::Binance;
 }
 
-void Strategy::cryptoBot(std::shared_ptr<RetrieveData> data)
+Strategy::Strategy(std::shared_ptr<SimulateData> data) : data_simulated(move(data))
+{
+    std::cout << "Constructor of Strategy with data simulated " << std::endl;
+    _type = TypesOfData::SimulateData;
+}
+
+Strategy::Strategy(std::shared_ptr<HistoricData> data) : data_historic(move(data))
+{
+    std::cout << "Constructor of Strategy with historic data " << std::endl;
+    _type = TypesOfData::HistoricData;
+}
+
+// Strategy::Strategy(std::shared_ptr<Binance> data)
+// {
+
+//     std::cout << "Constructor of Strategy " << std::endl;
+//     // Constructor of Binance
+//     //_bin (Binance);
+// }
+
+double Strategy::getData(double lookbackperiod)
+{
+    switch (_type)
+    {
+    case TypesOfData::Binance:
+    {
+        return data_binance->retrieveData(lookbackperiod);
+        break;
+    }
+    case TypesOfData::SimulateData:
+    {
+        return data_simulated->retrieveData(lookbackperiod);
+        break;
+    }
+    case TypesOfData::HistoricData:
+    {
+        return data_historic->retrieveData(lookbackperiod);
+        break;
+    }
+    default:
+    {
+        std::cout << "Error: There is no type selected." << std::endl;
+        return 0;
+        break;
+    }
+    }
+}
+
+void Strategy::cryptoBot()
 {
 
     std::cout << "CryptoBot working " << std::endl;
@@ -74,20 +120,22 @@ void Strategy::cryptoBot(std::shared_ptr<RetrieveData> data)
 
     //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-    base = data->retrieveDataFromQueue(lookbackperiod);
+    std::cout << "Before to retrieveData" << std::endl; //DEBUG
+    base = getData(lookbackperiod);
     invest = invest_qty * base;
 
     while (true)
     {
-        
+
         //std::this_thread::sleep_for(std::chrono::milliseconds(100));
         // retrieve data
-        actual_value = data->retrieveDataFromQueue(lookbackperiod);
+        std::cout << "Before to retrieveData 1" << std::endl; //DEBUG
+        actual_value = getData(lookbackperiod);
         count += 1;
-        
-        std::cout <<  std::setprecision(4) << std::fixed << "To buy " << actual_value << " => " << (1-entry*2)*base <<" < "<<  base << " > " << (1 + entry)*base<< std::endl;
+
+        std::cout << std::setprecision(4) << std::fixed << "To buy " << actual_value << " => " << (1 - entry * 2) * base << " < " << base << " > " << (1 + entry) * base << std::endl;
         // to update base if the trend is negative
-        if ((actual_value / base - 1) < - entry * 2)
+        if ((actual_value / base - 1) < -entry * 2)
         {
             std::cout << "Update the base: Descending " << actual_value << " " << std::endl;
             base = actual_value;
@@ -97,8 +145,9 @@ void Strategy::cryptoBot(std::shared_ptr<RetrieveData> data)
         if ((actual_value / base - 1) > entry)
         {
             order = invest_qty * (1 + commission) * actual_value * (actual_value / base); //simulate the bought
-            std::cout << std::endl << "Buying my position " << invest_qty << " bitcoint. Actual value: " << actual_value << ". Order = " << order << " $. " << std::endl;
-        
+            std::cout << std::endl
+                      << "Buying my position " << invest_qty << " bitcoint. Actual value: " << actual_value << ". Order = " << order << " $. " << std::endl;
+
             base = actual_value; // Define new base
             open_position = true;
             //break;
@@ -111,10 +160,9 @@ void Strategy::cryptoBot(std::shared_ptr<RetrieveData> data)
             {
 
                 // retrieve data
-                actual_value = data->retrieveDataFromQueue(lookbackperiod);
+                actual_value = getData(lookbackperiod);
                 count += 1;
-                std::cout <<  std::setprecision(4) << std::fixed << "To sell " << actual_value << " => " << (1+recession)*base <<" < "<<  base << " > " << (1+rupture)*base << std::endl;
-                
+                std::cout << std::setprecision(4) << std::fixed << "To sell " << actual_value << " => " << (1 + recession) * base << " < " << base << " > " << (1 + rupture) * base << std::endl;
 
                 // update base while the value is rissing
                 if ((actual_value / base - 1) > rupture)
@@ -128,18 +176,20 @@ void Strategy::cryptoBot(std::shared_ptr<RetrieveData> data)
                 {
 
                     benefits = (invest_qty * actual_value * (1 - commission)) - order; //simulate the sell
-                    std::cout << std::endl << "Selling my position: " << invest_qty << " bitcoint. Actual value: " << actual_value << ". Benefits = " << benefits << " $." << std::endl;
+                    std::cout << std::endl
+                              << "Selling my position: " << invest_qty << " bitcoint. Actual value: " << actual_value << ". Benefits = " << benefits << " $." << std::endl;
 
                     base = actual_value; // Define new base
                     open_position = false;
                     benefits_acc += benefits;
-                    std::cout << std::endl << "TOTAL BENEFITS: " << benefits_acc << "$. " << benefits_acc/invest*100 << "%. " << count <<std::endl << std::endl;
+                    std::cout << std::endl
+                              << "TOTAL BENEFITS: " << benefits_acc << "$. " << benefits_acc / invest * 100 << "%. " << count << std::endl
+                              << std::endl;
                     break;
                 }
             }
         }
-
     }
-    
+
     return;
 }

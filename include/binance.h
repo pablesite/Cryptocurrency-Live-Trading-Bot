@@ -19,8 +19,8 @@ class Binance : public FetchData
 public:
     Binance();
     void fetchData() override;
+    double retrieveData(double &lookbackperiod) override;
     void configureAPI(const char * URL);
-    double retrieveData(double &lookbackperiod);
 
 protected:
 private:

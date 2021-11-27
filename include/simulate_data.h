@@ -21,7 +21,7 @@ class SimulateData : public FetchData
 public:
     SimulateData();
     void fetchData() override;
-    // double retrieveData(double &lookbackperiod);
+    double retrieveData(double &lookbackperiod) override;
 
 protected:
     static std::mutex _mutexSD;

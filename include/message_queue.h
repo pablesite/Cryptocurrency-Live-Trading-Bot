@@ -24,14 +24,13 @@ private:
     std::deque<T> _queue;
 };
 
+///// The declarations and definitions of the class template member functions should all be in the same header file /////
 
 template <typename T>
-MessageQueue<T>::MessageQueue(){
+MessageQueue<T>::MessageQueue()
+{
     // std::cout << "MQ constructor" << std::endl;
 }
-
-
-///// The declarations and definitions of the class template member functions should all be in the same header file /////
 
 template <typename T>
 std::deque<T> MessageQueue<T>::receive(double &lookbackperiod)
@@ -73,6 +72,5 @@ void MessageQueue<T>::send(T &&msg)
     // send a notification
     _cdtMQ.notify_one();
 }
-
 
 #endif
