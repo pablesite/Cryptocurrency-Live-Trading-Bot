@@ -32,13 +32,6 @@ Strategy::Strategy(std::shared_ptr<HistoricData> data) : data_historic(move(data
     _type = TypesOfData::HistoricData;
 }
 
-// Strategy::Strategy(std::shared_ptr<Binance> data)
-// {
-
-//     std::cout << "Constructor of Strategy " << std::endl;
-//     // Constructor of Binance
-//     //_bin (Binance);
-// }
 
 double Strategy::getData(double lookbackperiod)
 {

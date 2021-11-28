@@ -12,81 +12,74 @@ int main()
 
     // Request what do you want to do?
     // 1 - Simulate the strategy
-    //      1 - Historical data
+    //      1 - Simulated data
+    //      2 - Historical data
     //      2 - Real time data
-    //      3 - Simulated data
     // 2 - Create new data series
 
-    // std::vector<std::pair<std::string, float>> coords {{"start_x", 0}, {"start_y", 0}, {"end_x", 0}, {"end_y", 0}};
-    // for (auto &i : coords) {
-    //     while(!InsertInputValue(i.first, i.second)){}
-    // }
-
     int value;
-    std::cout << "Welcome to the Cryptoconcurrency Live Trading Bot. Here you can either simulate a strategy (1), or create new data series (2). \n";
+    std::cout << "\nWelcome to the Cryptoconcurrency Live Trading Bot. Here you can either simulate a strategy or create new data series. \n";
 
-    std::cout << "Please, enter 1 to simulate a strategy or 2 to create new data series: ";
+    std::cout << "\nPlease, select between the following options: \n1: Simulate a strategy. \n2: Create new data series: \n";
+    std::cout << "\nWhich one you prefer? : ";
     std::cin >> value;
 
     switch (value)
     {
     case 1:
     {
-        std::cout << "\n Please, select between the following options: \n 1: Simulate with an historical data. \n 2: Simulate with real time data. \n 3: Simulate with data simulated. \n";
-        std::cout << "Which one you prefer? : ";
+        std::cout << "\nPlease, select between the following options: \n1: Simulate with data simulated. \n2: Simulate with an historical data. \n3: Simulate with real time data. \n";
+        std::cout << "\nWhich one you prefer? : ";
         std::cin >> value;
         switch (value)
         {
         case 1:
         {
-            std::cout << "value: " << value;
-            // HISTORICAL DATA (IN FILE)
-            std::shared_ptr<HistoricData> dataFilePtr = std::make_shared<HistoricData>();
-            std::thread readHistoricData = std::thread(&HistoricData::fetchData, dataFilePtr);
+            //DATA SIMULATED
+            std::shared_ptr<SimulateData> dataSimulatedPtr = std::make_shared<SimulateData>();
+            std::thread dataSimulated = std::thread(&SimulateData::fetchData, dataSimulatedPtr);
 
-            // STRATEGY
-            // std::shared_ptr<Strategy> crypto = std::make_shared<Strategy>();
-            // std::thread cryptoBot = std::thread(&Strategy::cryptoBot, crypto, binancePtr);
+            // STRATEGY            
+            std::shared_ptr<Strategy> strategyDataSimulatedPtr = std::make_shared<Strategy>(dataSimulatedPtr);
+            std::thread strategyDataSimulatedBot = std::thread(&Strategy::cryptoBot, strategyDataSimulatedPtr);
 
-            readHistoricData.join();
-            // cryptoBot.join();
+            dataSimulated.join();
+            strategyDataSimulatedBot.join();
 
             break;
         }
         case 2:
         {
-            std::cout << "value: " << value;
-            // REAL DATA IN REAL TIME
-            std::shared_ptr<Binance> binancePtr = std::make_shared<Binance>();
-            std::thread binanceData = std::thread(&Binance::fetchData, binancePtr);
+            // HISTORICAL DATA (IN FILE)
+            std::shared_ptr<HistoricData> historicDataPtr = std::make_shared<HistoricData>();
+            std::thread historicData = std::thread(&HistoricData::fetchData, historicDataPtr);
 
             // STRATEGY
-            std::shared_ptr<Strategy> crypto = std::make_shared<Strategy>(binancePtr);
-            std::thread cryptoBot = std::thread(&Strategy::cryptoBot, crypto);
+            std::shared_ptr<Strategy> strategyHistoricPtr = std::make_shared<Strategy>(historicDataPtr);
+            std::thread strategyHistoricBot = std::thread(&Strategy::cryptoBot, strategyHistoricPtr);
 
-            binanceData.join();
-            cryptoBot.join();
+            historicData.join();
+            strategyHistoricBot.join();
 
             break;
         }
         case 3:
         {
-            std::cout << "value: " << value;
-            //DATA SIMULATED
-            std::shared_ptr<SimulateData> data = std::make_shared<SimulateData>();
-            std::thread fetchData = std::thread(&SimulateData::fetchData, data);
+            // REAL DATA IN REAL TIME
+            std::shared_ptr<Binance> binancePtr = std::make_shared<Binance>();
+            std::thread binanceData = std::thread(&Binance::fetchData, binancePtr);
 
-            // STRATEGY            
-            std::shared_ptr<Strategy> crypto = std::make_shared<Strategy>(data);
-            std::thread cryptoBot = std::thread(&Strategy::cryptoBot, crypto);
+            // STRATEGY
+            std::shared_ptr<Strategy> strategyBinancePtr = std::make_shared<Strategy>(binancePtr);
+            std::thread strategyBinanceBot = std::thread(&Strategy::cryptoBot, strategyBinancePtr);
 
-            fetchData.join();
-            cryptoBot.join();
+            binanceData.join();
+            strategyBinanceBot.join();
 
             break;
         }
         default:
-            std::cout << "\n Sorry. Selected option is not valid. \n";
+            std::cout << "\nSorry. Selected option is not valid. \n";
         }
 
         break;
@@ -94,7 +87,7 @@ int main()
 
     case 2:
     {
-        std::cout << "\n Creating new data series with real data: " << value << "\n";
+        std::cout << "\nCreating new data series with real data: " << value << "\n";
 
         // REAL DATA IN REAL TIME
         std::shared_ptr<Binance> binancePtr = std::make_shared<Binance>();

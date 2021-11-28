@@ -10,6 +10,11 @@
 // #include <unistd.h>
 #include <sstream>
 
+// #include <conio.h>
+// #include <sys/types.h>
+// #include <sys/stat.h>
+// #include <unistd.h>
+
 #include "historic_data.h"
 #include "message_queue.h"
 
@@ -21,10 +26,7 @@ std::mutex HistoricData::_mutexSD;
 HistoricData::HistoricData()
 {
     _mqData = std::make_shared<MessageQueue<double>>();
-
     std::cout << "Constructor of HistoricData " << std::endl;
-    // Constructor of Binance
-    //_bin (Binance);
 }
 
 // Esta función es igual en todas las clases. Implementarla en fetch_data class (clase padre)
@@ -41,17 +43,24 @@ double HistoricData::retrieveData(double &lookbackperiod)
     return value / lookbackperiod;
 }
 
-std::string HistoricData::OutputFormat(int unit_time) {
-  if (unit_time < 10) {
-    return "0" + std::to_string(unit_time);
-  } else {
-    return std::to_string(unit_time);
-  }
+
+std::string HistoricData::OutputFormat(int unit_time)
+{
+    if (unit_time < 10)
+    {
+        return "0" + std::to_string(unit_time);
+    }
+    else
+    {
+        return std::to_string(unit_time);
+    }
 }
 
 void HistoricData::createHistoricData(std::shared_ptr<Binance> data)
 {
-    
+
+    namespace fs = std::filesystem;
+    char * working_directory = "../historicData/";
     double actual_value;
     double lookbackperiod = 1;
     int count = 0;
@@ -59,23 +68,26 @@ void HistoricData::createHistoricData(std::shared_ptr<Binance> data)
     // std::chrono::time_point<std::chrono::system_clock> dateData;
     // dateData = std::chrono::system_clock::now();
     // std::time_t dateData_time = std::chrono::system_clock::to_time_t(dateData);
-       
-    std::time_t now = std::time(0);
 
+       
+    fs::create_directories(working_directory);
+
+    std::time_t now = std::time(0);
     std::tm *now_tm = std::localtime(&now);
     //char *dt = std::ctime(&now);
     std::string date = std::to_string(now_tm->tm_mday) + "_" + std::to_string(now_tm->tm_mon + 1) + "_" + std::to_string(now_tm->tm_year + 1900) + ".txt";
     std::string time;
 
-    std::ofstream myfile(date);
-    
+    //std::ofstream myfile(date);
+    std::ofstream myfile(working_directory + date);
+
     if (myfile.is_open())
     {
         while (count < 28800) // 8horas
         {
             // retrieve new data
             actual_value = data->retrieveData(lookbackperiod);
-            
+
             // new time
             now = std::time(0);
             now_tm = std::localtime(&now);
@@ -126,11 +138,12 @@ void HistoricData::fetchData()
                 // pipe file's content into stream
                 std::getline(file, line);
                 std::istringstream linestream(line);
-                while (linestream >> date >> value) {
+                while (linestream >> date >> value)
+                {
                     std::cout << date << " " << value << '\n';
                     _mqData->MessageQueue::send(std::move(std::stod(value)));
                 }
-                
+
                 // std::cout << mystring << std::endl; // pipe stream's content to standard output
 
                 // Update lastUpdate for next cycle
