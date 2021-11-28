@@ -7,13 +7,7 @@
 #include <deque>
 #include <fstream>
 #include <filesystem>
-// #include <unistd.h>
 #include <sstream>
-
-// #include <conio.h>
-// #include <sys/types.h>
-// #include <sys/stat.h>
-// #include <unistd.h>
 
 #include "historic_data.h"
 #include "message_queue.h"
@@ -43,7 +37,6 @@ double HistoricData::retrieveData(double &lookbackperiod)
     return value / lookbackperiod;
 }
 
-
 std::string HistoricData::OutputFormat(int unit_time)
 {
     if (unit_time < 10)
@@ -58,101 +51,132 @@ std::string HistoricData::OutputFormat(int unit_time)
 
 void HistoricData::createHistoricData(std::shared_ptr<Binance> data)
 {
-
-    namespace fs = std::filesystem;
-    char * working_directory = "../historicData/";
-    double actual_value;
+    // This will be always 1 in this method in order to retrieve raw data from Binance.
     double lookbackperiod = 1;
-    int count = 0;
 
-    // std::chrono::time_point<std::chrono::system_clock> dateData;
-    // dateData = std::chrono::system_clock::now();
-    // std::time_t dateData_time = std::chrono::system_clock::to_time_t(dateData);
+    // data to be saved in file
+    std::string ref_time;
+    double actual_value;
 
-       
+    //create working directory if this doesn't exist.
+    namespace fs = std::filesystem;
+    char *working_directory = "../historicData/";
     fs::create_directories(working_directory);
 
+    //get actual time
     std::time_t now = std::time(0);
     std::tm *now_tm = std::localtime(&now);
-    //char *dt = std::ctime(&now);
-    std::string date = std::to_string(now_tm->tm_mday) + "_" + std::to_string(now_tm->tm_mon + 1) + "_" + std::to_string(now_tm->tm_year + 1900) + ".txt";
-    std::string time;
 
-    //std::ofstream myfile(date);
-    std::ofstream myfile(working_directory + date);
+    // prepare strings of dates
+    std::string day = std::to_string(now_tm->tm_mday);
+    std::string hour = std::to_string(now_tm->tm_hour);
+    std::string date = std::to_string(now_tm->tm_year + 1900) + "_" + std::to_string(now_tm->tm_mon + 1) + "_" + day + "/";
+    std::string file_name = hour + "_00.txt";
 
-    if (myfile.is_open())
+    // create directory for each day
+    fs::create_directories(working_directory + date);
+
+    // open file for each hour
+    std::ofstream file(working_directory + date + file_name);
+
+    while (true)
     {
-        while (count < 28800) // 8horas
+        // update the time
+        now = std::time(0);
+        now_tm = std::localtime(&now);
+
+        // check if the hour has changed
+        if (hour != std::to_string(now_tm->tm_hour))
+        {
+            // check if the day has changed
+            if (day != std::to_string(now_tm->tm_mday))
+            {
+                // create a directory for the new day
+                date = std::to_string(now_tm->tm_year + 1900) + "_" + std::to_string(now_tm->tm_mon + 1) + "_" + std::to_string(now_tm->tm_mday) + "/";
+                fs::create_directories(working_directory + date);
+
+                // update the day
+                day = std::to_string(now_tm->tm_mday);
+            }
+
+            // close the file of the hour before.
+            file.close();
+
+            // create a file with the new hour
+            file_name = std::to_string(now_tm->tm_hour) + "_00.txt";
+            std::ofstream file(working_directory + date + file_name);
+
+            // update the hour
+            hour = std::to_string(now_tm->tm_hour);
+        }
+
+        if (file.is_open())
         {
             // retrieve new data
             actual_value = data->retrieveData(lookbackperiod);
-
-            // new time
-            now = std::time(0);
-            now_tm = std::localtime(&now);
-            time = OutputFormat(now_tm->tm_hour) + ":" + OutputFormat(now_tm->tm_min) + ":" + OutputFormat(now_tm->tm_sec);
-
+            // new time for the new data
+            ref_time = OutputFormat(now_tm->tm_hour) + ":" + OutputFormat(now_tm->tm_min) + ":" + OutputFormat(now_tm->tm_sec);
             // save into file
-            myfile << std::setprecision(8) << std::fixed << time << " " << actual_value << "\n";
-            count++;
+            file << std::setprecision(8) << std::fixed << ref_time << " " << actual_value << "\n";
         }
-        myfile.close();
+        else
+        {
+            std::cout << "\nUnable to open file. ";
+        }
     }
-    else
-        std::cout << "Unable to open file";
-
     return;
 }
 
 void HistoricData::fetchData()
 {
+    std::cout << "Reading data from historic Data directory " << std::endl;
 
-    std::cout << "Reading data from a file " << std::endl;
+    // configure working directory
+    namespace fs = std::filesystem;
+    char *working_directory = "../historicData/";
 
-    //std::filesystem::path myPath = std::filesystem::current_path().string() + "\\bitcoin.txt";
-    //std::ifstream myfile("C:\\Users\\pablo\\proyectos\\udacity-trainning\\Cryptocurrency-Live-Trading-Bot\\src\\bitcoin.txt");
-    std::ifstream file("22_11_2021.txt");
-    std::string line;
-    std::string date;
-    std::string value{""};
-
-    // Init watch
-    long long cycleDuration = 1000; // Change that to improve speed in reading data
-    std::chrono::time_point<std::chrono::system_clock> lastUpdate;
-    lastUpdate = std::chrono::system_clock::now();
-
-    if (file.is_open())
-    { // always check whether the file is open
-        while (file)
+    // go into every files in working directory
+    for (const auto &file_date : fs::directory_iterator(working_directory))
+        for (const auto &file : fs::directory_iterator(file_date))
         {
+            // declare some necessary strings
+            std::string line, date, value;
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            // open file
+            std::ifstream file_stream(file.path());
 
-            // Compute time difference to stop watch
-            auto timeSinceLastUpdate = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lastUpdate).count();
+            // init watch
+            long long cycleDuration = 100; // With 1000, read data every second. Change that to improve speed in reading data
+            std::chrono::time_point<std::chrono::system_clock> lastUpdate;
+            lastUpdate = std::chrono::system_clock::now();
 
-            if (timeSinceLastUpdate >= cycleDuration)
-            {
-                // myfile >> mystring;
-                // pipe file's content into stream
-                std::getline(file, line);
-                std::istringstream linestream(line);
-                while (linestream >> date >> value)
+            if (file_stream.is_open())
+            { // always check whether the file is open
+                while (file_stream)
                 {
-                    std::cout << date << " " << value << '\n';
-                    _mqData->MessageQueue::send(std::move(std::stod(value)));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+                    // compute time difference to stop watch
+                    auto timeSinceLastUpdate = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lastUpdate).count();
+                    if (timeSinceLastUpdate >= cycleDuration)
+                    {
+                        // get line
+                        std::getline(file_stream, line);
+                        std::istringstream linestream(line);
+                        // obtain date and value of each line
+                        while (linestream >> date >> value)
+                        {
+                            // std::cout << date << " " << value << '\n'; //DEBUG
+                            _mqData->MessageQueue::send(std::move(std::stod(value)));
+                        }
+                        // update lastUpdate for next cycle
+                        lastUpdate = std::chrono::system_clock::now();
+                    }
                 }
-
-                // std::cout << mystring << std::endl; // pipe stream's content to standard output
-
-                // Update lastUpdate for next cycle
-                lastUpdate = std::chrono::system_clock::now();
             }
+            else
+                std::cout << "Unable to open file";
         }
-    }
-    else
-        std::cout << "Unable to open file";
 
     return;
 }

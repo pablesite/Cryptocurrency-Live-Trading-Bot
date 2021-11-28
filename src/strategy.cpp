@@ -113,7 +113,6 @@ void Strategy::cryptoBot()
 
     //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-    std::cout << "Before to retrieveData" << std::endl; //DEBUG
     base = getData(lookbackperiod);
     invest = invest_qty * base;
 
@@ -122,7 +121,6 @@ void Strategy::cryptoBot()
 
         //std::this_thread::sleep_for(std::chrono::milliseconds(100));
         // retrieve data
-        std::cout << "Before to retrieveData 1" << std::endl; //DEBUG
         actual_value = getData(lookbackperiod);
         count += 1;
 
