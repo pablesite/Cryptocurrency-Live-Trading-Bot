@@ -88,6 +88,9 @@ void HistoricData::createHistoricData(std::shared_ptr<Binance> data)
         // check if the hour has changed
         if (hour != std::to_string(now_tm->tm_hour))
         {
+            // close the file of the hour before.
+            file.close();
+
             // check if the day has changed
             if (day != std::to_string(now_tm->tm_mday))
             {
@@ -99,13 +102,11 @@ void HistoricData::createHistoricData(std::shared_ptr<Binance> data)
                 day = std::to_string(now_tm->tm_mday);
             }
 
-            // close the file of the hour before.
-            file.close();
-
             // create a file with the new hour
-            file_name = std::to_string(now_tm->tm_hour) + "_00.txt";
-            std::ofstream file(working_directory + date + file_name);
+            file_name = OutputFormat(now_tm->tm_hour) + "_00.txt";
+            file.open(working_directory + date + file_name, std::ios::out | std::ios::trunc);
 
+            // std::cout << working_directory + date + file_name << std::endl;
             // update the hour
             hour = std::to_string(now_tm->tm_hour);
         }
@@ -122,6 +123,7 @@ void HistoricData::createHistoricData(std::shared_ptr<Binance> data)
         else
         {
             std::cout << "\nUnable to open file. ";
+            break;
         }
     }
     return;
