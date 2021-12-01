@@ -106,7 +106,6 @@ void HistoricData::createHistoricData(std::shared_ptr<Binance> data)
             file_name = OutputFormat(now_tm->tm_hour) + "_00.txt";
             file.open(working_directory + date + file_name, std::ios::out | std::ios::trunc);
 
-            // std::cout << working_directory + date + file_name << std::endl;
             // update the hour
             hour = std::to_string(now_tm->tm_hour);
         }

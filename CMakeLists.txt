@@ -17,7 +17,7 @@ endif (WIN32)
 
 file(GLOB SOURCES "src/*.cpp")
 add_executable(CryptoTradingBot ${SOURCES})
-target_include_directories(CryptoTradingBot PUBLIC include)
+
 
 # ##### CURL STUFF INI #####
 message(STATUS "Looking for curl...")
@@ -37,6 +37,20 @@ else()
 # ##### CURL STUFF END #####
 
 find_package(jsoncpp CONFIG REQUIRED)
-target_link_libraries(CryptoTradingBot PRIVATE jsoncpp_lib jsoncpp_object ${CURL_LIBRARIES})
+
+
+
+find_package(wxWidgets REQUIRED COMPONENTS core base)
+include(${wxWidgets_USE_FILE})
+target_include_directories(CryptoTradingBot PRIVATE ${wxWidgets_INCLUDE_DIRS})
+#target_link_libraries(CryptoTradingBot PRIVATE ${wxWidgets_LIBRARIES})
+
+target_link_libraries(CryptoTradingBot PRIVATE jsoncpp_lib jsoncpp_object ${CURL_LIBRARIES} ${wxWidgets_LIBRARIES})
+
+
+target_include_directories(CryptoTradingBot PUBLIC include)
+
+
+
 
 

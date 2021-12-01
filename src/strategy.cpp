@@ -66,22 +66,29 @@ void Strategy::cryptoBot()
 
     std::cout << "CryptoBot working " << std::endl;
 
-    bool open_position = false;
-    double commission = 0.00075;
-    double entry = 2 * 0.00075; // to make robust my positions
-    double rupture = 0.0025;
-    double recession = -0.0015;
+    // investment data
     double invest_qty = 0.004;
+
+    // data from binance
+    double commission = 0.00075;
+
+    // input strategy data
+    double entry = 2 * commission; // to make robust my positions
+    double rupture = commission/0.3;
+    double recession = -2 * commission;
     double lookbackperiod = 1;
 
+    // temporary strategy data
+    bool open_position = false;
     double base;
     double actual_value;
-    double order;
-    double benefits;
-    double benefits_acc = 0;
 
-    double count = 0;
+    // output strategy data
+    double order;
+    double benefit;
+    double benefits_acc = 0;
     double invest;
+    double count = 0;
 
     // base price (2€/crypto)
     // invest_qty ( 10 crypto)
@@ -114,7 +121,7 @@ void Strategy::cryptoBot()
     //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     base = getData(lookbackperiod);
-    invest = invest_qty * base;
+    invest = invest_qty * base; // TO REVIEW...
 
     while (true)
     {
@@ -166,13 +173,13 @@ void Strategy::cryptoBot()
                 if ((actual_value / base - 1) < recession)
                 {
 
-                    benefits = (invest_qty * actual_value * (1 - commission)) - order; //simulate the sell
+                    benefit = (invest_qty * actual_value * (1 - commission)) - order; //simulate the sell
                     std::cout << std::endl
-                              << "Selling my position: " << invest_qty << " bitcoint. Actual value: " << actual_value << ". Benefits = " << benefits << " $." << std::endl;
+                              << "Selling my position: " << invest_qty << " bitcoint. Actual value: " << actual_value << ". Benefits = " << benefit << " $." << std::endl;
 
                     base = actual_value; // Define new base
                     open_position = false;
-                    benefits_acc += benefits;
+                    benefits_acc += benefit;
                     std::cout << std::endl
                               << "TOTAL BENEFITS: " << benefits_acc << "$. " << benefits_acc / invest * 100 << "%. " << count << std::endl
                               << std::endl;

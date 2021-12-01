@@ -57,11 +57,11 @@ Project use cmake and make and is prepared for both Unix and Windows system.
 - The project demonstrates an understanding of C++ functions and control structures: Check
 Project use control structures likes if..else, while, for, etc in several functions along all the classes.
 
-- The project reads data from a file and process the data, or the program writes data to a file: TODO 
+- The project reads data from a file and process the data, or the program writes data to a file: xxx 
 [The project reads data from an external file or writes data to a file as part of the necessary operation of the program]
 I need to save data from bitcoint into a file and after that, i can use this data to test the strategy
 
-- The project accepts user input and processes the input: TODO
+- The project accepts user input and processes the input: xxx
 [The project accepts input from a user as part of the necessary operation of the program]
 I need to do 'interfaz' in main through cin in cmder.
 
@@ -71,15 +71,15 @@ I need to do 'interfaz' in main through cin in cmder.
 xxx
 - Classes use appropriate access specifiers for class members: Check
 [All class data members are explicitly specified as public, protected, or private]
-- Class constructors utilize member initialization lists: TODO
+- Class constructors utilize member initialization lists: xxx
 [All class members that are set to argument values are initialized through member initialization lists.]
-- Classes abstract implementation details from their interfaces: TODO
+- Classes abstract implementation details from their interfaces: xxxx
 [All class member functions document their effects, either through function names, comments, or formal documentation. Member functions do not change program state in undocumented ways]
 - Classes encapsulate behavior: TODO
 [Appropriate data and functions are grouped into classes. Member data that is subject to an invariant is hidden from the user. State is accessed via member functions]
-- Classes follow an appropriate inheritance hierarchy: Check
+- Classes follow an appropriate inheritance hierarchy: Check (Composition?)
 [Inheritance hierarchies are logical. Composition is used instead of inheritance when appropriate. Abstract classes are composed of pure virtual functions. Override functions are specified]
-- Overloaded functions allow the same function to operate on different parameters: TODO
+- Overloaded functions allow the same function to operate on different parameters: XXX
 [One function is overloaded with different signatures for the same function name]
 - Derived class functions override virtual base class functions: Check
 [One member function in an inherited class overrides a virtual base class member function]
@@ -88,7 +88,7 @@ xxx
 [One function is declared with a template that allows it to accept a generic parameter]
 
 ### Memory management
-- The project makes use of references in function declarations: TODO
+- The project makes use of references in function declarations: xxx
 [At least two variables are defined as references, or two functions use pass-by-reference in the project code.]
 - The project uses destructors appropriately: TODO
 [At least one class that uses unmanaged dynamically allocated memory, along with any class that otherwise needs to modify state upon the termination of an object, uses a destructor.]
