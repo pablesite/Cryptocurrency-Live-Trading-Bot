@@ -15,14 +15,19 @@ if (WIN32)
     set(CMAKE_CXX_STANDARD_REQUIRED True)
 endif (WIN32)
 
+
 file(GLOB SOURCES "src/*.cpp")
 add_executable(CryptoTradingBot ${SOURCES})
-
+target_include_directories(CryptoTradingBot PUBLIC include)
 
 # ##### CURL STUFF INI #####
 message(STATUS "Looking for curl...")
-set(CURL_DIR "C:/Users/PabloRuiz/Proyectos/vcpkg/installed/x64-windows/share/curl")  #This could be better in environment file (.env)
-find_package(CURL CONFIG REQUIRED)
+
+if (WIN32)
+    set(CURL_DIR "C:/Users/PabloRuiz/Proyectos/vcpkg/installed/x64-windows/share/curl")  #This could be better in environment file (.env)
+endif (WIN32)
+
+find_package(CURL REQUIRED) #In windows, CONFIG is needed?
 
 if (CURL_FOUND)
     message(STATUS "Found curl version: ${CURL_VERSION_STRING}")
@@ -33,22 +38,32 @@ else()
     message(FATAL_ERROR "Could not find curl.")
  endif()
 
-#  target_link_libraries(CryptoTradingBot ${CURL_LIBRARIES})
+#target_link_libraries(CryptoTradingBot ${CURL_LIBRARIES})
+
 # ##### CURL STUFF END #####
 
+
+# ##### JSON STUFF INI #####
+message(STATUS "Looking for jsoncpp...")
 find_package(jsoncpp CONFIG REQUIRED)
 
+#target_link_libraries(CryptoTradingBot PRIVATE jsoncpp_lib jsoncpp_object ${CURL_LIBRARIES})
 
+# ##### JSON STUFF END #####
+
+
+# ##### wxWidgets STUFF INI #####
+message(STATUS "Looking for wxWidgets...")
 
 find_package(wxWidgets REQUIRED COMPONENTS core base)
+
 include(${wxWidgets_USE_FILE})
 target_include_directories(CryptoTradingBot PRIVATE ${wxWidgets_INCLUDE_DIRS})
-#target_link_libraries(CryptoTradingBot PRIVATE ${wxWidgets_LIBRARIES})
 
-target_link_libraries(CryptoTradingBot PRIVATE jsoncpp_lib jsoncpp_object ${CURL_LIBRARIES} ${wxWidgets_LIBRARIES})
+# ##### wxWidgets STUFF END #####
 
+target_link_libraries(CryptoTradingBot PRIVATE jsoncpp_lib ${CURL_LIBRARIES} ${wxWidgets_LIBRARIES})
 
-target_include_directories(CryptoTradingBot PUBLIC include)
 
 
 

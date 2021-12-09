@@ -28,8 +28,10 @@ xxx
   * Windows: recommend using [MinGW](http://www.mingw.org/)
 * curl
   * Windows: recommended installed with vpckg
+  * Linux: sudo apt install curl && sudo apt-get install libcurl4-openssl-dev
 * jsoncpp
   * Windows: recommended installed with vpckg
+  * Linux: sudo apt-get install libjsoncpp-dev
 
 ## Basic Build Instructions (TO UPDATE)
 1. Clone this repo.
