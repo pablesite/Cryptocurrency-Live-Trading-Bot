@@ -29,4 +29,16 @@ private:
     std::unique_ptr<CryptoLogic> _cryptoLogic;
 };
 
+
+class CryptoGuiPanel : public wxPanel {
+private:
+  // control elements
+  //wxStaticBitmap *_chatBotImg;
+  wxStaticText *_cryptoTxt;
+
+public:
+  // constructor / destructor
+  CryptoGuiPanel(wxPanel *parent, bool isFromUser);
+};
+
 #endif
