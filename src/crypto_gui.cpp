@@ -46,20 +46,9 @@ CryptoGui::CryptoGui(const wxString &title, const wxPoint &pos, const wxSize &si
     SetMenuBar(menuBar);
 
     CreateStatusBar();
-
-    
-    // wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
-    // wxCheckBox *cb1 = new wxCheckBox(panel, wxID_ANY,
-    //                                  wxT("BitCoint"));
-
-    // const wxString str1 = wxT("Linux");
-    // wxString str2 = wxT("Operating");
-    // wxString str3 = wxT("System");
-    // //wxString str[] = [str1, str2, str3];
-
-    // wxChoice *ch1 = new wxChoice(panel, wxID_ANY, wxPoint(10,10), wxSize(100,40), 3, &str1, wxCB_SORT | wxCB_DROPDOWN);
-    // SetStatusText("Welcome to Crypto Gui!");
-
+    SetStatusText("Welcome to Crypto Gui!");
+  
+    // Create a new Panel //
     wxPanel *panel = new wxPanel(this, -1);
     bool isFromUser = false;
     CryptoGuiPanel *item = new CryptoGuiPanel(panel, isFromUser);
@@ -68,53 +57,69 @@ CryptoGui::CryptoGui(const wxString &title, const wxPoint &pos, const wxSize &si
 
 CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
     : wxPanel(parent, -1, wxPoint(-1, -1), wxSize(800, 450), wxBORDER_NONE) {
-  // retrieve image from chatbot
-  //wxBitmap *bitmap = isFromUser == true ? nullptr: nullptr;
-
     
-//     std::string text = "text of proof";
-//   // create image and text
-//   //_chatBotImg = new wxStaticBitmap(this, wxID_ANY, (isFromUser ? wxBitmap(imgBasePath + "user.png", wxBITMAP_TYPE_PNG) : *bitmap), wxPoint(-1, -1), wxSize(-1, -1));
-//   _cryptoTxt = new wxStaticText(this, wxID_ANY, text, wxPoint(-1, -1), wxSize(90, 30), wxALIGN_CENTRE | wxBORDER_NONE);
-//   _cryptoTxt->SetForegroundColour(isFromUser == true ? wxColor(*wxBLACK): wxColor(*wxWHITE));
-
-  // create sizer and add elements
-//   wxBoxSizer *horzBoxSizer = new wxBoxSizer(wxHORIZONTAL);
-//   horzBoxSizer->Add(_cryptoTxt, 8, wxEXPAND | wxALL, 1);
-//   //horzBoxSizer->Add(_cryptoTxt, 2, wxEXPAND | wxALL, 1);
-//   //horzBoxSizer->Add(_chatBotImg, 2, wxEXPAND | wxALL, 1);
-//   this->SetSizer(horzBoxSizer);
-
-  // wrap text after 150 pixels
-//   _cryptoTxt->Wrap(150);
-
-//   _cryptoTxt->SetBackgroundColour((isFromUser == true ? wxT("YELLOW") : wxT("RED")));
-
+    // Define Panels
     wxPanel *leftPanel = new wxPanel(this, -1, wxPoint(-1, -1), wxSize(250, 450), wxBORDER_NONE);
+    wxPanel *rightPanel = new wxPanel(this, -1, wxPoint(250, 0), wxSize(550, 450), wxBORDER_NONE);
+    
+    // Define Box Sizers
     wxBoxSizer *leftvbox = new wxBoxSizer(wxVERTICAL);
-    wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
-    // wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer *rightvbox = new wxBoxSizer(wxVERTICAL);
 
-    wxButton *ok = new wxButton(this, -1, wxT("Ok"));
-    wxButton *cancel = new wxButton(this, -1, wxT("Cancel"));
+    wxBoxSizer *hleftbox1 = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer *hleftbox2 = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer *hleftbox3 = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer *hleftbox4 = new wxBoxSizer(wxHORIZONTAL);
 
-    // hbox1->Add(new wxPanel(leftPanel, -1));
-    // vbox->Add(hbox1, 1, wxEXPAND);
-    // vbox->Add(new wxPanel(leftPanel, -1));
-    leftvbox->Add(ok,1);
-    leftvbox->Add(cancel,3);
+    wxBoxSizer *hrightbox1 = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer *hrightbox2 = new wxBoxSizer(wxHORIZONTAL);
 
-    // hbox2->Add(ok);
-    // hbox2->Add(cancel);
+    // Define elements
+    wxButton *createData = new wxButton(leftPanel, -1, wxT("Create Data"));
+    wxButton *simulateStrategy = new wxButton(leftPanel, -1, wxT("Simulate strategy"));
+    wxButton *cryptoBot = new wxButton(leftPanel, -1, wxT("Crypto Bot"));
+    wxButton *stop = new wxButton(leftPanel, -1, wxT("Stop"));
 
+    wxStaticText * staticData = new wxStaticText(rightPanel, -1, "Static Data", wxPoint(-1, -1), wxSize(90, 30), wxALIGN_CENTRE | wxBORDER_NONE);
+    wxStaticText * statisticsData = new wxStaticText(rightPanel, wxID_ANY, "Statistics Data", wxPoint(-1, -1), wxSize(90, 30), wxALIGN_CENTRE | wxBORDER_NONE);
+
+    // wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
+    // wxCheckBox *cb1 = new wxCheckBox(panel, wxID_ANY, wxT("BitCoint"));
+    // wxChoice *ch1 = new wxChoice(panel, wxID_ANY, wxPoint(10,10), wxSize(100,40), 3, &str1, wxCB_SORT | wxCB_DROPDOWN);
+    
+    // const wxString str1 = wxT("Linux");
+    // wxString str2 = wxT("Operating");
+    // wxString str3 = wxT("System");
+    
+    // Add elements to Box Sizers
+    
     // vbox->Add(hbox2, 0, wxALIGN_RIGHT | wxRIGHT | wxBOTTOM, 10);
+    leftvbox->Add(hleftbox1, 2, wxEXPAND);
+    leftvbox->Add(hleftbox2, 2, wxEXPAND);
+    leftvbox->Add(hleftbox3, 2, wxEXPAND);
+    leftvbox->Add(hleftbox4, 1, wxEXPAND);
+
+    rightvbox->Add(hrightbox1, 1, wxEXPAND);
+    rightvbox->Add(hrightbox2, 2, wxEXPAND);
+
+    hleftbox1->Add(createData,1);
+    hleftbox2->Add(simulateStrategy,1);
+    hleftbox3->Add(cryptoBot,1);
+    hleftbox4->Add(stop,1);
+
+    hrightbox1->Add(staticData, 1);
+    hrightbox2->Add(statisticsData, 1);
+    
+    // Stablish size from Panels
     leftPanel->SetSizer(leftvbox);
+    rightPanel->SetSizer(rightvbox);
+
+    // Stablish Background Color to Panels.
     leftPanel->SetBackgroundColour(wxT("YELLOW"));
-    // Centre();
+    rightPanel->SetBackgroundColour(wxT("RED"));
 
-
-  // set background color
-  this->SetBackgroundColour((isFromUser == true ? wxT("YELLOW") : wxT("BLUE")));
+    this->SetBackgroundColour((isFromUser == true ? wxT("YELLOW") : wxT("BLUE")));
+    
 }
 
 
