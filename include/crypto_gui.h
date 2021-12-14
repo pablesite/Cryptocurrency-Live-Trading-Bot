@@ -27,6 +27,7 @@ private:
     wxDECLARE_EVENT_TABLE();
 
     std::unique_ptr<CryptoLogic> _cryptoLogic;
+    
 };
 
 
@@ -34,7 +35,11 @@ class CryptoGuiPanel : public wxPanel {
 private:
   // control elements
   //wxStaticBitmap *_chatBotImg;
-  wxStaticText *_cryptoTxt;
+  
+  wxStaticText *strategy_type;
+  wxStaticText *exchange;
+  wxStaticText *commission_value;
+  wxStaticText *cryptocurrency_type;
 
 public:
   // constructor / destructor

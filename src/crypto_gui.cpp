@@ -48,7 +48,8 @@ CryptoGui::CryptoGui(const wxString &title, const wxPoint &pos, const wxSize &si
     CreateStatusBar();
     SetStatusText("Welcome to Crypto Gui!");
 
-    // // Create a new Panel //
+
+    // Create a new Panel //
     wxPanel *panel = new wxPanel(this, -1);
     bool isFromUser = false;
     CryptoGuiPanel *item = new CryptoGuiPanel(panel, isFromUser);
@@ -59,6 +60,7 @@ CryptoGui::CryptoGui(const wxString &title, const wxPoint &pos, const wxSize &si
 
 CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
 {
+
 
     //wxPanel *panelLeft1 = new wxPanel(this, -1);
 
@@ -75,6 +77,12 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
     wxBoxSizer *vrighttbox1 = new wxBoxSizer(wxVERTICAL);
     wxBoxSizer *vrighttbox2 = new wxBoxSizer(wxVERTICAL);
 
+    wxBoxSizer *strategy_box = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer *exchange_box = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer *commission_box = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer *cryptocurrency_box = new wxBoxSizer(wxHORIZONTAL);
+
+
 
     // Define elements
     wxButton *createData = new wxButton(parent, -1, wxT("Create Data"));
@@ -85,6 +93,22 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
     wxStaticText * staticData = new wxStaticText(parent, -1, "Static Data", wxPoint(-1, -1), wxSize(90, 30), wxALIGN_CENTRE | wxBORDER_NONE);
     wxStaticText * statisticsData = new wxStaticText(parent, wxID_ANY, "Statistics Data", wxPoint(-1, -1), wxSize(90, 30), wxALIGN_CENTRE | wxBORDER_NONE);
     wxStaticText * graphics = new wxStaticText(parent, wxID_ANY, "Graphics", wxPoint(-1, -1), wxSize(90, 30), wxALIGN_CENTRE | wxBORDER_NONE);
+
+    wxStaticText *strategy = new wxStaticText(parent, -1, wxT("Strategy: "));
+    wxStaticText *data_from = new wxStaticText(parent, -1, wxT("Data from: "));
+    wxStaticText *commission = new wxStaticText(parent, -1, wxT("Commission: "));
+    wxStaticText *cryptocurrency = new wxStaticText(parent, -1, wxT("Cryptocurrency: "));
+
+    // Set text variables
+    // strategy_type = new wxStaticText(parent, -1, wxT(""), wxPoint(10, 10));
+    // strategy_type->SetLabel(wxT("Simple"));
+    strategy_type = new wxStaticText(parent, -1, wxT("Simple"));
+    exchange = new wxStaticText(parent, -1, wxT("Binance"));
+    commission_value = new wxStaticText(parent, -1, wxT("0.000075"));
+    cryptocurrency_type = new wxStaticText(parent, -1, wxT("Bitcoint"));
+
+
+    //const wxString strategy_type = wxT("Simple: ");
     
     // wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
     // wxCheckBox *cb1 = new wxCheckBox(panel, wxID_ANY, wxT("BitCoint"));
@@ -114,7 +138,23 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
     hleftbox3->Add(cryptoBot,1);
     hleftbox4->Add(stop,1);
    
-    vrighttbox1->Add(staticData,1);
+    // vrighttbox1->Add(createData);
+    // vrighttbox1->Add(simulateStrategy,0, wxLEFT, 10);
+
+    vrighttbox1->Add(strategy_box,1);
+    vrighttbox1->Add(exchange_box,1);
+    vrighttbox1->Add(commission_box,1);
+    vrighttbox1->Add(cryptocurrency_box,2);
+
+    strategy_box->Add(strategy, 1);
+    strategy_box->Add(strategy_type,1);
+    exchange_box->Add(data_from, 1);
+    exchange_box->Add(exchange,1);
+    commission_box->Add(commission, 1);
+    commission_box->Add(commission_value,1);
+    cryptocurrency_box->Add(cryptocurrency, 1);
+    cryptocurrency_box->Add(cryptocurrency_type,1);
+
     vrighttbox2->Add(statisticsData,1);
 
     hrighttbox2->Add(graphics,1);
