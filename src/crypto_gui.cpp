@@ -47,7 +47,7 @@ CryptoGui::CryptoGui(const wxString &title, const wxPoint &pos, const wxSize &si
     SetMenuBar(menuBar);
 
     CreateStatusBar();
-    SetStatusText("Welcome to Crypto Gui!");
+    SetStatusText("Created by Pablo Ruiz");
 
 
     // Create a new Panel //
@@ -65,23 +65,23 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
     wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
     wxBoxSizer *vbox1 = new wxBoxSizer(wxVERTICAL);
     wxBoxSizer *vbox2 = new wxBoxSizer(wxVERTICAL);
-    wxBoxSizer *hleftbox1 = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer *hleftbox1 = new wxBoxSizer(wxVERTICAL);
     wxBoxSizer *hleftbox2 = new wxBoxSizer(wxVERTICAL);
-    wxBoxSizer *hleftbox3 = new wxBoxSizer(wxVERTICAL);
-    wxBoxSizer *hleftbox4 = new wxBoxSizer(wxHORIZONTAL);
     wxBoxSizer *hrighttbox1 = new wxBoxSizer(wxHORIZONTAL);
     wxBoxSizer *hrighttbox2 = new wxBoxSizer(wxHORIZONTAL);
     wxBoxSizer *vrighttbox1 = new wxBoxSizer(wxVERTICAL);
     wxBoxSizer *vrighttbox2 = new wxBoxSizer(wxVERTICAL);
 
-    wxBoxSizer *create_box = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer *create_label_box = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer *create_action_box = new wxBoxSizer(wxHORIZONTAL);
 
-    wxBoxSizer *simulate_select_box = new wxBoxSizer(wxHORIZONTAL);
-    wxBoxSizer *simulate_buttons_box = new wxBoxSizer(wxHORIZONTAL);
-
-    wxBoxSizer *select_crypto_box = new wxBoxSizer(wxHORIZONTAL);
-    wxBoxSizer *buttons_crypto_box = new wxBoxSizer(wxHORIZONTAL);
-
+    wxBoxSizer *simulate_label_box = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer *simulate_select_crypto_box = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer *simulate_select_strategy_box = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer *simulate_sim_data_buttons_box = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer *simulate_hist_data_buttons_box = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer *simulate_real_data_buttons_box = new wxBoxSizer(wxHORIZONTAL);
+    
     wxBoxSizer *strategy_box = new wxBoxSizer(wxHORIZONTAL);
     wxBoxSizer *exchange_box = new wxBoxSizer(wxHORIZONTAL);
     wxBoxSizer *commission_box = new wxBoxSizer(wxHORIZONTAL);
@@ -98,33 +98,33 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
     //// Define elements ////
     
     // Inside create_box
-    wxStaticText *text_create = new wxStaticText(parent, -1, wxT("Create historic data: "));
+    wxStaticText *create_title_label = new wxStaticText(parent, -1, wxT("Create historic data "));
+    wxStaticText *text_create = new wxStaticText(parent, -1, wxT("Push to create data: "));
     wxButton *createData = new wxButton(parent, -1, wxT("Create Data"));
 
     wxStaticLine *line_hor_1 = new wxStaticLine(parent, -1);
 
     // Inside simulate boxes
-    wxStaticText *simulate_label = new wxStaticText(parent, -1, wxT("Simulate your strategy here: "));
+    wxStaticText *simulate_label = new wxStaticText(parent, -1, wxT("Simulate your strategy "));
+    wxStaticText *simulate_select_crypto_label = new wxStaticText(parent, -1, wxT("Select Crypto: "));
+    wxStaticText *simulate_select_strategy_label = new wxStaticText(parent, -1, wxT("Select your strategy: "));
     
-    const wxString choices = wxT("Simple one");
-    wxChoice *simulate_choice = new wxChoice(parent, -1, wxDefaultPosition, wxDefaultSize, 1, &choices, wxCB_SORT | wxCB_DROPDOWN, wxDefaultValidator);
+    const wxString simulation_crypto_choices = wxT("Bitcoint");
+    wxChoice *simulate_choice_crypto = new wxChoice(parent, -1, wxDefaultPosition, wxDefaultSize, 1, &simulation_crypto_choices, wxCB_SORT | wxCB_DROPDOWN, wxDefaultValidator);
     
-    wxButton *simulate_btn = new wxButton(parent, -1, wxT("Simulate"));
-    wxButton *historic_btn = new wxButton(parent, -1, wxT("Historic Data"));
-    wxButton *realdata_btn = new wxButton(parent, -1, wxT("Real Data"));
-
-    wxStaticLine *line_hor_2 = new wxStaticLine(parent, -1);
-
-    // Inside crypto_box (TODO)
-    wxStaticText *text_crypto = new wxStaticText(parent, -1, wxT("Start Crypto Bot "));
-    wxStaticText *text_select_crypto = new wxStaticText(parent, -1, wxT("Select cryptoconcurrency: "));
-    wxButton *cryptoBot = new wxButton(parent, -1, wxT("Start Crypto Bot"));
-
-    wxStaticLine *line_hor_3 = new wxStaticLine(parent, -1);
-
-    // Inside stop_box (TODO)
-    wxButton *stop = new wxButton(parent, -1, wxT("Stop"));
-
+    const wxString simulation_choices = wxT("Simple one");
+    wxChoice *simulate_choice_strategy = new wxChoice(parent, -1, wxDefaultPosition, wxDefaultSize, 1, &simulation_choices, wxCB_SORT | wxCB_DROPDOWN, wxDefaultValidator);
+    
+    wxStaticText *data_simulated_label = new wxStaticText(parent, -1, wxT("Data Simulated: "));
+    wxButton *simulate_btn = new wxButton(parent, -1, wxT("Start"));
+    wxButton *stop_simulate_sim_data_btn = new wxButton(parent, -1, wxT("Stop"));
+    wxStaticText *historic_data_label = new wxStaticText(parent, -1, wxT("Historic Data: "));
+    wxButton *historic_btn = new wxButton(parent, -1, wxT("Start"));
+    wxButton *stop_simulate_hist_data_btn = new wxButton(parent, -1, wxT("Stopn"));
+    wxStaticText *realtime_data_label = new wxStaticText(parent, -1, wxT("Real Time Data: "));
+    wxButton *realdata_btn = new wxButton(parent, -1, wxT("Start"));
+    wxButton *stop_simulate_real_data_btn = new wxButton(parent, -1, wxT("Stop"));
+    
     // Separator vertical line
     wxStaticLine *line_ver_1 = new wxStaticLine(parent, -1);
 
@@ -132,7 +132,7 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
     wxStaticText *strategy = new wxStaticText(parent, -1, wxT("Strategy: "));
     wxStaticText *data_from = new wxStaticText(parent, -1, wxT("Data from: "));
     wxStaticText *commission = new wxStaticText(parent, -1, wxT("Commission: "));
-    wxStaticText *cryptocurrency = new wxStaticText(parent, -1, wxT("Cryptocurrency: "));
+    wxStaticText *cryptocurrency = new wxStaticText(parent, -1, wxT("Crypto: "));
 
             // Set text variables (TO DO) //
     strategy_type = new wxStaticText(parent, -1, wxT("Simple"));
@@ -161,23 +161,16 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
     // Separator horizontal line
     wxStaticLine *line_hor_4 = new wxStaticLine(parent, -1);
 
-    // Inside graphics box (TODO)
-    wxStaticText *graphics = new wxStaticText(parent, -1, wxT("Graphics: "));
-
 
     //// Assign elements ////
-    hbox->Add(vbox1, 0, wxEXPAND);
+    hbox->Add(vbox1, 1, wxEXPAND);
     hbox->Add(line_ver_1, 0, wxEXPAND | wxTOP | wxDOWN | wxLEFT | wxRIGHT, 10);
-    hbox->Add(vbox2, 1, wxEXPAND);
+    hbox->Add(vbox2, 3, wxEXPAND);
 
     //inside hbox
-    vbox1->Add(hleftbox1, 2, wxEXPAND);
+    vbox1->Add(hleftbox1, 1, wxEXPAND);
     vbox1->Add(line_hor_1, 0, wxEXPAND | wxLEFT | wxRIGHT, 20);
     vbox1->Add(hleftbox2, 3, wxEXPAND);
-    vbox1->Add(line_hor_2, 0, wxEXPAND | wxLEFT | wxRIGHT, 20);
-    vbox1->Add(hleftbox3, 2, wxEXPAND);
-    vbox1->Add(line_hor_3, 0, wxEXPAND | wxLEFT | wxRIGHT, 20);
-    vbox1->Add(hleftbox4, 0, wxEXPAND);
 
     vbox2->Add(hrighttbox1, 1, wxEXPAND);
     vbox2->Add(line_hor_4, 0, wxEXPAND | wxLEFT | wxRIGHT, 20);
@@ -185,45 +178,46 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
     
 
     //inside vbox1
-    hleftbox1->Add(create_box, 1, wxALIGN_CENTER_VERTICAL | wxTOP, 0);
+    hleftbox1->Add(create_label_box, 1, wxALIGN_CENTER | wxTOP, 20);
+    hleftbox1->Add(create_action_box, 1, wxEXPAND | wxTOP, 0);
 
     //inside hleftbox2
-    hleftbox2->Add(simulate_select_box, 1, wxALIGN_CENTER_VERTICAL | wxTOP, 0);
-    hleftbox2->Add(simulate_buttons_box, 1, wxEXPAND);
-
-    //inside hleftbox3
-    hleftbox3->Add(select_crypto_box, 1, wxALIGN_CENTER_VERTICAL | wxTOP, 0);
-    hleftbox3->Add(buttons_crypto_box, 1, wxALIGN_CENTER);
-
-    hleftbox4->Add(stop, 1, wxTOP | wxBOTTOM, 20);
+    hleftbox2->Add(simulate_label_box, 1, wxALIGN_CENTER | wxTOP, 0);
+    hleftbox2->Add(simulate_select_crypto_box, 1, wxEXPAND);
+    hleftbox2->Add(simulate_select_strategy_box, 1, wxEXPAND );
+    hleftbox2->Add(simulate_sim_data_buttons_box, 1, wxEXPAND);
+    hleftbox2->Add(simulate_hist_data_buttons_box, 1, wxEXPAND);
+    hleftbox2->Add(simulate_real_data_buttons_box, 1, wxEXPAND | wxBOTTOM, 10);
 
     //inside vbox2
     hrighttbox1->Add(vrighttbox1, 2, wxEXPAND | wxTOP, 20);
     hrighttbox1->Add(line_ver_2, 0, wxEXPAND | wxTOP | wxDOWN | wxLEFT | wxRIGHT, 10);
     hrighttbox1->Add(vrighttbox2, 3, wxEXPAND | wxTOP, 20);
 
-    hrighttbox2->Add(graphics,1);
-
     //inside create_box
-    create_box->Add(text_create, 1, wxALIGN_CENTER_VERTICAL | wxLEFT, 10);
-    create_box->Add(createData, 1, wxALIGN_CENTER, 10);
+    create_label_box->Add(create_title_label, 1, wxALIGN_CENTER_HORIZONTAL | wxLEFT, 10);
+    create_action_box->Add(text_create, 1, wxALIGN_CENTER_VERTICAL | wxLEFT, 10);
+    create_action_box->Add(createData, 1, wxALIGN_CENTER, 10);
+
 
     //inside simulate_label_box
-    simulate_select_box->Add(simulate_label, 1, wxALIGN_CENTER_VERTICAL | wxLEFT | wxRIGHT, 10);
-    simulate_select_box->Add(simulate_choice, 1, wxALIGN_CENTER_VERTICAL | wxLEFT | wxRIGHT, 10);
-    simulate_buttons_box->Add(simulate_btn, 1, wxALIGN_CENTER_VERTICAL | wxLEFT, 10);
-    simulate_buttons_box->Add(historic_btn, 1, wxALIGN_CENTER_VERTICAL | wxLEFT, 10);
-    simulate_buttons_box->Add(realdata_btn, 1, wxALIGN_CENTER_VERTICAL | wxLEFT, 10);
+    simulate_label_box->Add(simulate_label, 1, wxALIGN_CENTER_VERTICAL | wxLEFT | wxRIGHT, 10);
+    simulate_select_crypto_box->Add(simulate_select_crypto_label, 1, wxALIGN_CENTER_VERTICAL | wxLEFT | wxRIGHT, 10);
+    simulate_select_crypto_box->Add(simulate_choice_crypto, 1, wxALIGN_CENTER_VERTICAL | wxLEFT | wxRIGHT, 10);
+    simulate_select_strategy_box->Add(simulate_select_strategy_label, 1, wxALIGN_CENTER_VERTICAL | wxLEFT | wxRIGHT, 10);
+    simulate_select_strategy_box->Add(simulate_choice_strategy, 1, wxALIGN_CENTER_VERTICAL | wxLEFT | wxRIGHT, 10);
+    
+    simulate_sim_data_buttons_box->Add(data_simulated_label, 1, wxALIGN_CENTER_VERTICAL | wxLEFT, 10);
+    simulate_sim_data_buttons_box->Add(simulate_btn, 1, wxALIGN_CENTER_VERTICAL | wxLEFT, 10);
+    simulate_sim_data_buttons_box->Add(stop_simulate_sim_data_btn, 1, wxALIGN_CENTER_VERTICAL | wxLEFT, 10);
 
-    //inside crypto boxes
+    simulate_hist_data_buttons_box->Add(historic_data_label, 1, wxALIGN_CENTER_VERTICAL | wxLEFT, 10);
+    simulate_hist_data_buttons_box->Add(historic_btn, 1, wxALIGN_CENTER_VERTICAL | wxLEFT, 10);
+    simulate_hist_data_buttons_box->Add(stop_simulate_hist_data_btn, 1, wxALIGN_CENTER_VERTICAL | wxLEFT, 10);
 
-
-
-    select_crypto_box->Add(text_crypto, 1, wxALIGN_CENTER_VERTICAL | wxLEFT | wxRIGHT, 10);
-    select_crypto_box->Add(text_select_crypto, 1, wxALIGN_CENTER_VERTICAL | wxLEFT | wxRIGHT, 10);
-
-    buttons_crypto_box->Add(cryptoBot, 1, wxALIGN_CENTER_VERTICAL | wxLEFT, 10);
-
+    simulate_real_data_buttons_box->Add(realtime_data_label, 1, wxALIGN_CENTER_VERTICAL | wxLEFT, 10);
+    simulate_real_data_buttons_box->Add(realdata_btn, 1, wxALIGN_CENTER_VERTICAL | wxLEFT, 10);
+    simulate_real_data_buttons_box->Add(stop_simulate_real_data_btn, 1, wxALIGN_CENTER_VERTICAL | wxLEFT, 10);
 
 
     //inside hrighttbox1
@@ -267,12 +261,20 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
     interest_box->Add(interest_value,1, wxALIGN_LEFT);
 
 
+    // Graphics
+    wxPanel *myPanel = new wxPanel(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, wxPanelNameStr);
+    hrighttbox2->Add(myPanel, 1, wxEXPAND | wxTOP | wxDOWN | wxLEFT | wxRIGHT, 20);
+    myPanel->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGui::OnPaint));
+
+
     // Stablish size from Panels
     parent->SetSizer(hbox);
 
     // Stablish Background Color to Panel.
     //this->SetBackgroundColour((isFromUser == true ? wxT("YELLOW") : wxT("BLUE")));
     
+
+
 }
 
 void CryptoGui::OnExit(wxCommandEvent &event)
@@ -302,4 +304,24 @@ void CryptoGui::OnHello(wxCommandEvent &event)
 
     _cryptoLogic = std::make_unique<CryptoLogic>();
     _cryptoLogic->startSimulation();
+}
+
+void CryptoGui::OnPaint(wxPaintEvent & event)
+{
+    
+    wxPaintDC dc(this);
+    wxCoord x = 0;
+    wxCoord y = 0;
+
+    wxSize size = this->GetSize();
+
+  for (int i = 0; i<size.x; i++) {
+    //   x = i % size.x + 1;
+    //   y = rand() % size.y + 1;
+        x = i;
+        y = i;
+      dc.DrawPoint(x, y);
+  }
+
+    std::cout << "Size of graphics space is: " << size.x << " " << size.y << " " << x << std::endl;
 }
