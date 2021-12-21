@@ -332,16 +332,36 @@ void CryptoGui::OnPaint(wxPaintEvent &event)
     wxPen pen3(wxT("BLUE"), 1, wxPENSTYLE_DOT_DASH);
     dc.SetPen(pen3);
     // dc.DrawCircle (50, 50, 100);
-    wxCoord xUp1 = 0;
-    wxCoord yUp1 = (size.y - 1)/4;
-    wxCoord xUp2 = size.x - 1;
-    wxCoord yUp2 = (size.y - 1)/4;
-    wxCoord xDown1 = 0;
-    wxCoord yDown = (size.y - 1)*3/4;
-    wxCoord xDown2 = size.x - 1;
-    wxCoord yDown2 = (size.y - 1)*3/4;
-    dc.DrawLine(xUp1, yUp1, xUp2, yUp2);
-    dc.DrawLine(xDown1, yDown, xDown2, yDown2);
+
+    // //10 - 50567
+    // wxCoord x1 = 10;
+    // wxCoord y1 = (51000-50567)*size.y/2000;
+    // dc.DrawPoint(x1, y1);
+
+    // //20 - 50435
+    // wxCoord x2 = 20;
+    // wxCoord y2 = (51000-50435)*size.y/2000;
+    // dc.DrawPoint(x2, y2);
+
+    // //30 - 50615
+    // wxCoord x3 = 30;
+    // wxCoord y3 = (51000-50215)*size.y/2000;
+    // dc.DrawPoint(x3, y3);
+
+    // //40 - 49923
+    // wxCoord x4 = 40;
+    // wxCoord y4 = (51000-49723)*size.y/2000;
+    // dc.DrawPoint(x4, y4);
+
+    wxCoord x5 = 0;
+    wxCoord y5 = 0;
+    for(int i=1; i<size.x; i++){
+        x5 = i;
+        y5 = (51000-49000-i)*size.y/2000;  
+        dc.DrawPoint(x5, y5);
+    }
+    // dc.DrawLine(150, 150, 150, 200);
+    //dc.DrawPoint(40, 170);
 
     //   for (int i = 0; i<size.x; i++) {
     //         x = i % size.x + 1;
@@ -349,9 +369,7 @@ void CryptoGui::OnPaint(wxPaintEvent &event)
     //         dc.DrawPoint(x, y);
     //   }
 
-    
-
-    std::cout << "Sizees: " << xOrig << " " << yOrig << " " << xXmax << " " << yXmax << std::endl;
+    //std::cout << "Sizees: " << size.x << " " << size.y << " " << x4 << " " << y4 << " " << x3 << " " << y3 << std::endl;
 
     //this->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGui::OnTest));
 }
