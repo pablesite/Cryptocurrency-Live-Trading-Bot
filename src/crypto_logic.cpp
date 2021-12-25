@@ -28,3 +28,11 @@ void CryptoLogic::startSimulation(){
     strategyDataSimulatedBot.join();
 
 }
+
+void CryptoLogic::setDataFromStrategy(double value){
+    _actual_value = value;
+}
+
+void CryptoLogic::SetCryptoGraphicHandle(CryptoGraphic *cryptoGraphic) {
+  _cryptoGraphic = cryptoGraphic;
+}

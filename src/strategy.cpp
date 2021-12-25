@@ -17,6 +17,7 @@ using std::vector;
 Strategy::Strategy(std::shared_ptr<Binance> data) : data_binance(move(data))
 {
     std::cout << "Constructor of Strategy with real data from Binance " << std::endl;
+    
     _type = TypesOfData::Binance;
 }
 
@@ -129,6 +130,8 @@ void Strategy::cryptoBot()
         //std::this_thread::sleep_for(std::chrono::milliseconds(100));
         // retrieve data
         actual_value = getData(lookbackperiod);
+
+        //cryptologic->setDataFromStrategy(actual_value);
         count += 1;
 
         std::cout << std::setprecision(4) << std::fixed << "To buy " << actual_value << " => " << (1 - entry * 2) * base << " < " << base << " > " << (1 + entry) * base << std::endl;

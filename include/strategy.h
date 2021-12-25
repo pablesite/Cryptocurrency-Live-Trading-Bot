@@ -8,6 +8,7 @@
 #include "binance.h"
 #include "historic_data.h"
 #include "message_queue.h"
+#include "crypto_logic.h"
 
 /*
 Basic class for Fetch Data of Cryptoconcurrency
@@ -35,6 +36,8 @@ private:
     std::shared_ptr<HistoricData> data_historic;
 
     TypesOfData _type;
+    //graphicsPanel...
+    std::shared_ptr<CryptoLogic> _cryptologic;
 };
 
 #endif

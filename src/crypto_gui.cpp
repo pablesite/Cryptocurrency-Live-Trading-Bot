@@ -11,12 +11,12 @@ enum
 };
 
 wxBEGIN_EVENT_TABLE(CryptoGui, wxFrame)
-    EVT_MENU(ID_Hello, CryptoGui::OnHello)
-        EVT_MENU(wxID_EXIT, CryptoGui::OnExit)
-            EVT_MENU(wxID_ABOUT, CryptoGui::OnAbout)
-                wxEND_EVENT_TABLE()
+EVT_MENU(ID_Hello, CryptoGui::OnHello)
+EVT_MENU(wxID_EXIT, CryptoGui::OnExit)
+EVT_MENU(wxID_ABOUT, CryptoGui::OnAbout)
+wxEND_EVENT_TABLE()
 
-                    wxIMPLEMENT_APP(CryptoBot);
+wxIMPLEMENT_APP(CryptoBot);
 
 bool CryptoBot::OnInit()
 {
@@ -254,9 +254,14 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
     interest_box->Add(interest_value, 1, wxALIGN_LEFT);
 
     // Graphics
-    wxPanel *myPanel = new wxPanel(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, wxPanelNameStr);
-    hrighttbox2->Add(myPanel, 1, wxEXPAND | wxTOP | wxDOWN | wxLEFT | wxRIGHT, 20);
-    myPanel->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGui::OnPaint));
+    // graphics_results = new wxPanel(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, wxPanelNameStr);
+    // hrighttbox2->Add(graphics_results, 1, wxEXPAND | wxTOP | wxDOWN | wxLEFT | wxRIGHT, 20);
+    // graphics_results->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGui::OnPaint));
+
+    _cryptoGraphic = new CryptoGraphic(parent, wxID_ANY);
+    hrighttbox2->Add(_cryptoGraphic, 1, wxEXPAND | wxTOP | wxDOWN | wxLEFT | wxRIGHT, 20);
+    _cryptoGraphic->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGui::OnPaint));
+    
 
     // Stablish size from Panels
     parent->SetSizer(hbox);
@@ -264,6 +269,90 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
     // Stablish Background Color to Panel.
     // this->SetBackgroundColour((isFromUser == true ? wxT("YELLOW") : wxT("BLUE")));
 }
+
+BEGIN_EVENT_TABLE(CryptoGraphic, wxPanel)
+EVT_PAINT(CryptoGraphic::paintEvent) // catch paint events
+END_EVENT_TABLE()
+
+CryptoGraphic::CryptoGraphic(wxWindow *parent, wxWindowID id) 
+    : wxPanel(parent, id, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, wxPanelNameStr)
+    {
+  // sizer will take care of determining the needed scroll size
+
+  //_cryptoGraphicPanel = new wxPanel(parent, id, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, wxPanelNameStr);
+
+//   _dialogSizer = new wxBoxSizer(wxVERTICAL);
+//   this->SetSizer(_dialogSizer);
+
+  // allow for PNG images to be handled
+//   wxInitAllImageHandlers();
+
+//  this->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGui::OnPaint));
+  // create chat logic instance
+  /*** TASK 1. create new unique smart pointer in stack ***/
+  _cryptoLogic = std::make_unique<CryptoLogic>();
+
+  // pass pointer to chatbot dialog so answers can be displayed in GUI
+  _cryptoLogic->SetCryptoGraphicHandle(this);
+
+  // load answer graph from file
+//   _cryptoLogic->LoadAnswerGraphFromFile(dataPath + "src/answergraph.txt");
+
+}
+
+CryptoGraphic::~CryptoGraphic() {
+  // delete _chatLogic;
+
+}
+
+// void ChatBotPanelDialog::AddDialogItem(wxString text, bool isFromUser) {
+//   // add a single dialog element to the sizer
+//   ChatBotPanelDialogItem *item =
+//       new ChatBotPanelDialogItem(this, text, isFromUser);
+//   _dialogSizer->Add(
+//       item, 0, wxALL | (isFromUser == true ? wxALIGN_LEFT : wxALIGN_RIGHT), 8);
+//   _dialogSizer->Layout();
+
+//   // make scrollbar show up
+//   this->FitInside(); // ask the sizer about the needed size
+//   this->SetScrollRate(5, 5);
+//   this->Layout();
+
+//   // scroll to bottom to show newest element
+//   int dx, dy;
+//   this->GetScrollPixelsPerUnit(&dx, &dy);
+//   int sy = dy * this->GetScrollLines(wxVERTICAL);
+//   this->DoScroll(0, sy);
+// }
+
+// void ChatBotPanelDialog::PrintChatbotResponse(std::string response) {
+//   // convert string into wxString and add dialog element
+//   wxString botText(response.c_str(), wxConvUTF8);
+//   AddDialogItem(botText, false);
+// }
+
+void CryptoGraphic::paintEvent(wxPaintEvent &evt) {
+  wxPaintDC dc(this);
+  render(dc);
+}
+
+void CryptoGraphic::paintNow() {
+  wxClientDC dc(this);
+  render(dc);
+}
+
+void CryptoGraphic::render(wxDC &dc) {
+//   wxImage image;
+//   image.LoadFile(imgBasePath + "sf_bridge_inner.jpg");
+
+//   wxSize sz = this->GetSize();
+//   wxImage imgSmall =
+//       image.Rescale(sz.GetWidth(), sz.GetHeight(), wxIMAGE_QUALITY_HIGH);
+
+//   _image = wxBitmap(imgSmall);
+//   dc.DrawBitmap(_image, 0, 0, false);
+}
+
 
 void CryptoGui::OnExit(wxCommandEvent &event)
 {

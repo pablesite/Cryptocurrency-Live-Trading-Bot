@@ -10,10 +10,45 @@
 #include <future>
 #include "crypto_logic.h"
 
+class CryptoLogic; // forward declaration
+
 class CryptoBot : public wxApp
 {
 public:
   virtual bool OnInit();
+};
+
+// graphics for real time data
+class CryptoGraphic : public wxPanel 
+{
+private:
+  // control elements
+  //wxPanel * _cryptoGraphicPanel;
+  // wxBoxSizer *_dialogSizer;
+  // wxBitmap _image;
+
+  //std::unique_ptr<ChatLogic> _chatLogic;
+  std::unique_ptr<CryptoLogic> _cryptoLogic; 
+
+
+public:
+  // constructor / destructor
+  CryptoGraphic(wxWindow *parent, wxWindowID id);
+  ~CryptoGraphic();
+
+  // getter / setter
+  CryptoLogic *GetCryptoLogicHandle() { return _cryptoLogic.get(); }
+
+  // events
+  void paintEvent(wxPaintEvent &evt);
+  void paintNow();
+  void render(wxDC &dc);
+
+  // proprietary functions
+  // void AddDialogItem(wxString text, bool isFromUser = true);
+  // void PrintChatbotResponse(std::string response);
+
+  DECLARE_EVENT_TABLE()
 };
 
 class CryptoGui : public wxFrame
@@ -26,10 +61,11 @@ private:
   void OnHello(wxCommandEvent &event);
   void OnExit(wxCommandEvent &event);
   void OnAbout(wxCommandEvent &event);
+
+  std::unique_ptr<CryptoLogic> _cryptoLogic; //El puntero de la lógica está repetido......está también en CryptoGraphic. Cuidado
   
   wxDECLARE_EVENT_TABLE();
 
-  std::unique_ptr<CryptoLogic> _cryptoLogic;
 };
 
 class CryptoGuiPanel : public wxPanel
@@ -50,9 +86,14 @@ private:
   wxStaticText *benefits_acc_value;
   wxStaticText *interest_value;
 
+  wxPanel *graphics_results;
+  CryptoGraphic *_cryptoGraphic;
+
 public:
   // constructor / destructor
   CryptoGuiPanel(wxPanel *parent, bool isFromUser);
 };
+
+
 
 #endif
