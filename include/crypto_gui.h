@@ -41,6 +41,7 @@ public:
 
   // events
   void paintEvent(wxPaintEvent &evt);
+  void OnPaint(wxPaintEvent &evt);
   void paintNow();
   void render(wxDC &dc);
 
@@ -62,7 +63,7 @@ private:
   void OnExit(wxCommandEvent &event);
   void OnAbout(wxCommandEvent &event);
 
-  std::unique_ptr<CryptoLogic> _cryptoLogic; //El puntero de la lógica está repetido......está también en CryptoGraphic. Cuidado
+  std::shared_ptr<CryptoLogic> _cryptoLogic; //El puntero de la lógica está repetido......está también en CryptoGraphic. Cuidado
   
   wxDECLARE_EVENT_TABLE();
 
@@ -91,7 +92,7 @@ private:
 
 public:
   // constructor / destructor
-  CryptoGuiPanel(wxPanel *parent, bool isFromUser);
+  CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr<CryptoLogic> cryptoLogic);
 };
 
 
