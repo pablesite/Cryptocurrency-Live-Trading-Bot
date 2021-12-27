@@ -29,6 +29,7 @@ private:
 
   //std::unique_ptr<ChatLogic> _chatLogic;
   std::unique_ptr<CryptoLogic> _cryptoLogic; 
+  double _actual_value;
 
 
 public:
@@ -38,6 +39,7 @@ public:
 
   // getter / setter
   CryptoLogic *GetCryptoLogicHandle() { return _cryptoLogic.get(); }
+  void setActualValue(double value);
 
   // events
   void paintEvent(wxPaintEvent &evt);
@@ -88,7 +90,8 @@ private:
   wxStaticText *interest_value;
 
   wxPanel *graphics_results;
-  CryptoGraphic *_cryptoGraphic;
+  CryptoGraphic * _cryptoGraphic;
+  //std::shared_ptr<CryptoGraphic> _cryptoGraphic;
 
 public:
   // constructor / destructor

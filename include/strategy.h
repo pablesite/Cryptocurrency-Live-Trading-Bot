@@ -27,6 +27,10 @@ public:
     Strategy(std::shared_ptr<Binance> data);
     Strategy(std::shared_ptr<SimulateData> data);
     Strategy(std::shared_ptr<HistoricData> data);
+    void SetCryptoLogicHandle(std::shared_ptr<CryptoLogic> cryptoLogic);
+    //void SetCryptoGraphicHandle(std::shared_ptr<CryptoGraphic> cryptoGraphic);
+    void SetCryptoGraphicHandle(CryptoGraphic * cryptoGraphic);
+    
     double getData(double lookbackperiod);
     void cryptoBot();
 
@@ -37,7 +41,9 @@ private:
 
     TypesOfData _type;
     //graphicsPanel...
-    std::shared_ptr<CryptoLogic> _cryptologic;
+    std::shared_ptr<CryptoLogic> _cryptoLogic;
+    CryptoGraphic * _cryptoGraphic;
+
 };
 
 #endif

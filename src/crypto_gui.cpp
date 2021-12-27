@@ -261,6 +261,10 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr
   // graphics_results->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGui::OnPaint));
 
   _cryptoGraphic = new CryptoGraphic(parent, wxID_ANY);
+
+  //_cryptoGraphic = std::make_shared<CryptoGraphic>(parent, wxID_ANY);
+
+
   hrighttbox2->Add(_cryptoGraphic, 1, wxEXPAND | wxTOP | wxDOWN | wxLEFT | wxRIGHT, 20);
   cryptoLogic->SetCryptoGraphicHandle(_cryptoGraphic);
   //_cryptoGraphic->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGui::OnPaint));
@@ -334,6 +338,14 @@ CryptoGraphic::~CryptoGraphic()
 //   wxString botText(response.c_str(), wxConvUTF8);
 //   AddDialogItem(botText, false);
 // }
+
+void CryptoGraphic::setActualValue(double value) {
+  std::cout << "Seteo el valor actual" << std::endl;
+  _actual_value = value;
+  this->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGraphic::OnPaint));
+  
+}
+
 
 void CryptoGraphic::paintEvent(wxPaintEvent &evt)
 {
@@ -417,12 +429,13 @@ void CryptoGui::OnHello(wxCommandEvent &event)
   // wxPuts(str);
 
   
-  _cryptoLogic->startSimulation();
+  _cryptoLogic->startSimulation(); //Creo que este _cryptoLogic ya no tiene las propiedades del otro... es decir, no está creado..¿?
 }
 
 void CryptoGui::OnPaint(wxPaintEvent &event)
 {
 
+  
   // Graphic Lines
   wxPaintDC dc(this);
   wxSize size = this->GetSize();
@@ -478,6 +491,7 @@ void CryptoGui::OnPaint(wxPaintEvent &event)
 void CryptoGraphic::OnPaint(wxPaintEvent &event)
 {
 
+  std::cout << "PIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIINTO" << std::endl;
   // Graphic Lines
   wxPaintDC dc(this);
   wxSize size = this->GetSize();
@@ -492,7 +506,7 @@ void CryptoGraphic::OnPaint(wxPaintEvent &event)
   for (int i = 1; i < size.x; i++)
   {
     x5 = i;
-    y5 = (51000 - 49000 - i) * size.y / 2000;
+    y5 = (51000 - 49000 - _actual_value) * size.y / 2000;
     dc.DrawPoint(x5, y5);
   }
 

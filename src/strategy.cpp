@@ -62,10 +62,14 @@ double Strategy::getData(double lookbackperiod)
     }
 }
 
+
+
 void Strategy::cryptoBot()
 {
 
     std::cout << "CryptoBot working " << std::endl;
+
+    //this->SetCryptoLogicHandle(cryptoLogic);
 
     // investment data
     double invest_qty = 0.004;
@@ -122,14 +126,22 @@ void Strategy::cryptoBot()
     //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     base = getData(lookbackperiod);
+    // _cryptoLogic->sendToLogic(base);
+        std::cout << "data is: " << base << std::endl;
+        //_cryptoGraphic->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGraphic::paintEvent)); 
+       // _cryptoGraphic->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGraphic::OnPaint));  
     invest = invest_qty * base; // TO REVIEW...
 
     while (true)
     {
 
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         //std::this_thread::sleep_for(std::chrono::milliseconds(100));
         // retrieve data
         actual_value = getData(lookbackperiod);
+        _cryptoGraphic->setActualValue(actual_value);
+        std::cout << "Graphics in Strategy2 is: " << _cryptoGraphic;
+        //_cryptoGraphic->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGraphic::OnPaint));  
 
         //cryptologic->setDataFromStrategy(actual_value);
         count += 1;
@@ -193,4 +205,16 @@ void Strategy::cryptoBot()
     }
 
     return;
+}
+
+void Strategy::SetCryptoLogicHandle(std::shared_ptr<CryptoLogic> cryptoLogic) {
+  _cryptoLogic = cryptoLogic;
+
+}
+
+void Strategy::SetCryptoGraphicHandle(CryptoGraphic * cryptoGraphic) {
+    std::cout << "Seteo el ptr de cryptoGraphic" << std::endl;
+    
+    _cryptoGraphic = cryptoGraphic;
+    std::cout << "Graphics in Strategy is: " << _cryptoGraphic;
 }
