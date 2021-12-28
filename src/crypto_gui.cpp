@@ -1,6 +1,8 @@
 #include <string>
 
 #include "crypto_gui.h"
+#include "simulate_data.h"
+#include "strategy.h"
 
 std::string dataPath = "../";
 std::string imgBasePath = dataPath + "images/";
@@ -51,7 +53,7 @@ CryptoGui::CryptoGui(const wxString &title, const wxPoint &pos, const wxSize &si
   // Create a new Panel //
   wxPanel *panel = new wxPanel(this, -1);
   bool isFromUser = false;
-  
+
   _cryptoLogic = std::make_shared<CryptoLogic>();
   CryptoGuiPanel *item = new CryptoGuiPanel(panel, isFromUser, _cryptoLogic);
 }
@@ -264,9 +266,9 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr
 
   //_cryptoGraphic = std::make_shared<CryptoGraphic>(parent, wxID_ANY);
 
-
   hrighttbox2->Add(_cryptoGraphic, 1, wxEXPAND | wxTOP | wxDOWN | wxLEFT | wxRIGHT, 20);
   cryptoLogic->SetCryptoGraphicHandle(_cryptoGraphic);
+  
   //_cryptoGraphic->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGui::OnPaint));
   //_cryptoGraphic->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGraphic::paintEvent));
 
@@ -278,7 +280,7 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr
 }
 
 BEGIN_EVENT_TABLE(CryptoGraphic, wxPanel)
-EVT_PAINT(CryptoGraphic::paintEvent) // catch paint events
+// EVT_PAINT(CryptoGraphic::paintEvent) // catch paint events
 END_EVENT_TABLE()
 
 CryptoGraphic::CryptoGraphic(wxWindow *parent, wxWindowID id)
@@ -294,10 +296,9 @@ CryptoGraphic::CryptoGraphic(wxWindow *parent, wxWindowID id)
   // allow for PNG images to be handled
   //   wxInitAllImageHandlers();
 
-  //  this->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGui::OnPaint));
-  // create chat logic instance
+  // this->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGui::OnPaint));
+  //  create chat logic instance
   /*** TASK 1. create new unique smart pointer in stack ***/
-
 
   // _cryptoLogic = std::make_unique<CryptoLogic>();
 
@@ -306,6 +307,8 @@ CryptoGraphic::CryptoGraphic(wxWindow *parent, wxWindowID id)
 
   // load answer graph from file
   //   _cryptoLogic->LoadAnswerGraphFromFile(dataPath + "src/answergraph.txt");
+
+  this->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGraphic::OnPaint));
 }
 
 CryptoGraphic::~CryptoGraphic()
@@ -339,20 +342,22 @@ CryptoGraphic::~CryptoGraphic()
 //   AddDialogItem(botText, false);
 // }
 
-void CryptoGraphic::setActualValue(double value) {
-  std::cout << "Seteo el valor actual" << std::endl;
+void CryptoGraphic::setActualValue(double value)
+{
+    std::cout << "Seteo el valor actual 1: " << value << " this: " << this<< std::endl;
   _actual_value = value;
-  this->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGraphic::OnPaint));
-  
+  std::cout << "Seteo el valor actual 2: " << _actual_value << std::endl;
+  // this->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGraphic::OnPaint));
+  //wxWindow::PostSizeEvent();
+  Refresh();
 }
-
 
 void CryptoGraphic::paintEvent(wxPaintEvent &evt)
 {
 
   // wxPaintDC dc(this);
   // render(dc);
-// Graphic Lines
+  // Graphic Lines
   wxPaintDC dc(this);
   wxPen pen1(wxT("BLACK"), 2, wxPENSTYLE_SOLID);
   dc.SetPen(pen1);
@@ -387,7 +392,6 @@ void CryptoGraphic::paintNow()
 {
   wxPaintDC dc(this);
   render(dc);
-
 }
 
 void CryptoGraphic::render(wxDC &dc)
@@ -428,18 +432,40 @@ void CryptoGui::OnHello(wxCommandEvent &event)
   // wxString str = str1 + wxT(" ") + str2 + wxT(" ") + str3;
   // wxPuts(str);
 
-  
-  _cryptoLogic->startSimulation(); //Creo que este _cryptoLogic ya no tiene las propiedades del otro... es decir, no está creado..¿?
+  if (dataSimulated)
+  {
+    dataSimulated->join();
+  };
+
+    if (strategyDataSimulatedBot)
+  {
+    strategyDataSimulatedBot->join();
+  };
+
+
+  // Lanuch a new thread. Don't forget "this".
+  // mythread = std::thread(&myFrame::async_task, this);
+
+  std::shared_ptr<SimulateData> dataSimulatedPtr = std::make_shared<SimulateData>();
+  dataSimulated = std::thread(&SimulateData::fetchData, dataSimulatedPtr);
+
+  // STRATEGY
+  std::shared_ptr<Strategy> strategyDataSimulatedPtr = std::make_shared<Strategy>(dataSimulatedPtr);
+  strategyDataSimulatedPtr->SetCryptoGraphicHandle(_cryptoGraphic);
+  strategyDataSimulatedBot = std::thread(&Strategy::cryptoBot, strategyDataSimulatedPtr); // PROBLEMAS CON EL PUNTERO
+
+
+
+  //_cryptoLogic->startSimulation(); // Creo que este _cryptoLogic ya no tiene las propiedades del otro... es decir, no está creado..¿?
 }
 
 void CryptoGui::OnPaint(wxPaintEvent &event)
 {
 
-  
   // Graphic Lines
   wxPaintDC dc(this);
   wxSize size = this->GetSize();
- 
+
   // Crypto Value
   wxPen pen3(wxT("BLUE"), 1, wxPENSTYLE_DOT_DASH);
   dc.SetPen(pen3);
@@ -487,7 +513,6 @@ void CryptoGui::OnPaint(wxPaintEvent &event)
   // this->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGui::OnTest));
 }
 
-
 void CryptoGraphic::OnPaint(wxPaintEvent &event)
 {
 
@@ -495,9 +520,25 @@ void CryptoGraphic::OnPaint(wxPaintEvent &event)
   // Graphic Lines
   wxPaintDC dc(this);
   wxSize size = this->GetSize();
- 
+
+  wxPen pen2(wxT("RED"), 2, wxPENSTYLE_DOT_DASH);
+  dc.SetPen(pen2);
+  // dc.DrawCircle (50, 50, 100);
+  wxCoord xUp1 = 0;
+  wxCoord yUp1 = (size.y - 1) / 4;
+  wxCoord xUp2 = size.x - 1;
+  wxCoord yUp2 = (size.y - 1) / 4;
+  wxCoord xDown1 = 0;
+  wxCoord yDown = (size.y - 1) * 3 / 4;
+  wxCoord xDown2 = size.x - 1;
+  wxCoord yDown2 = (size.y - 1) * 3 / 4;
+  dc.DrawLine(xUp1, yUp1, xUp2, yUp2);
+  dc.DrawLine(xDown1, yDown, xDown2, yDown2);
+
+  std::cout << xDown1 << " " << yDown << " " <<  xDown2 << " " << yDown2;
+
   // Crypto Value
-  wxPen pen3(wxT("BLUE"), 1, wxPENSTYLE_DOT_DASH);
+  wxPen pen3(wxT("GREEN"), 5, wxPENSTYLE_DOT_DASH);
   dc.SetPen(pen3);
   // dc.DrawCircle (50, 50, 100);
 
@@ -506,8 +547,12 @@ void CryptoGraphic::OnPaint(wxPaintEvent &event)
   for (int i = 1; i < size.x; i++)
   {
     x5 = i;
-    y5 = (51000 - 49000 - _actual_value) * size.y / 2000;
+    y5 = (51000 - _actual_value) * size.y / 2000;
     dc.DrawPoint(x5, y5);
   }
-
+  // wxCoord x1_5 = 0;
+  // wxCoord y1_5 = (51000 - _actual_value) * size.y / 2000;
+  // wxCoord x2_5 = 591;
+  // wxCoord y2_5 = (51000 - _actual_value) * size.y / 2000;
+  // dc.DrawLine(x1_5, y1_5, x2_5, y2_5);
 }

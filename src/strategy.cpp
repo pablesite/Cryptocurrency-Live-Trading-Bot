@@ -139,7 +139,7 @@ void Strategy::cryptoBot()
         //std::this_thread::sleep_for(std::chrono::milliseconds(100));
         // retrieve data
         actual_value = getData(lookbackperiod);
-        _cryptoGraphic->setActualValue(actual_value);
+        _cryptoGraphic->setActualValue(actual_value); //Esto hace que ya no se llamen los eventos
         std::cout << "Graphics in Strategy2 is: " << _cryptoGraphic;
         //_cryptoGraphic->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGraphic::OnPaint));  
 

@@ -8,9 +8,13 @@
 #endif
 
 #include <future>
+#include <optional>
 #include "crypto_logic.h"
 
 class CryptoLogic; // forward declaration
+class CryptoGraphic; // forward declaration
+
+static CryptoGraphic * _cryptoGraphic;
 
 class CryptoBot : public wxApp
 {
@@ -66,6 +70,10 @@ private:
   void OnAbout(wxCommandEvent &event);
 
   std::shared_ptr<CryptoLogic> _cryptoLogic; //El puntero de la lógica está repetido......está también en CryptoGraphic. Cuidado
+  //std::thread dataSimulated;
+  std::optional<std::thread> dataSimulated;
+  std::optional<std::thread> strategyDataSimulatedBot;
+  
   
   wxDECLARE_EVENT_TABLE();
 
@@ -90,7 +98,7 @@ private:
   wxStaticText *interest_value;
 
   wxPanel *graphics_results;
-  CryptoGraphic * _cryptoGraphic;
+  
   //std::shared_ptr<CryptoGraphic> _cryptoGraphic;
 
 public:
