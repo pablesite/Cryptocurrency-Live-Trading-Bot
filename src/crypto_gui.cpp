@@ -7,18 +7,21 @@
 std::string dataPath = "../";
 std::string imgBasePath = dataPath + "images/";
 
-enum
-{
-  ID_Hello = 1
+
+enum{
+ID_Hello = wxID_HIGHEST+1,
+ID_SIMULATE,
+ID_HISTORICAL
 };
 
 wxBEGIN_EVENT_TABLE(CryptoGui, wxFrame)
-    EVT_MENU(ID_Hello, CryptoGui::OnHello)
-        EVT_MENU(wxID_EXIT, CryptoGui::OnExit)
-            EVT_MENU(wxID_ABOUT, CryptoGui::OnAbout)
-                wxEND_EVENT_TABLE()
+EVT_MENU(ID_Hello, CryptoGui::OnHello)
+EVT_MENU(wxID_EXIT, CryptoGui::OnExit)
+EVT_MENU(wxID_ABOUT, CryptoGui::OnAbout)
+EVT_BUTTON(ID_SIMULATE, CryptoGuiPanel::OnButton1)
+wxEND_EVENT_TABLE()
 
-                    wxIMPLEMENT_APP(CryptoBot);
+wxIMPLEMENT_APP(CryptoBot);
 
 bool CryptoBot::OnInit()
 {
@@ -58,8 +61,9 @@ CryptoGui::CryptoGui(const wxString &title, const wxPoint &pos, const wxSize &si
   CryptoGuiPanel *item = new CryptoGuiPanel(panel, isFromUser, _cryptoLogic);
 }
 
-// CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
-//     : wxPanel(parent, -1, wxPoint(-1, -1), wxSize(800, 450), wxBORDER_NONE) {
+// BEGIN_EVENT_TABLE(CryptoGuiPanel, wxPanel)
+// EVT_BUTTON(ID_SIMULATE, CryptoGuiPanel::OnButton1)
+// END_EVENT_TABLE()
 
 CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr<CryptoLogic> cryptoLogic)
 {
@@ -117,11 +121,12 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr
   wxChoice *simulate_choice_strategy = new wxChoice(parent, -1, wxDefaultPosition, wxDefaultSize, 1, &simulation_choices, wxCB_SORT | wxCB_DROPDOWN, wxDefaultValidator);
 
   wxStaticText *data_simulated_label = new wxStaticText(parent, -1, wxT("Data Simulated: "));
-  wxButton *simulate_btn = new wxButton(parent, -1, wxT("Start"));
+
+  wxButton *simulate_btn = new wxButton(parent, ID_SIMULATE, wxT("Start")); //TENGO QUE DEFINIR ENUM PARA LOS IDS de los botones (https://forums.wxwidgets.org/viewtopic.php?t=22288)
   wxButton *stop_simulate_sim_data_btn = new wxButton(parent, -1, wxT("Stop"));
   wxStaticText *historic_data_label = new wxStaticText(parent, -1, wxT("Historic Data: "));
   wxButton *historic_btn = new wxButton(parent, -1, wxT("Start"));
-  wxButton *stop_simulate_hist_data_btn = new wxButton(parent, -1, wxT("Stopn"));
+  wxButton *stop_simulate_hist_data_btn = new wxButton(parent, -1, wxT("Stop"));
   wxStaticText *realtime_data_label = new wxStaticText(parent, -1, wxT("Real Time Data: "));
   wxButton *realdata_btn = new wxButton(parent, -1, wxT("Start"));
   wxButton *stop_simulate_real_data_btn = new wxButton(parent, -1, wxT("Stop"));
@@ -262,15 +267,12 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr
   // hrighttbox2->Add(graphics_results, 1, wxEXPAND | wxTOP | wxDOWN | wxLEFT | wxRIGHT, 20);
   // graphics_results->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGui::OnPaint));
 
-  _cryptoGraphic = new CryptoGraphic(parent, wxID_ANY);
-
   //_cryptoGraphic = std::make_shared<CryptoGraphic>(parent, wxID_ANY);
+  _cryptoGraphic = new CryptoGraphic(parent, wxID_ANY);
+  
 
   hrighttbox2->Add(_cryptoGraphic, 1, wxEXPAND | wxTOP | wxDOWN | wxLEFT | wxRIGHT, 20);
   cryptoLogic->SetCryptoGraphicHandle(_cryptoGraphic);
-  
-  //_cryptoGraphic->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGui::OnPaint));
-  //_cryptoGraphic->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGraphic::paintEvent));
 
   // Stablish size from Panels
   parent->SetSizer(hbox);
@@ -278,6 +280,36 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr
   // Stablish Background Color to Panel.
   // this->SetBackgroundColour((isFromUser == true ? wxT("YELLOW") : wxT("BLUE")));
 }
+
+// CryptoGuiPanel::~CryptoGuiPanel()
+// {}
+
+
+void CryptoGuiPanel::OnButton1(wxCommandEvent& event){
+
+  if (dataSimulated)
+  {
+    dataSimulated->join();
+  };
+
+  if (strategyDataSimulatedBot)
+  {
+    strategyDataSimulatedBot->join();
+  };
+
+  // Lanuch a new thread. Don't forget "this".
+  // mythread = std::thread(&myFrame::async_task, this);
+
+  std::shared_ptr<SimulateData> dataSimulatedPtr = std::make_shared<SimulateData>();
+  dataSimulated = std::thread(&SimulateData::fetchData, dataSimulatedPtr);
+
+  // STRATEGY
+  std::shared_ptr<Strategy> strategyDataSimulatedPtr = std::make_shared<Strategy>(dataSimulatedPtr);
+  strategyDataSimulatedPtr->SetCryptoGraphicHandle(_cryptoGraphic);
+  strategyDataSimulatedBot = std::thread(&Strategy::cryptoBot, strategyDataSimulatedPtr); // PROBLEMAS CON EL PUNTERO
+
+}
+
 
 BEGIN_EVENT_TABLE(CryptoGraphic, wxPanel)
 // EVT_PAINT(CryptoGraphic::paintEvent) // catch paint events
@@ -344,11 +376,11 @@ CryptoGraphic::~CryptoGraphic()
 
 void CryptoGraphic::setActualValue(double value)
 {
-    std::cout << "Seteo el valor actual 1: " << value << " this: " << this<< std::endl;
+  std::cout << "\nSeteo el valor actual 1: " << _actual_value << " this: " << this << std::endl;
   _actual_value = value;
   std::cout << "Seteo el valor actual 2: " << _actual_value << std::endl;
   // this->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGraphic::OnPaint));
-  //wxWindow::PostSizeEvent();
+  // wxWindow::PostSizeEvent();
   Refresh();
 }
 
@@ -407,6 +439,8 @@ void CryptoGraphic::render(wxDC &dc)
   //   dc.DrawBitmap(_image, 0, 0, false);
 }
 
+
+
 void CryptoGui::OnExit(wxCommandEvent &event)
 {
   Close(true);
@@ -432,31 +466,7 @@ void CryptoGui::OnHello(wxCommandEvent &event)
   // wxString str = str1 + wxT(" ") + str2 + wxT(" ") + str3;
   // wxPuts(str);
 
-  if (dataSimulated)
-  {
-    dataSimulated->join();
-  };
-
-    if (strategyDataSimulatedBot)
-  {
-    strategyDataSimulatedBot->join();
-  };
-
-
-  // Lanuch a new thread. Don't forget "this".
-  // mythread = std::thread(&myFrame::async_task, this);
-
-  std::shared_ptr<SimulateData> dataSimulatedPtr = std::make_shared<SimulateData>();
-  dataSimulated = std::thread(&SimulateData::fetchData, dataSimulatedPtr);
-
-  // STRATEGY
-  std::shared_ptr<Strategy> strategyDataSimulatedPtr = std::make_shared<Strategy>(dataSimulatedPtr);
-  strategyDataSimulatedPtr->SetCryptoGraphicHandle(_cryptoGraphic);
-  strategyDataSimulatedBot = std::thread(&Strategy::cryptoBot, strategyDataSimulatedPtr); // PROBLEMAS CON EL PUNTERO
-
-
-
-  //_cryptoLogic->startSimulation(); // Creo que este _cryptoLogic ya no tiene las propiedades del otro... es decir, no está creado..¿?
+  
 }
 
 void CryptoGui::OnPaint(wxPaintEvent &event)
@@ -535,7 +545,7 @@ void CryptoGraphic::OnPaint(wxPaintEvent &event)
   dc.DrawLine(xUp1, yUp1, xUp2, yUp2);
   dc.DrawLine(xDown1, yDown, xDown2, yDown2);
 
-  std::cout << xDown1 << " " << yDown << " " <<  xDown2 << " " << yDown2;
+  std::cout << xDown1 << " " << yDown << " " << xDown2 << " " << yDown2;
 
   // Crypto Value
   wxPen pen3(wxT("GREEN"), 5, wxPENSTYLE_DOT_DASH);

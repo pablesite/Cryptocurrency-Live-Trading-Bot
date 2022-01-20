@@ -10,6 +10,7 @@
 #include <future>
 #include <optional>
 #include "crypto_logic.h"
+#include "simulate_data.h"
 
 class CryptoLogic; // forward declaration
 class CryptoGraphic; // forward declaration
@@ -34,6 +35,7 @@ private:
   //std::unique_ptr<ChatLogic> _chatLogic;
   std::unique_ptr<CryptoLogic> _cryptoLogic; 
   double _actual_value;
+ 
 
 
 public:
@@ -50,6 +52,7 @@ public:
   void OnPaint(wxPaintEvent &evt);
   void paintNow();
   void render(wxDC &dc);
+
 
   // proprietary functions
   // void AddDialogItem(wxString text, bool isFromUser = true);
@@ -70,10 +73,7 @@ private:
   void OnAbout(wxCommandEvent &event);
 
   std::shared_ptr<CryptoLogic> _cryptoLogic; //El puntero de la lógica está repetido......está también en CryptoGraphic. Cuidado
-  //std::thread dataSimulated;
-  std::optional<std::thread> dataSimulated;
-  std::optional<std::thread> strategyDataSimulatedBot;
-  
+  std::shared_ptr<SimulateData> dataSimulatedPtr;
   
   wxDECLARE_EVENT_TABLE();
 
@@ -98,12 +98,23 @@ private:
   wxStaticText *interest_value;
 
   wxPanel *graphics_results;
+
+  //wxButton *simulate_btn;
   
   //std::shared_ptr<CryptoGraphic> _cryptoGraphic;
+  //std::thread dataSimulated;
+  std::optional<std::thread> dataSimulated;
+  std::optional<std::thread> strategyDataSimulatedBot;
 
 public:
   // constructor / destructor
   CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr<CryptoLogic> cryptoLogic);
+  // ~CryptoGuiPanel();
+  void OnButton1(wxCommandEvent& event);
+
+  //DECLARE_EVENT_TABLE()
+
+   
 };
 
 
