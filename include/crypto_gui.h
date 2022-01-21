@@ -104,13 +104,19 @@ private:
   //std::shared_ptr<CryptoGraphic> _cryptoGraphic;
   //std::thread dataSimulated;
   std::optional<std::thread> dataSimulated;
+  std::optional<std::thread> historicData;
+  std::optional<std::thread> binanceData;
   std::optional<std::thread> strategyDataSimulatedBot;
+  std::optional<std::thread> strategyHistoricBot;
+  std::optional<std::thread> strategyBinanceBot;
 
 public:
   // constructor / destructor
   CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr<CryptoLogic> cryptoLogic);
   // ~CryptoGuiPanel();
-  void OnButton1(wxCommandEvent& event);
+  void OnStartSimulateData(wxCommandEvent& event);
+  void OnStartHistoricalData(wxCommandEvent& event);
+  void OnStartRealData(wxCommandEvent& event);
 
   //DECLARE_EVENT_TABLE()
 

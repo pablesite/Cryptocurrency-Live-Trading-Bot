@@ -7,21 +7,24 @@
 std::string dataPath = "../";
 std::string imgBasePath = dataPath + "images/";
 
-
-enum{
-ID_Hello = wxID_HIGHEST+1,
-ID_SIMULATE,
-ID_HISTORICAL
+enum
+{
+  ID_Hello = wxID_HIGHEST + 1,
+  ID_SIMULATE_DATA,
+  ID_HISTORICAL_DATA,
+  ID_REAL_DATA
 };
 
 wxBEGIN_EVENT_TABLE(CryptoGui, wxFrame)
-EVT_MENU(ID_Hello, CryptoGui::OnHello)
-EVT_MENU(wxID_EXIT, CryptoGui::OnExit)
-EVT_MENU(wxID_ABOUT, CryptoGui::OnAbout)
-EVT_BUTTON(ID_SIMULATE, CryptoGuiPanel::OnButton1)
-wxEND_EVENT_TABLE()
+    EVT_MENU(ID_Hello, CryptoGui::OnHello)
+        EVT_MENU(wxID_EXIT, CryptoGui::OnExit)
+            EVT_MENU(wxID_ABOUT, CryptoGui::OnAbout)
+                EVT_BUTTON(ID_SIMULATE_DATA, CryptoGuiPanel::OnStartSimulateData)
+                    EVT_BUTTON(ID_HISTORICAL_DATA, CryptoGuiPanel::OnStartHistoricalData)
+                        EVT_BUTTON(ID_REAL_DATA, CryptoGuiPanel::OnStartRealData)
+                            wxEND_EVENT_TABLE()
 
-wxIMPLEMENT_APP(CryptoBot);
+                                wxIMPLEMENT_APP(CryptoBot);
 
 bool CryptoBot::OnInit()
 {
@@ -62,7 +65,7 @@ CryptoGui::CryptoGui(const wxString &title, const wxPoint &pos, const wxSize &si
 }
 
 // BEGIN_EVENT_TABLE(CryptoGuiPanel, wxPanel)
-// EVT_BUTTON(ID_SIMULATE, CryptoGuiPanel::OnButton1)
+// EVT_BUTTON(ID_SIMULATE_DATA, CryptoGuiPanel::OnStartSimulate)
 // END_EVENT_TABLE()
 
 CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr<CryptoLogic> cryptoLogic)
@@ -122,13 +125,13 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr
 
   wxStaticText *data_simulated_label = new wxStaticText(parent, -1, wxT("Data Simulated: "));
 
-  wxButton *simulate_btn = new wxButton(parent, ID_SIMULATE, wxT("Start")); //TENGO QUE DEFINIR ENUM PARA LOS IDS de los botones (https://forums.wxwidgets.org/viewtopic.php?t=22288)
+  wxButton *simulate_btn = new wxButton(parent, ID_SIMULATE_DATA, wxT("Start")); //TENGO QUE DEFINIR ENUM PARA LOS IDS de los botones (https://forums.wxwidgets.org/viewtopic.php?t=22288)
   wxButton *stop_simulate_sim_data_btn = new wxButton(parent, -1, wxT("Stop"));
   wxStaticText *historic_data_label = new wxStaticText(parent, -1, wxT("Historic Data: "));
-  wxButton *historic_btn = new wxButton(parent, -1, wxT("Start"));
+  wxButton *historic_btn = new wxButton(parent, ID_HISTORICAL_DATA, wxT("Start"));
   wxButton *stop_simulate_hist_data_btn = new wxButton(parent, -1, wxT("Stop"));
   wxStaticText *realtime_data_label = new wxStaticText(parent, -1, wxT("Real Time Data: "));
-  wxButton *realdata_btn = new wxButton(parent, -1, wxT("Start"));
+  wxButton *realdata_btn = new wxButton(parent, ID_REAL_DATA, wxT("Start"));
   wxButton *stop_simulate_real_data_btn = new wxButton(parent, -1, wxT("Stop"));
 
   // Separator vertical line
@@ -269,7 +272,6 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr
 
   //_cryptoGraphic = std::make_shared<CryptoGraphic>(parent, wxID_ANY);
   _cryptoGraphic = new CryptoGraphic(parent, wxID_ANY);
-  
 
   hrighttbox2->Add(_cryptoGraphic, 1, wxEXPAND | wxTOP | wxDOWN | wxLEFT | wxRIGHT, 20);
   cryptoLogic->SetCryptoGraphicHandle(_cryptoGraphic);
@@ -284,8 +286,8 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr
 // CryptoGuiPanel::~CryptoGuiPanel()
 // {}
 
-
-void CryptoGuiPanel::OnButton1(wxCommandEvent& event){
+void CryptoGuiPanel::OnStartSimulateData(wxCommandEvent &event)
+{
 
   if (dataSimulated)
   {
@@ -307,9 +309,52 @@ void CryptoGuiPanel::OnButton1(wxCommandEvent& event){
   std::shared_ptr<Strategy> strategyDataSimulatedPtr = std::make_shared<Strategy>(dataSimulatedPtr);
   strategyDataSimulatedPtr->SetCryptoGraphicHandle(_cryptoGraphic);
   strategyDataSimulatedBot = std::thread(&Strategy::cryptoBot, strategyDataSimulatedPtr); // PROBLEMAS CON EL PUNTERO
-
 }
 
+void CryptoGuiPanel::OnStartHistoricalData(wxCommandEvent &event)
+{
+
+  if (historicData)
+  {
+    historicData->join();
+  };
+
+  if (strategyHistoricBot)
+  {
+    strategyHistoricBot->join();
+  };
+
+  // HISTORICAL DATA (IN FILE)
+  std::shared_ptr<HistoricData> historicDataPtr = std::make_shared<HistoricData>();
+  historicData = std::thread(&HistoricData::fetchData, historicDataPtr);
+
+  // STRATEGY
+  std::shared_ptr<Strategy> strategyHistoricPtr = std::make_shared<Strategy>(historicDataPtr);
+  strategyHistoricPtr->SetCryptoGraphicHandle(_cryptoGraphic);
+  strategyHistoricBot = std::thread(&Strategy::cryptoBot, strategyHistoricPtr);
+}
+
+void CryptoGuiPanel::OnStartRealData(wxCommandEvent &event)
+{
+
+  if (binanceData)
+  {
+    binanceData->join();
+  };
+
+  if (strategyBinanceBot)
+  {
+    strategyBinanceBot->join();
+  };
+
+  std::shared_ptr<Binance> binancePtr = std::make_shared<Binance>();
+  binanceData = std::thread(&Binance::fetchData, binancePtr);
+
+  // STRATEGY
+  std::shared_ptr<Strategy> strategyBinancePtr = std::make_shared<Strategy>(binancePtr);
+  strategyBinancePtr->SetCryptoGraphicHandle(_cryptoGraphic);
+  strategyBinanceBot = std::thread(&Strategy::cryptoBot, strategyBinancePtr);
+}
 
 BEGIN_EVENT_TABLE(CryptoGraphic, wxPanel)
 // EVT_PAINT(CryptoGraphic::paintEvent) // catch paint events
@@ -347,32 +392,6 @@ CryptoGraphic::~CryptoGraphic()
 {
   // delete _chatLogic;
 }
-
-// void ChatBotPanelDialog::AddDialogItem(wxString text, bool isFromUser) {
-//   // add a single dialog element to the sizer
-//   ChatBotPanelDialogItem *item =
-//       new ChatBotPanelDialogItem(this, text, isFromUser);
-//   _dialogSizer->Add(
-//       item, 0, wxALL | (isFromUser == true ? wxALIGN_LEFT : wxALIGN_RIGHT), 8);
-//   _dialogSizer->Layout();
-
-//   // make scrollbar show up
-//   this->FitInside(); // ask the sizer about the needed size
-//   this->SetScrollRate(5, 5);
-//   this->Layout();
-
-//   // scroll to bottom to show newest element
-//   int dx, dy;
-//   this->GetScrollPixelsPerUnit(&dx, &dy);
-//   int sy = dy * this->GetScrollLines(wxVERTICAL);
-//   this->DoScroll(0, sy);
-// }
-
-// void ChatBotPanelDialog::PrintChatbotResponse(std::string response) {
-//   // convert string into wxString and add dialog element
-//   wxString botText(response.c_str(), wxConvUTF8);
-//   AddDialogItem(botText, false);
-// }
 
 void CryptoGraphic::setActualValue(double value)
 {
@@ -439,8 +458,6 @@ void CryptoGraphic::render(wxDC &dc)
   //   dc.DrawBitmap(_image, 0, 0, false);
 }
 
-
-
 void CryptoGui::OnExit(wxCommandEvent &event)
 {
   Close(true);
@@ -465,8 +482,6 @@ void CryptoGui::OnHello(wxCommandEvent &event)
   // wxString str3 = wxT("System");
   // wxString str = str1 + wxT(" ") + str2 + wxT(" ") + str3;
   // wxPuts(str);
-
-  
 }
 
 void CryptoGui::OnPaint(wxPaintEvent &event)
