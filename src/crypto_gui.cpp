@@ -3,16 +3,23 @@
 #include "crypto_gui.h"
 #include "simulate_data.h"
 #include "strategy.h"
+#include <unordered_map>
 
 std::string dataPath = "../";
 std::string imgBasePath = dataPath + "images/";
+
+std::atomic_bool stop_thread_1 = false;
+
+typedef std::unordered_map<std::string, pthread_t> ThreadMap;
+ThreadMap tm_;
 
 enum
 {
   ID_Hello = wxID_HIGHEST + 1,
   ID_SIMULATE_DATA,
   ID_HISTORICAL_DATA,
-  ID_REAL_DATA
+  ID_REAL_DATA,
+  ID_REAL_DATA_STOP
 };
 
 wxBEGIN_EVENT_TABLE(CryptoGui, wxFrame)
@@ -22,9 +29,11 @@ wxBEGIN_EVENT_TABLE(CryptoGui, wxFrame)
                 EVT_BUTTON(ID_SIMULATE_DATA, CryptoGuiPanel::OnStartSimulateData)
                     EVT_BUTTON(ID_HISTORICAL_DATA, CryptoGuiPanel::OnStartHistoricalData)
                         EVT_BUTTON(ID_REAL_DATA, CryptoGuiPanel::OnStartRealData)
-                            wxEND_EVENT_TABLE()
+                            EVT_BUTTON(ID_REAL_DATA_STOP, CryptoGuiPanel::OnStopRealData)
 
-                                wxIMPLEMENT_APP(CryptoBot);
+                                wxEND_EVENT_TABLE()
+
+                                    wxIMPLEMENT_APP(CryptoBot);
 
 bool CryptoBot::OnInit()
 {
@@ -70,6 +79,7 @@ CryptoGui::CryptoGui(const wxString &title, const wxPoint &pos, const wxSize &si
 
 CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr<CryptoLogic> cryptoLogic)
 {
+
   // Create Box Sizers
   wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
   wxBoxSizer *vbox1 = new wxBoxSizer(wxVERTICAL);
@@ -125,14 +135,14 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr
 
   wxStaticText *data_simulated_label = new wxStaticText(parent, -1, wxT("Data Simulated: "));
 
-  wxButton *simulate_btn = new wxButton(parent, ID_SIMULATE_DATA, wxT("Start")); //TENGO QUE DEFINIR ENUM PARA LOS IDS de los botones (https://forums.wxwidgets.org/viewtopic.php?t=22288)
+  wxButton *simulate_btn = new wxButton(parent, ID_SIMULATE_DATA, wxT("Start")); // TENGO QUE DEFINIR ENUM PARA LOS IDS de los botones (https://forums.wxwidgets.org/viewtopic.php?t=22288)
   wxButton *stop_simulate_sim_data_btn = new wxButton(parent, -1, wxT("Stop"));
   wxStaticText *historic_data_label = new wxStaticText(parent, -1, wxT("Historic Data: "));
   wxButton *historic_btn = new wxButton(parent, ID_HISTORICAL_DATA, wxT("Start"));
   wxButton *stop_simulate_hist_data_btn = new wxButton(parent, -1, wxT("Stop"));
   wxStaticText *realtime_data_label = new wxStaticText(parent, -1, wxT("Real Time Data: "));
   wxButton *realdata_btn = new wxButton(parent, ID_REAL_DATA, wxT("Start"));
-  wxButton *stop_simulate_real_data_btn = new wxButton(parent, -1, wxT("Stop"));
+  wxButton *stop_simulate_real_data_btn = new wxButton(parent, ID_REAL_DATA_STOP, wxT("Stop"));
 
   // Separator vertical line
   wxStaticLine *line_ver_1 = new wxStaticLine(parent, -1);
@@ -288,6 +298,7 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr
 
 void CryptoGuiPanel::OnStartSimulateData(wxCommandEvent &event)
 {
+  std::cout << "\nOn Start Simulated Data: " << dataSimulated->get_id() << std::endl;
 
   if (dataSimulated)
   {
@@ -313,6 +324,7 @@ void CryptoGuiPanel::OnStartSimulateData(wxCommandEvent &event)
 
 void CryptoGuiPanel::OnStartHistoricalData(wxCommandEvent &event)
 {
+  std::cout << "\nOn Start Historical Data: " << historicData->get_id() << std::endl;
 
   if (historicData)
   {
@@ -336,24 +348,62 @@ void CryptoGuiPanel::OnStartHistoricalData(wxCommandEvent &event)
 
 void CryptoGuiPanel::OnStartRealData(wxCommandEvent &event)
 {
+  // std::cout << "\nOn Start Real Data: " << binanceData.get_id() << std::endl;
 
-  if (binanceData)
-  {
-    binanceData->join();
-  };
+  // if (binanceData)
+  // {
+  //   binanceData->join();
+  // };
 
-  if (strategyBinanceBot)
-  {
-    strategyBinanceBot->join();
-  };
+  // if (strategyBinanceBot)
+  // {
+  //   strategyBinanceBot->join();
+  // };
 
   std::shared_ptr<Binance> binancePtr = std::make_shared<Binance>();
-  binanceData = std::thread(&Binance::fetchData, binancePtr);
+  std::thread binanceData = std::thread(&Binance::fetchData, binancePtr);
 
+  std::cout << "\nOn Start Real Data: " << binanceData.get_id() << std::endl;
   // STRATEGY
   std::shared_ptr<Strategy> strategyBinancePtr = std::make_shared<Strategy>(binancePtr);
   strategyBinancePtr->SetCryptoGraphicHandle(_cryptoGraphic);
-  strategyBinanceBot = std::thread(&Strategy::cryptoBot, strategyBinancePtr);
+  std::thread strategyBinanceBot = std::thread(&Strategy::cryptoBot, strategyBinancePtr);
+
+  // tm_[tname] = 
+  std::string name = "binanceData";
+  std::string name2 = "strategyBinanceBot";
+  tm_[name] = binanceData.native_handle();
+  tm_[name2] = strategyBinanceBot.native_handle();
+
+  binanceData.detach();
+  strategyBinanceBot.detach();
+
+}
+
+void CryptoGuiPanel::OnStopRealData(wxCommandEvent &event)
+{
+  std::cout << "\nStopping threads" << std::endl;
+
+  std::cout << "\nnumber of threads before erase: " << tm_.size() << std::endl;
+
+  ThreadMap::const_iterator it = tm_.find("binanceData");
+  if (it != tm_.end())
+  {
+    pthread_cancel(it->second);
+    tm_.erase("binanceData");
+    std::cout << "Thread " << "binanceData" << " killed:" << std::endl;
+  }
+
+  ThreadMap::const_iterator it1 = tm_.find("strategyBinanceBot");
+  if (it1 != tm_.end())
+  {
+    pthread_cancel(it1->second);
+    tm_.erase("strategyBinanceBot");
+    std::cout << "Thread " << "strategyBinanceBot" << " killed:" << std::endl;
+  }
+
+std::cout << "\nnumber of threads afther erase: " << tm_.size() << std::endl;
+
 }
 
 BEGIN_EVENT_TABLE(CryptoGraphic, wxPanel)

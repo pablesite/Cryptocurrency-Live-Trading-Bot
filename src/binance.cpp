@@ -18,12 +18,15 @@ using std::vector;
 Binance::Binance()
 {
     // Constructor of Binance
-
+    
+    std::cout << "Constructor of Binance " << std::endl;
+    
     _mqData = std::make_shared<MessageQueue<double>>();
     // GET for Bitcoint in Binance
     configureAPI("https://api.binance.com/api/v3/ticker/price?symbol=BTCBUSD");
 
-    std::cout << "Constructor of Binance " << std::endl;
+    std::cout << "End Constructor of Binance " << std::endl;
+    
 }
 
 double Binance::retrieveData(double &lookbackperiod)
@@ -47,6 +50,8 @@ static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *use
 
 void Binance::configureAPI(const char *URL)
 {
+    std::cout << "Configuring API " << std::endl;
+
     _curl = curl_easy_init();
     if (_curl)
     {
@@ -60,6 +65,8 @@ void Binance::configureAPI(const char *URL)
         curl_easy_setopt(_curl, CURLOPT_WRITEDATA, &_readBuffer);
     }
     //curl_easy_cleanup(_curl);
+
+    std::cout << "End Configuring API " << std::endl;
 }
 
 void Binance::fetchData()

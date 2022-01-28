@@ -11,6 +11,7 @@
 #include <optional>
 #include "crypto_logic.h"
 #include "simulate_data.h"
+#include <unordered_map>
 
 class CryptoLogic; // forward declaration
 class CryptoGraphic; // forward declaration
@@ -105,10 +106,14 @@ private:
   //std::thread dataSimulated;
   std::optional<std::thread> dataSimulated;
   std::optional<std::thread> historicData;
-  std::optional<std::thread> binanceData;
+  //std::thread binanceData;
   std::optional<std::thread> strategyDataSimulatedBot;
   std::optional<std::thread> strategyHistoricBot;
-  std::optional<std::thread> strategyBinanceBot;
+  //std::thread strategyBinanceBot;
+
+  // typedef std::unordered_map<std::string, std::thread> ThreadMap;
+  // ThreadMap tm_;
+  
 
 public:
   // constructor / destructor
@@ -117,6 +122,9 @@ public:
   void OnStartSimulateData(wxCommandEvent& event);
   void OnStartHistoricalData(wxCommandEvent& event);
   void OnStartRealData(wxCommandEvent& event);
+  void OnStopRealData(wxCommandEvent& event);
+
+   
 
   //DECLARE_EVENT_TABLE()
 
