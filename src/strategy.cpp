@@ -69,6 +69,13 @@ void Strategy::cryptoBot()
 
     std::cout << "CryptoBot working " << std::endl;
 
+    //this while is for avoid the rest of the strategy, because in there, there is some problem with core dump
+    // while (true)
+    // {
+    //     std::this_thread::sleep_for(std::chrono::milliseconds(500));  
+    //     std::cout << "Crypto working " << std::endl;
+    // }
+
     //this->SetCryptoLogicHandle(cryptoLogic);
 
     // investment data
@@ -139,7 +146,9 @@ void Strategy::cryptoBot()
         //std::this_thread::sleep_for(std::chrono::milliseconds(100));
         // retrieve data
         actual_value = getData(lookbackperiod);
+        //Esto es necesario para actualizar la gráfica, creo... El comentario de la línea siguiente no se a qué atiende
         _cryptoGraphic->setActualValue(actual_value); //Esto hace que ya no se llamen los eventos
+        
         std::cout << "Graphics in Strategy2 is: " << _cryptoGraphic;
         //_cryptoGraphic->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGraphic::OnPaint));  
 

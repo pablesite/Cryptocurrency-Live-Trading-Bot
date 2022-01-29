@@ -130,7 +130,7 @@ void HistoricData::createHistoricData(std::shared_ptr<Binance> data)
 
 void HistoricData::fetchData()
 {
-    std::cout << "Reading data from historic Data directory " << std::endl;
+    std::cout << "\n\nReading data from historic Data directory " << std::endl;
 
     // configure working directory
     namespace fs = std::filesystem;

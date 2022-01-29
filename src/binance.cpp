@@ -72,6 +72,11 @@ void Binance::configureAPI(const char *URL)
 void Binance::fetchData()
 {
     std::cout << "Generating data " << std::endl;
+    // while (true)
+    // {
+    //     std::this_thread::sleep_for(std::chrono::milliseconds(500));  
+    //     std::cout << "Data generated " << std::endl;
+    // }
 
     // How many data is fetched?
     double dataFetched = 0;

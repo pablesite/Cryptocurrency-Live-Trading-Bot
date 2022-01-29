@@ -8,32 +8,51 @@
 std::string dataPath = "../";
 std::string imgBasePath = dataPath + "images/";
 
-std::atomic_bool stop_thread_1 = false;
+std::string dataSimulated = "dataSimulated";
+std::string strategyDataSimulatedBot = "strategyDataSimulatedBot";
+std::string historicData = "historicData";
+std::string strategyHistoricBot = "strategyHistoricBot";
+std::string binanceData = "binanceData";
+std::string strategyBinanceBot = "strategyBinanceBot";
+
+wxButton *simulate_btn;
+wxButton *stop_simulate_sim_data_btn;
+wxButton *historic_btn;
+wxButton *stop_simulate_hist_data_btn;
+wxButton *realdata_btn;
+wxButton *stop_simulate_real_data_btn;
 
 typedef std::unordered_map<std::string, pthread_t> ThreadMap;
-ThreadMap tm_;
+ThreadMap thrMap;
+
 
 enum
 {
   ID_Hello = wxID_HIGHEST + 1,
   ID_SIMULATE_DATA,
+  ID_SIMULATE_DATA_STOP,
   ID_HISTORICAL_DATA,
+  ID_HISTORICAL_DATA_STOP,
   ID_REAL_DATA,
   ID_REAL_DATA_STOP
 };
 
 wxBEGIN_EVENT_TABLE(CryptoGui, wxFrame)
-    EVT_MENU(ID_Hello, CryptoGui::OnHello)
-        EVT_MENU(wxID_EXIT, CryptoGui::OnExit)
-            EVT_MENU(wxID_ABOUT, CryptoGui::OnAbout)
-                EVT_BUTTON(ID_SIMULATE_DATA, CryptoGuiPanel::OnStartSimulateData)
-                    EVT_BUTTON(ID_HISTORICAL_DATA, CryptoGuiPanel::OnStartHistoricalData)
-                        EVT_BUTTON(ID_REAL_DATA, CryptoGuiPanel::OnStartRealData)
-                            EVT_BUTTON(ID_REAL_DATA_STOP, CryptoGuiPanel::OnStopRealData)
+  
+  EVT_MENU(ID_Hello, CryptoGui::OnHello)
+  EVT_MENU(wxID_EXIT, CryptoGui::OnExit)
+  EVT_MENU(wxID_ABOUT, CryptoGui::OnAbout)
+  
+  EVT_BUTTON(ID_SIMULATE_DATA, CryptoGuiPanel::OnStartSimulatedData)
+  EVT_BUTTON(ID_SIMULATE_DATA_STOP, CryptoGuiPanel::OnStopSimulatedData)
+  EVT_BUTTON(ID_HISTORICAL_DATA, CryptoGuiPanel::OnStartHistoricalData)
+  EVT_BUTTON(ID_HISTORICAL_DATA_STOP, CryptoGuiPanel::OnStopHistoricalData)
+  EVT_BUTTON(ID_REAL_DATA, CryptoGuiPanel::OnStartRealData)
+  EVT_BUTTON(ID_REAL_DATA_STOP, CryptoGuiPanel::OnStopRealData)
+  
+wxEND_EVENT_TABLE()
 
-                                wxEND_EVENT_TABLE()
-
-                                    wxIMPLEMENT_APP(CryptoBot);
+wxIMPLEMENT_APP(CryptoBot);
 
 bool CryptoBot::OnInit()
 {
@@ -73,9 +92,96 @@ CryptoGui::CryptoGui(const wxString &title, const wxPoint &pos, const wxSize &si
   CryptoGuiPanel *item = new CryptoGuiPanel(panel, isFromUser, _cryptoLogic);
 }
 
-// BEGIN_EVENT_TABLE(CryptoGuiPanel, wxPanel)
-// EVT_BUTTON(ID_SIMULATE_DATA, CryptoGuiPanel::OnStartSimulate)
-// END_EVENT_TABLE()
+void CryptoGui::OnExit(wxCommandEvent &event)
+{
+  Close(true);
+}
+
+void CryptoGui::OnAbout(wxCommandEvent &event)
+{
+  wxMessageBox("This is a wxWidgets' Hello world sample",
+               "About Hello World", wxOK | wxICON_INFORMATION);
+}
+
+void CryptoGui::OnHello(wxCommandEvent &event)
+{
+
+  wxLogMessage("Hello world from wxWidgets!");
+
+  // wxString newName = wxGetTextFromUser(_("New Diagram Name"), _("Diagram Name"), _("unnamed"), this);
+  // wxLogMessage( wxT("The user entered the value %ls"), newName );
+
+  // wxString str1 = wxT("Linux");
+  // wxString str2 = wxT("Operating");
+  // wxString str3 = wxT("System");
+  // wxString str = str1 + wxT(" ") + str2 + wxT(" ") + str3;
+  // wxPuts(str);
+}
+
+void CryptoGui::OnPaint(wxPaintEvent &event)
+{
+
+  // Graphic Lines
+  wxPaintDC dc(this);
+  wxSize size = this->GetSize();
+
+  // Crypto Value
+  wxPen pen3(wxT("BLUE"), 1, wxPENSTYLE_DOT_DASH);
+  dc.SetPen(pen3);
+  // dc.DrawCircle (50, 50, 100);
+
+  // //10 - 50567
+  // wxCoord x1 = 10;
+  // wxCoord y1 = (51000-50567)*size.y/2000;
+  // dc.DrawPoint(x1, y1);
+
+  // //20 - 50435
+  // wxCoord x2 = 20;
+  // wxCoord y2 = (51000-50435)*size.y/2000;
+  // dc.DrawPoint(x2, y2);
+
+  // //30 - 50615
+  // wxCoord x3 = 30;
+  // wxCoord y3 = (51000-50215)*size.y/2000;
+  // dc.DrawPoint(x3, y3);
+
+  // //40 - 49923
+  // wxCoord x4 = 40;
+  // wxCoord y4 = (51000-49723)*size.y/2000;
+  // dc.DrawPoint(x4, y4);
+
+  wxCoord x5 = 0;
+  wxCoord y5 = 0;
+  for (int i = 1; i < size.x; i++)
+  {
+    x5 = i;
+    y5 = (51000 - 49000 - i) * size.y / 2000;
+    dc.DrawPoint(x5, y5);
+  }
+  // dc.DrawLine(150, 150, 150, 200);
+  // dc.DrawPoint(40, 170);
+
+  //   for (int i = 0; i<size.x; i++) {
+  //         x = i % size.x + 1;
+  //         y = rand() % size.y + 1;
+  //         dc.DrawPoint(x, y);
+  //   }
+
+  // std::cout << "Sizees: " << size.x << " " << size.y << " " << x4 << " " << y4 << " " << x3 << " " << y3 << std::endl;
+
+  // this->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGui::OnTest));
+}
+
+
+
+
+
+
+
+
+
+
+
 
 CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr<CryptoLogic> cryptoLogic)
 {
@@ -135,14 +241,17 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr
 
   wxStaticText *data_simulated_label = new wxStaticText(parent, -1, wxT("Data Simulated: "));
 
-  wxButton *simulate_btn = new wxButton(parent, ID_SIMULATE_DATA, wxT("Start")); // TENGO QUE DEFINIR ENUM PARA LOS IDS de los botones (https://forums.wxwidgets.org/viewtopic.php?t=22288)
-  wxButton *stop_simulate_sim_data_btn = new wxButton(parent, -1, wxT("Stop"));
+  simulate_btn = new wxButton(parent, ID_SIMULATE_DATA, wxT("Start")); 
+  stop_simulate_sim_data_btn = new wxButton(parent, ID_SIMULATE_DATA_STOP, wxT("Stop"));
+  stop_simulate_sim_data_btn->Enable(false);
   wxStaticText *historic_data_label = new wxStaticText(parent, -1, wxT("Historic Data: "));
-  wxButton *historic_btn = new wxButton(parent, ID_HISTORICAL_DATA, wxT("Start"));
-  wxButton *stop_simulate_hist_data_btn = new wxButton(parent, -1, wxT("Stop"));
+  historic_btn = new wxButton(parent, ID_HISTORICAL_DATA, wxT("Start"));
+  stop_simulate_hist_data_btn = new wxButton(parent, ID_HISTORICAL_DATA_STOP, wxT("Stop"));
+  stop_simulate_hist_data_btn->Enable(false);
   wxStaticText *realtime_data_label = new wxStaticText(parent, -1, wxT("Real Time Data: "));
-  wxButton *realdata_btn = new wxButton(parent, ID_REAL_DATA, wxT("Start"));
-  wxButton *stop_simulate_real_data_btn = new wxButton(parent, ID_REAL_DATA_STOP, wxT("Stop"));
+  realdata_btn = new wxButton(parent, ID_REAL_DATA, wxT("Start"));
+  stop_simulate_real_data_btn = new wxButton(parent, ID_REAL_DATA_STOP, wxT("Stop"));
+  stop_simulate_real_data_btn->Enable(false);
 
   // Separator vertical line
   wxStaticLine *line_ver_1 = new wxStaticLine(parent, -1);
@@ -296,115 +405,103 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr
 // CryptoGuiPanel::~CryptoGuiPanel()
 // {}
 
-void CryptoGuiPanel::OnStartSimulateData(wxCommandEvent &event)
+void CryptoGuiPanel::OnStartSimulatedData(wxCommandEvent &event)
 {
-  std::cout << "\nOn Start Simulated Data: " << dataSimulated->get_id() << std::endl;
 
-  if (dataSimulated)
-  {
-    dataSimulated->join();
-  };
+  std::cout << "\nOn Start Simulated Data: "<< std::endl;
+  StartStrategy<SimulateData>(dataSimulated, strategyDataSimulatedBot, simulate_btn, stop_simulate_sim_data_btn);
 
-  if (strategyDataSimulatedBot)
-  {
-    strategyDataSimulatedBot->join();
-  };
+}
 
-  // Lanuch a new thread. Don't forget "this".
-  // mythread = std::thread(&myFrame::async_task, this);
+void CryptoGuiPanel::OnStopSimulatedData(wxCommandEvent &event)
+{
+  std::cout << "\nStopping Simulated Data Threads" << std::endl;
+  std::vector<std::string> threadsToKill = {dataSimulated, strategyDataSimulatedBot};
+  KillThreads(threadsToKill, simulate_btn, stop_simulate_sim_data_btn);
 
-  std::shared_ptr<SimulateData> dataSimulatedPtr = std::make_shared<SimulateData>();
-  dataSimulated = std::thread(&SimulateData::fetchData, dataSimulatedPtr);
-
-  // STRATEGY
-  std::shared_ptr<Strategy> strategyDataSimulatedPtr = std::make_shared<Strategy>(dataSimulatedPtr);
-  strategyDataSimulatedPtr->SetCryptoGraphicHandle(_cryptoGraphic);
-  strategyDataSimulatedBot = std::thread(&Strategy::cryptoBot, strategyDataSimulatedPtr); // PROBLEMAS CON EL PUNTERO
 }
 
 void CryptoGuiPanel::OnStartHistoricalData(wxCommandEvent &event)
 {
-  std::cout << "\nOn Start Historical Data: " << historicData->get_id() << std::endl;
+  std::cout << "\nOn Start Historical Data: " << std::endl;
+  StartStrategy<HistoricData>(historicData, strategyHistoricBot, historic_btn, stop_simulate_hist_data_btn);
 
-  if (historicData)
-  {
-    historicData->join();
-  };
+}
 
-  if (strategyHistoricBot)
-  {
-    strategyHistoricBot->join();
-  };
-
-  // HISTORICAL DATA (IN FILE)
-  std::shared_ptr<HistoricData> historicDataPtr = std::make_shared<HistoricData>();
-  historicData = std::thread(&HistoricData::fetchData, historicDataPtr);
-
-  // STRATEGY
-  std::shared_ptr<Strategy> strategyHistoricPtr = std::make_shared<Strategy>(historicDataPtr);
-  strategyHistoricPtr->SetCryptoGraphicHandle(_cryptoGraphic);
-  strategyHistoricBot = std::thread(&Strategy::cryptoBot, strategyHistoricPtr);
+void CryptoGuiPanel::OnStopHistoricalData(wxCommandEvent &event)
+{
+  std::cout << "\nStopping Historical Data Threads" << std::endl;
+  std::vector<std::string> threadsToKill = {historicData, strategyHistoricBot};
+  KillThreads(threadsToKill, historic_btn, stop_simulate_hist_data_btn); 
 }
 
 void CryptoGuiPanel::OnStartRealData(wxCommandEvent &event)
 {
-  // std::cout << "\nOn Start Real Data: " << binanceData.get_id() << std::endl;
-
-  // if (binanceData)
-  // {
-  //   binanceData->join();
-  // };
-
-  // if (strategyBinanceBot)
-  // {
-  //   strategyBinanceBot->join();
-  // };
-
-  std::shared_ptr<Binance> binancePtr = std::make_shared<Binance>();
-  std::thread binanceData = std::thread(&Binance::fetchData, binancePtr);
-
-  std::cout << "\nOn Start Real Data: " << binanceData.get_id() << std::endl;
-  // STRATEGY
-  std::shared_ptr<Strategy> strategyBinancePtr = std::make_shared<Strategy>(binancePtr);
-  strategyBinancePtr->SetCryptoGraphicHandle(_cryptoGraphic);
-  std::thread strategyBinanceBot = std::thread(&Strategy::cryptoBot, strategyBinancePtr);
-
-  // tm_[tname] = 
-  std::string name = "binanceData";
-  std::string name2 = "strategyBinanceBot";
-  tm_[name] = binanceData.native_handle();
-  tm_[name2] = strategyBinanceBot.native_handle();
-
-  binanceData.detach();
-  strategyBinanceBot.detach();
-
+  std::cout << "\nOn Start Real Data: " << std::endl;
+  StartStrategy<Binance>(binanceData, strategyBinanceBot, realdata_btn, stop_simulate_real_data_btn);
 }
 
 void CryptoGuiPanel::OnStopRealData(wxCommandEvent &event)
 {
-  std::cout << "\nStopping threads" << std::endl;
-
-  std::cout << "\nnumber of threads before erase: " << tm_.size() << std::endl;
-
-  ThreadMap::const_iterator it = tm_.find("binanceData");
-  if (it != tm_.end())
-  {
-    pthread_cancel(it->second);
-    tm_.erase("binanceData");
-    std::cout << "Thread " << "binanceData" << " killed:" << std::endl;
-  }
-
-  ThreadMap::const_iterator it1 = tm_.find("strategyBinanceBot");
-  if (it1 != tm_.end())
-  {
-    pthread_cancel(it1->second);
-    tm_.erase("strategyBinanceBot");
-    std::cout << "Thread " << "strategyBinanceBot" << " killed:" << std::endl;
-  }
-
-std::cout << "\nnumber of threads afther erase: " << tm_.size() << std::endl;
+  std::cout << "\nStopping Real Data Threads" << std::endl;
+  std::vector<std::string> threadsToKill = {binanceData, strategyBinanceBot};
+  KillThreads(threadsToKill, realdata_btn, stop_simulate_real_data_btn);
 
 }
+
+
+template <class T> void CryptoGuiPanel::StartStrategy(std::string dataThrName, std::string strategyThrName, wxButton *start_btn, wxButton *stop_btn)
+{
+
+  // Data thread
+  std::shared_ptr<T> dataPtr = std::make_shared<T>();
+  std::thread dataThr = std::thread(&T::fetchData, dataPtr);
+
+  // Strategy thread
+  std::shared_ptr<Strategy> strategyPtr = std::make_shared<Strategy>(dataPtr);
+  strategyPtr->SetCryptoGraphicHandle(_cryptoGraphic);
+  std::thread strategyThr = std::thread(&Strategy::cryptoBot, strategyPtr);
+
+  // Save reference for threads
+  thrMap[dataThrName] = dataThr.native_handle(); 
+  thrMap[strategyThrName] = strategyThr.native_handle(); 
+
+  // Manage buttons
+  start_btn->Enable(false); 
+  stop_btn->Enable(true); 
+
+  // Detach threads
+  dataThr.detach();
+  strategyThr.detach();
+
+}
+void CryptoGuiPanel::KillThreads(std::vector<std::string> threadsToKill, wxButton *start_btn,wxButton *stop_btn) {
+
+  ThreadMap::const_iterator it; 
+  
+  for( std::string thrToKill : threadsToKill){
+    it = thrMap.find(thrToKill);
+    if (it != thrMap.end())
+      {
+        pthread_cancel(it->second);
+        thrMap.erase(thrToKill);
+        std::cout << "Thread " << thrToKill << " killed:" << std::endl;
+      }
+  }
+
+  // Manage buttons
+  start_btn->Enable(true);
+  stop_btn->Enable(false);
+
+  std::cout << std::endl;
+}
+
+
+
+
+
+
+
 
 BEGIN_EVENT_TABLE(CryptoGraphic, wxPanel)
 // EVT_PAINT(CryptoGraphic::paintEvent) // catch paint events
@@ -508,90 +605,10 @@ void CryptoGraphic::render(wxDC &dc)
   //   dc.DrawBitmap(_image, 0, 0, false);
 }
 
-void CryptoGui::OnExit(wxCommandEvent &event)
-{
-  Close(true);
-}
-
-void CryptoGui::OnAbout(wxCommandEvent &event)
-{
-  wxMessageBox("This is a wxWidgets' Hello world sample",
-               "About Hello World", wxOK | wxICON_INFORMATION);
-}
-
-void CryptoGui::OnHello(wxCommandEvent &event)
-{
-
-  wxLogMessage("Hello world from wxWidgets!");
-
-  // wxString newName = wxGetTextFromUser(_("New Diagram Name"), _("Diagram Name"), _("unnamed"), this);
-  // wxLogMessage( wxT("The user entered the value %ls"), newName );
-
-  // wxString str1 = wxT("Linux");
-  // wxString str2 = wxT("Operating");
-  // wxString str3 = wxT("System");
-  // wxString str = str1 + wxT(" ") + str2 + wxT(" ") + str3;
-  // wxPuts(str);
-}
-
-void CryptoGui::OnPaint(wxPaintEvent &event)
-{
-
-  // Graphic Lines
-  wxPaintDC dc(this);
-  wxSize size = this->GetSize();
-
-  // Crypto Value
-  wxPen pen3(wxT("BLUE"), 1, wxPENSTYLE_DOT_DASH);
-  dc.SetPen(pen3);
-  // dc.DrawCircle (50, 50, 100);
-
-  // //10 - 50567
-  // wxCoord x1 = 10;
-  // wxCoord y1 = (51000-50567)*size.y/2000;
-  // dc.DrawPoint(x1, y1);
-
-  // //20 - 50435
-  // wxCoord x2 = 20;
-  // wxCoord y2 = (51000-50435)*size.y/2000;
-  // dc.DrawPoint(x2, y2);
-
-  // //30 - 50615
-  // wxCoord x3 = 30;
-  // wxCoord y3 = (51000-50215)*size.y/2000;
-  // dc.DrawPoint(x3, y3);
-
-  // //40 - 49923
-  // wxCoord x4 = 40;
-  // wxCoord y4 = (51000-49723)*size.y/2000;
-  // dc.DrawPoint(x4, y4);
-
-  wxCoord x5 = 0;
-  wxCoord y5 = 0;
-  for (int i = 1; i < size.x; i++)
-  {
-    x5 = i;
-    y5 = (51000 - 49000 - i) * size.y / 2000;
-    dc.DrawPoint(x5, y5);
-  }
-  // dc.DrawLine(150, 150, 150, 200);
-  // dc.DrawPoint(40, 170);
-
-  //   for (int i = 0; i<size.x; i++) {
-  //         x = i % size.x + 1;
-  //         y = rand() % size.y + 1;
-  //         dc.DrawPoint(x, y);
-  //   }
-
-  // std::cout << "Sizees: " << size.x << " " << size.y << " " << x4 << " " << y4 << " " << x3 << " " << y3 << std::endl;
-
-  // this->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGui::OnTest));
-}
-
 void CryptoGraphic::OnPaint(wxPaintEvent &event)
 {
 
-  std::cout << "PIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIINTO" << std::endl;
+  std::cout << "PIIIIIIIIIINTO EN CRYPTOGRAPHIC" << std::endl;
   // Graphic Lines
   wxPaintDC dc(this);
   wxSize size = this->GetSize();

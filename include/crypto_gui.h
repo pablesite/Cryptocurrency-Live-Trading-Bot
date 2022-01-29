@@ -24,6 +24,10 @@ public:
   virtual bool OnInit();
 };
 
+
+
+
+
 // graphics for real time data
 class CryptoGraphic : public wxPanel 
 {
@@ -36,8 +40,6 @@ private:
   //std::unique_ptr<ChatLogic> _chatLogic;
   std::unique_ptr<CryptoLogic> _cryptoLogic; 
   double _actual_value;
- 
-
 
 public:
   // constructor / destructor
@@ -62,6 +64,11 @@ public:
   DECLARE_EVENT_TABLE()
 };
 
+
+
+
+
+
 class CryptoGui : public wxFrame
 {
 public:
@@ -75,10 +82,19 @@ private:
 
   std::shared_ptr<CryptoLogic> _cryptoLogic; //El puntero de la lógica está repetido......está también en CryptoGraphic. Cuidado
   std::shared_ptr<SimulateData> dataSimulatedPtr;
+
   
   wxDECLARE_EVENT_TABLE();
 
 };
+
+
+
+
+
+
+
+
 
 class CryptoGuiPanel : public wxPanel
 {
@@ -100,35 +116,24 @@ private:
 
   wxPanel *graphics_results;
 
-  //wxButton *simulate_btn;
-  
-  //std::shared_ptr<CryptoGraphic> _cryptoGraphic;
-  //std::thread dataSimulated;
-  std::optional<std::thread> dataSimulated;
-  std::optional<std::thread> historicData;
-  //std::thread binanceData;
-  std::optional<std::thread> strategyDataSimulatedBot;
-  std::optional<std::thread> strategyHistoricBot;
-  //std::thread strategyBinanceBot;
-
-  // typedef std::unordered_map<std::string, std::thread> ThreadMap;
-  // ThreadMap tm_;
-  
+  //DECLARE_EVENT_TABLE()
 
 public:
   // constructor / destructor
   CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr<CryptoLogic> cryptoLogic);
   // ~CryptoGuiPanel();
-  void OnStartSimulateData(wxCommandEvent& event);
+
+  void OnStartSimulatedData(wxCommandEvent& event);
+  void OnStopSimulatedData(wxCommandEvent& event);
   void OnStartHistoricalData(wxCommandEvent& event);
+  void OnStopHistoricalData(wxCommandEvent& event);
   void OnStartRealData(wxCommandEvent& event);
   void OnStopRealData(wxCommandEvent& event);
 
-   
+  template <class T> void StartStrategy(std::string dataThrName, std::string strategyThrName, wxButton *start_btn, wxButton *stop_btn);
+  void KillThreads(std::vector<std::string> threadsToKill, wxButton *start_btn,wxButton *stop_btn);
 
-  //DECLARE_EVENT_TABLE()
-
-   
+     
 };
 
 
