@@ -17,7 +17,7 @@ using std::vector;
 Strategy::Strategy(std::shared_ptr<Binance> data) : data_binance(move(data))
 {
     std::cout << "Constructor of Strategy with real data from Binance " << std::endl;
-    
+
     _type = TypesOfData::Binance;
 }
 
@@ -32,7 +32,6 @@ Strategy::Strategy(std::shared_ptr<HistoricData> data) : data_historic(move(data
     std::cout << "Constructor of Strategy with historic data " << std::endl;
     _type = TypesOfData::HistoricData;
 }
-
 
 double Strategy::getData(double lookbackperiod)
 {
@@ -62,21 +61,19 @@ double Strategy::getData(double lookbackperiod)
     }
 }
 
-
-
 void Strategy::cryptoBot()
 {
 
     std::cout << "CryptoBot working " << std::endl;
 
-    //this while is for avoid the rest of the strategy, because in there, there is some problem with core dump
-    // while (true)
-    // {
-    //     std::this_thread::sleep_for(std::chrono::milliseconds(500));  
-    //     std::cout << "Crypto working " << std::endl;
-    // }
+    // this while is for avoid the rest of the strategy, because in there, there is some problem with core dump
+    //  while (true)
+    //  {
+    //      std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    //      std::cout << "Crypto working " << std::endl;
+    //  }
 
-    //this->SetCryptoLogicHandle(cryptoLogic);
+    // this->SetCryptoLogicHandle(cryptoLogic);
 
     // investment data
     double invest_qty = 0.004;
@@ -86,7 +83,7 @@ void Strategy::cryptoBot()
 
     // input strategy data
     double entry = 2 * commission; // to make robust my positions
-    double rupture = commission/0.3;
+    double rupture = commission / 0.3;
     double recession = -2 * commission;
     double lookbackperiod = 1;
 
@@ -130,29 +127,30 @@ void Strategy::cryptoBot()
 
     // (1 + % commission)/(1 - % commission)  >  (1 + %rupture) //This is not too clear
 
-    //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     base = getData(lookbackperiod);
     // _cryptoLogic->sendToLogic(base);
-        std::cout << "data is: " << base << std::endl;
-        //_cryptoGraphic->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGraphic::paintEvent)); 
-       // _cryptoGraphic->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGraphic::OnPaint));  
+    std::cout << "data is: " << base << std::endl;
+    //_cryptoGraphic->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGraphic::paintEvent));
+    // _cryptoGraphic->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGraphic::OnPaint));
     invest = invest_qty * base; // TO REVIEW...
 
     while (true)
     {
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        //std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        // retrieve data
+        // std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        //  retrieve data
         actual_value = getData(lookbackperiod);
-        //Esto es necesario para actualizar la gráfica, creo... El comentario de la línea siguiente no se a qué atiende
-        _cryptoGraphic->setActualValue(actual_value); //Esto hace que ya no se llamen los eventos
-        
-        std::cout << "Graphics in Strategy2 is: " << _cryptoGraphic;
-        //_cryptoGraphic->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGraphic::OnPaint));  
+        // Esto es necesario para actualizar la gráfica, creo... El comentario de la línea siguiente no se a qué atiende
+        _cryptoGraphic->setActualValue(actual_value); // Esto hace que ya no se llamen los eventos
+        std::cout << "\n\nACTUALIZO EL VALOR Y LO MANDO " << actual_value << " " << std::endl;
 
-        //cryptologic->setDataFromStrategy(actual_value);
+        //_cryptoGraphic->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGraphic::OnPaint));
+        // cryptologic->setDataFromStrategy(actual_value);
+
+
         count += 1;
 
         std::cout << std::setprecision(4) << std::fixed << "To buy " << actual_value << " => " << (1 - entry * 2) * base << " < " << base << " > " << (1 + entry) * base << std::endl;
@@ -166,13 +164,13 @@ void Strategy::cryptoBot()
         // to make an order
         if ((actual_value / base - 1) > entry)
         {
-            order = invest_qty * (1 + commission) * actual_value * (actual_value / base); //simulate the bought
+            order = invest_qty * (1 + commission) * actual_value * (actual_value / base); // simulate the bought
             std::cout << std::endl
                       << "Buying my position " << invest_qty << " bitcoint. Actual value: " << actual_value << ". Order = " << order << " $. " << std::endl;
 
             base = actual_value; // Define new base
             open_position = true;
-            //break;
+            // break;
         }
 
         // to return the order
@@ -197,7 +195,7 @@ void Strategy::cryptoBot()
                 if ((actual_value / base - 1) < recession)
                 {
 
-                    benefit = (invest_qty * actual_value * (1 - commission)) - order; //simulate the sell
+                    benefit = (invest_qty * actual_value * (1 - commission)) - order; // simulate the sell
                     std::cout << std::endl
                               << "Selling my position: " << invest_qty << " bitcoint. Actual value: " << actual_value << ". Benefits = " << benefit << " $." << std::endl;
 
@@ -216,14 +214,13 @@ void Strategy::cryptoBot()
     return;
 }
 
-void Strategy::SetCryptoLogicHandle(std::shared_ptr<CryptoLogic> cryptoLogic) {
-  _cryptoLogic = cryptoLogic;
-
+void Strategy::SetCryptoLogicHandle(std::shared_ptr<CryptoLogic> cryptoLogic)
+{
+    _cryptoLogic = cryptoLogic;
 }
 
-void Strategy::SetCryptoGraphicHandle(CryptoGraphic * cryptoGraphic) {
-    std::cout << "Seteo el ptr de cryptoGraphic" << std::endl;
-    
+void Strategy::SetCryptoGraphicHandle(CryptoGraphic *cryptoGraphic)
+{
     _cryptoGraphic = cryptoGraphic;
-    std::cout << "Graphics in Strategy is: " << _cryptoGraphic;
+    std::cout << "\n\nGraphics in Strategy is: " << _cryptoGraphic;
 }

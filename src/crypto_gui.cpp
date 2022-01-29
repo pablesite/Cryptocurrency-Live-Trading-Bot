@@ -8,6 +8,10 @@
 std::string dataPath = "../";
 std::string imgBasePath = dataPath + "images/";
 
+int secs = 0; //secs for test
+std::deque<wxCoord> y_val{};
+std::deque<wxCoord> x_val{};
+
 std::string dataSimulated = "dataSimulated";
 std::string strategyDataSimulatedBot = "strategyDataSimulatedBot";
 std::string historicData = "historicData";
@@ -29,6 +33,7 @@ ThreadMap thrMap;
 enum
 {
   ID_Hello = wxID_HIGHEST + 1,
+  ID_CREATE_HISTORICAL_DATA,
   ID_SIMULATE_DATA,
   ID_SIMULATE_DATA_STOP,
   ID_HISTORICAL_DATA,
@@ -42,7 +47,8 @@ wxBEGIN_EVENT_TABLE(CryptoGui, wxFrame)
   EVT_MENU(ID_Hello, CryptoGui::OnHello)
   EVT_MENU(wxID_EXIT, CryptoGui::OnExit)
   EVT_MENU(wxID_ABOUT, CryptoGui::OnAbout)
-  
+
+  EVT_BUTTON(ID_CREATE_HISTORICAL_DATA, CryptoGuiPanel::OnCreateHistoricalData)
   EVT_BUTTON(ID_SIMULATE_DATA, CryptoGuiPanel::OnStartSimulatedData)
   EVT_BUTTON(ID_SIMULATE_DATA_STOP, CryptoGuiPanel::OnStopSimulatedData)
   EVT_BUTTON(ID_HISTORICAL_DATA, CryptoGuiPanel::OnStartHistoricalData)
@@ -118,9 +124,9 @@ void CryptoGui::OnHello(wxCommandEvent &event)
   // wxPuts(str);
 }
 
-void CryptoGui::OnPaint(wxPaintEvent &event)
+void CryptoGui::OnPaint(wxPaintEvent &event) //It is not used
 {
-
+  std::cout << "\n ON PAINT DE CRYPTOGUI " << std::endl;
   // Graphic Lines
   wxPaintDC dc(this);
   wxSize size = this->GetSize();
@@ -224,7 +230,7 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr
   // Inside create_box
   wxStaticText *create_title_label = new wxStaticText(parent, -1, wxT("Create historic data "));
   wxStaticText *text_create = new wxStaticText(parent, -1, wxT("Push to create data: "));
-  wxButton *createData = new wxButton(parent, -1, wxT("Create Data"));
+  wxButton *createData = new wxButton(parent, ID_CREATE_HISTORICAL_DATA, wxT("Create Data"));
 
   wxStaticLine *line_hor_1 = new wxStaticLine(parent, -1);
 
@@ -393,7 +399,7 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr
   _cryptoGraphic = new CryptoGraphic(parent, wxID_ANY);
 
   hrighttbox2->Add(_cryptoGraphic, 1, wxEXPAND | wxTOP | wxDOWN | wxLEFT | wxRIGHT, 20);
-  cryptoLogic->SetCryptoGraphicHandle(_cryptoGraphic);
+  //cryptoLogic->SetCryptoGraphicHandle(_cryptoGraphic); //ESTO CREO QUE NO ES NECESARIO
 
   // Stablish size from Panels
   parent->SetSizer(hbox);
@@ -405,12 +411,28 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr
 // CryptoGuiPanel::~CryptoGuiPanel()
 // {}
 
-void CryptoGuiPanel::OnStartSimulatedData(wxCommandEvent &event)
+void CryptoGuiPanel::OnCreateHistoricalData(wxCommandEvent &event)
 {
 
+std::cout << "\nCreating new data series with real data: " << std::endl;
+
+// REAL DATA IN REAL TIME
+std::shared_ptr<Binance> binancePtr = std::make_shared<Binance>();
+std::thread binanceData = std::thread(&Binance::fetchData, binancePtr);
+
+// 2. CREATE NEW DATA SERIES
+std::shared_ptr<HistoricData> dataFilePtr = std::make_shared<HistoricData>();
+std::thread writeHistoricData = std::thread(&HistoricData::createHistoricData, dataFilePtr, binancePtr);
+
+writeHistoricData.detach();
+binanceData.detach();
+
+}
+
+void CryptoGuiPanel::OnStartSimulatedData(wxCommandEvent &event)
+{
   std::cout << "\nOn Start Simulated Data: "<< std::endl;
   StartStrategy<SimulateData>(dataSimulated, strategyDataSimulatedBot, simulate_btn, stop_simulate_sim_data_btn);
-
 }
 
 void CryptoGuiPanel::OnStopSimulatedData(wxCommandEvent &event)
@@ -542,57 +564,53 @@ CryptoGraphic::~CryptoGraphic()
 
 void CryptoGraphic::setActualValue(double value)
 {
-  std::cout << "\nSeteo el valor actual 1: " << _actual_value << " this: " << this << std::endl;
   _actual_value = value;
-  std::cout << "Seteo el valor actual 2: " << _actual_value << std::endl;
-  // this->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGraphic::OnPaint));
-  // wxWindow::PostSizeEvent();
   Refresh();
 }
 
-void CryptoGraphic::paintEvent(wxPaintEvent &evt)
+void CryptoGraphic::paintEvent(wxPaintEvent &evt) //It is not used
 {
 
+  // // wxPaintDC dc(this);
+  // // render(dc);
+  // // Graphic Lines
+  // wxPaintDC dc(this);
+  // wxPen pen1(wxT("BLACK"), 2, wxPENSTYLE_SOLID);
+  // dc.SetPen(pen1);
+  // wxSize size = this->GetSize();
+  // wxCoord xOrig = 0;
+  // wxCoord yOrig = size.y - 1;
+  // wxCoord xYmax = 0;
+  // wxCoord yYmax = 0;
+  // wxCoord xXmax = size.x - 1;
+  // wxCoord yXmax = size.y - 1;
+  // dc.DrawLine(xOrig, yOrig, xYmax, yYmax);
+  // dc.DrawLine(xOrig, yOrig, xXmax, yXmax);
+
+  // // Intermediate Lins
+  // // wxPen (const wxColour &colour, int width=1, wxPenStyle style=wxPENSTYLE_SOLID)
+  // wxPen pen2(wxT("RED"), 2, wxPENSTYLE_DOT_DASH);
+  // dc.SetPen(pen2);
+  // // dc.DrawCircle (50, 50, 100);
+  // wxCoord xUp1 = 0;
+  // wxCoord yUp1 = (size.y - 1) / 4;
+  // wxCoord xUp2 = size.x - 1;
+  // wxCoord yUp2 = (size.y - 1) / 4;
+  // wxCoord xDown1 = 0;
+  // wxCoord yDown = (size.y - 1) * 3 / 4;
+  // wxCoord xDown2 = size.x - 1;
+  // wxCoord yDown2 = (size.y - 1) * 3 / 4;
+  // dc.DrawLine(xUp1, yUp1, xUp2, yUp2);
+  // dc.DrawLine(xDown1, yDown, xDown2, yDown2);
+}
+
+void CryptoGraphic::paintNow() //It is not used...
+{
   // wxPaintDC dc(this);
   // render(dc);
-  // Graphic Lines
-  wxPaintDC dc(this);
-  wxPen pen1(wxT("BLACK"), 2, wxPENSTYLE_SOLID);
-  dc.SetPen(pen1);
-  wxSize size = this->GetSize();
-  wxCoord xOrig = 0;
-  wxCoord yOrig = size.y - 1;
-  wxCoord xYmax = 0;
-  wxCoord yYmax = 0;
-  wxCoord xXmax = size.x - 1;
-  wxCoord yXmax = size.y - 1;
-  dc.DrawLine(xOrig, yOrig, xYmax, yYmax);
-  dc.DrawLine(xOrig, yOrig, xXmax, yXmax);
-
-  // Intermediate Lins
-  // wxPen (const wxColour &colour, int width=1, wxPenStyle style=wxPENSTYLE_SOLID)
-  wxPen pen2(wxT("RED"), 2, wxPENSTYLE_DOT_DASH);
-  dc.SetPen(pen2);
-  // dc.DrawCircle (50, 50, 100);
-  wxCoord xUp1 = 0;
-  wxCoord yUp1 = (size.y - 1) / 4;
-  wxCoord xUp2 = size.x - 1;
-  wxCoord yUp2 = (size.y - 1) / 4;
-  wxCoord xDown1 = 0;
-  wxCoord yDown = (size.y - 1) * 3 / 4;
-  wxCoord xDown2 = size.x - 1;
-  wxCoord yDown2 = (size.y - 1) * 3 / 4;
-  dc.DrawLine(xUp1, yUp1, xUp2, yUp2);
-  dc.DrawLine(xDown1, yDown, xDown2, yDown2);
 }
 
-void CryptoGraphic::paintNow()
-{
-  wxPaintDC dc(this);
-  render(dc);
-}
-
-void CryptoGraphic::render(wxDC &dc)
+void CryptoGraphic::render(wxDC &dc) //It is not used...
 {
   //   wxImage image;
   //   image.LoadFile(imgBasePath + "sf_bridge_inner.jpg");
@@ -609,13 +627,26 @@ void CryptoGraphic::OnPaint(wxPaintEvent &event)
 {
 
   std::cout << "PIIIIIIIIIINTO EN CRYPTOGRAPHIC" << std::endl;
-  // Graphic Lines
+  
+  // Draw axis
   wxPaintDC dc(this);
+  wxPen pen1(wxT("BLACK"), 2, wxPENSTYLE_SOLID);
+  dc.SetPen(pen1);
   wxSize size = this->GetSize();
+  wxCoord xOrig = 0;
+  wxCoord yOrig = size.y - 1;
+  wxCoord xYmax = 0;
+  wxCoord yYmax = 0;
+  wxCoord xXmax = size.x - 1;
+  wxCoord yXmax = size.y - 1;
+  dc.DrawLine(xOrig, yOrig, xYmax, yYmax);
+  dc.DrawLine(xOrig, yOrig, xXmax, yXmax);
 
+
+  // Draw Quartiles
   wxPen pen2(wxT("RED"), 2, wxPENSTYLE_DOT_DASH);
   dc.SetPen(pen2);
-  // dc.DrawCircle (50, 50, 100);
+
   wxCoord xUp1 = 0;
   wxCoord yUp1 = (size.y - 1) / 4;
   wxCoord xUp2 = size.x - 1;
@@ -627,21 +658,48 @@ void CryptoGraphic::OnPaint(wxPaintEvent &event)
   dc.DrawLine(xUp1, yUp1, xUp2, yUp2);
   dc.DrawLine(xDown1, yDown, xDown2, yDown2);
 
-  std::cout << xDown1 << " " << yDown << " " << xDown2 << " " << yDown2;
+  std::cout << xDown1 << " " << yDown << " " << xDown2 << " " << yDown2 << std::endl;
 
-  // Crypto Value
-  wxPen pen3(wxT("GREEN"), 5, wxPENSTYLE_DOT_DASH);
+
+  // Draw line of value
+  wxPen pen3(wxT("GREEN"), 3, wxPENSTYLE_DOT_DASH);
   dc.SetPen(pen3);
   // dc.DrawCircle (50, 50, 100);
 
   wxCoord x5 = 0;
   wxCoord y5 = 0;
-  for (int i = 1; i < size.x; i++)
-  {
-    x5 = i;
-    y5 = (51000 - _actual_value) * size.y / 2000;
-    dc.DrawPoint(x5, y5);
+  
+  x5 = (secs * size.x)/60; // 60 are the seconds to represent in the plot
+  y5 = size.y * (65000 - _actual_value)/65000;
+  x_val.emplace_back(x5);
+  y_val.emplace_back(y5);
+  if(x_val.size()>10){
+    x_val.pop_front();
+    y_val.pop_front();
+  } else {
+    secs+=1;
   }
+
+   
+  for (size_t i = 0; i < x_val.size(); ++i)
+    {
+      //dc.DrawPoint(x_val[i], y_val[i]);
+      if(i>1){
+        dc.DrawLine(x_val[i-1], y_val[i-1], x_val[i], y_val[i]);
+      }
+      
+    }
+  
+  std::cout << "ACTUAL VALUE: " << _actual_value << " " << x5 << " " << y5 << " " << size.y << y_val.size() << std::endl;
+
+  
+
+  // for (int i = 1; i < size.x; i++)
+  // {
+  //   x5 = i;
+  //   y5 = (51000 - _actual_value) * size.y / 2000;
+  //   dc.DrawPoint(x5, y5);
+  // }
   // wxCoord x1_5 = 0;
   // wxCoord y1_5 = (51000 - _actual_value) * size.y / 2000;
   // wxCoord x2_5 = 591;

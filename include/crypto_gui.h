@@ -123,6 +123,7 @@ public:
   CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr<CryptoLogic> cryptoLogic);
   // ~CryptoGuiPanel();
 
+  void OnCreateHistoricalData(wxCommandEvent &event);
   void OnStartSimulatedData(wxCommandEvent& event);
   void OnStopSimulatedData(wxCommandEvent& event);
   void OnStartHistoricalData(wxCommandEvent& event);
