@@ -10,7 +10,7 @@ std::string imgBasePath = dataPath + "images/";
 
 int secs = 0; //secs for test
 std::deque<wxCoord> y_val{};
-std::deque<wxCoord> x_val{};
+
 
 std::string dataSimulated = "dataSimulated";
 std::string strategyDataSimulatedBot = "strategyDataSimulatedBot";
@@ -25,6 +25,12 @@ wxButton *historic_btn;
 wxButton *stop_simulate_hist_data_btn;
 wxButton *realdata_btn;
 wxButton *stop_simulate_real_data_btn;
+
+wxStaticText *x_tick_label0;
+wxStaticText *x_tick_label1;
+wxStaticText *x_tick_label2;
+wxStaticText *x_tick_label3;
+wxStaticText *x_tick_label4;
 
 typedef std::unordered_map<std::string, pthread_t> ThreadMap;
 ThreadMap thrMap;
@@ -555,6 +561,15 @@ CryptoGraphic::CryptoGraphic(wxWindow *parent, wxWindowID id)
   //   _cryptoLogic->LoadAnswerGraphFromFile(dataPath + "src/answergraph.txt");
 
   this->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGraphic::OnPaint));
+  x_tick_label0 = new wxStaticText(this, -1, wxT("0"));
+  x_tick_label1 = new wxStaticText(this, -1, wxT("16250"));
+  x_tick_label2 = new wxStaticText(this, -1, wxT("32500"));
+  x_tick_label3 = new wxStaticText(this, -1, wxT("48750"));
+  x_tick_label4 = new wxStaticText(this, -1, wxT("65000"));
+
+  //x_tick_label1->SetLabel(wxString::Format(wxT("x: %d"), 243 ));
+  
+
 }
 
 CryptoGraphic::~CryptoGraphic()
@@ -633,28 +648,49 @@ void CryptoGraphic::OnPaint(wxPaintEvent &event)
   wxPen pen1(wxT("BLACK"), 2, wxPENSTYLE_SOLID);
   dc.SetPen(pen1);
   wxSize size = this->GetSize();
-  wxCoord xOrig = 0;
-  wxCoord yOrig = size.y - 1;
-  wxCoord xYmax = 0;
+  wxCoord xOrig = 50;
+  wxCoord yOrig = size.y-30;
+  wxCoord xYmax = 50;
   wxCoord yYmax = 0;
-  wxCoord xXmax = size.x - 1;
-  wxCoord yXmax = size.y - 1;
+  wxCoord xXmax = size.x-1;
+  wxCoord yXmax = size.y-30;
   dc.DrawLine(xOrig, yOrig, xYmax, yYmax);
   dc.DrawLine(xOrig, yOrig, xXmax, yXmax);
+
+  // Draw ticks
+
+  wxCoord y_tick_0 = (size.y-10-30)*4/4+10;
+  wxCoord y_tick_1 = (size.y-10-30)*3/4+10;
+  wxCoord y_tick_2 = (size.y-10-30)*2/4+10;
+  wxCoord y_tick_3 = (size.y-10-30)*1/4+10;
+  wxCoord y_tick_4 = 10;
+
+  dc.DrawLine(45, y_tick_0, xOrig, y_tick_0);
+  dc.DrawLine(45, y_tick_1, xOrig, y_tick_1);
+  dc.DrawLine(45, y_tick_2, xOrig, y_tick_2);
+  dc.DrawLine(45, y_tick_3, xOrig, y_tick_3);
+  dc.DrawLine(45, y_tick_4, xOrig, y_tick_4);
+
+  x_tick_label0->SetPosition(wxPoint(0,y_tick_0-9));
+  //x_tick->SetLabel(wxString::Format(wxT("x: %d"), size.x ));
+  x_tick_label1->SetPosition(wxPoint(0,y_tick_1-9));
+  x_tick_label2->SetPosition(wxPoint(0,y_tick_2-9));
+  x_tick_label3->SetPosition(wxPoint(0,y_tick_3-9));
+  x_tick_label4->SetPosition(wxPoint(0,y_tick_4-9));
 
 
   // Draw Quartiles
   wxPen pen2(wxT("RED"), 2, wxPENSTYLE_DOT_DASH);
   dc.SetPen(pen2);
 
-  wxCoord xUp1 = 0;
-  wxCoord yUp1 = (size.y - 1) / 4;
-  wxCoord xUp2 = size.x - 1;
-  wxCoord yUp2 = (size.y - 1) / 4;
-  wxCoord xDown1 = 0;
-  wxCoord yDown = (size.y - 1) * 3 / 4;
-  wxCoord xDown2 = size.x - 1;
-  wxCoord yDown2 = (size.y - 1) * 3 / 4;
+  wxCoord xUp1 = 50;
+  wxCoord yUp1 = y_tick_1;
+  wxCoord xUp2 = size.x-1;
+  wxCoord yUp2 = y_tick_1;
+  wxCoord xDown1 = 50;
+  wxCoord yDown = y_tick_3;
+  wxCoord xDown2 = size.x-1;
+  wxCoord yDown2 = y_tick_3;
   dc.DrawLine(xUp1, yUp1, xUp2, yUp2);
   dc.DrawLine(xDown1, yDown, xDown2, yDown2);
 
@@ -666,25 +702,31 @@ void CryptoGraphic::OnPaint(wxPaintEvent &event)
   dc.SetPen(pen3);
   // dc.DrawCircle (50, 50, 100);
 
-  wxCoord x5 = 0;
+  wxCoord x5 = 50;
   wxCoord y5 = 0;
-  
-  x5 = (secs * size.x)/60; // 60 are the seconds to represent in the plot
-  y5 = size.y * (65000 - _actual_value)/65000;
-  x_val.emplace_back(x5);
-  y_val.emplace_back(y5);
-  if(x_val.size()>10){
-    x_val.pop_front();
-    y_val.pop_front();
-  } else {
-    secs+=1;
+
+  std::deque<wxCoord> x_val{};
+  for (size_t z = 0; z < 10; ++z) {
+    x_val.emplace_back(50+(z * size.x)/10); // 60 are the seconds to represent in the plot
+    // std::cout << " " << 50+(z * size.x)/10<< " " << std::endl;
   }
+  
+  
+  y5 = (size.y-30)*(65000-_actual_value)/65000;
+  
+
+  y_val.emplace_back(y5);
+
+  if(y_val.size()>10){
+    y_val.pop_front();
+  } 
 
    
-  for (size_t i = 0; i < x_val.size(); ++i)
+  for (size_t i = 0; i < y_val.size(); ++i)
     {
-      //dc.DrawPoint(x_val[i], y_val[i]);
-      if(i>1){
+      std::cout << " " << y_val[i] << " " << std::endl;
+      
+      if(i>=1){
         dc.DrawLine(x_val[i-1], y_val[i-1], x_val[i], y_val[i]);
       }
       

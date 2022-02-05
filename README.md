@@ -32,6 +32,8 @@ xxx
 * jsoncpp
   * Windows: recommended installed with vpckg
   * Linux: sudo apt-get install libjsoncpp-dev
+* wxwidgets
+  * Linux: sudo apt-get install libwxgtk3.0-gtk3-dev libwxgtk3.0-gtk3-0v5
 
 ## Basic Build Instructions (TO UPDATE)
 1. Clone this repo.
