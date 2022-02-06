@@ -8,9 +8,8 @@
 std::string dataPath = "../";
 std::string imgBasePath = dataPath + "images/";
 
-int secs = 0; //secs for test
+int secs = 0; // secs for test
 std::deque<wxCoord> y_val{};
-
 
 std::string dataSimulated = "dataSimulated";
 std::string strategyDataSimulatedBot = "strategyDataSimulatedBot";
@@ -35,6 +34,8 @@ wxStaticText *x_tick_label4;
 typedef std::unordered_map<std::string, pthread_t> ThreadMap;
 ThreadMap thrMap;
 
+bool paintGraphics = true;
+wxSize oldSize;
 
 enum
 {
@@ -49,22 +50,22 @@ enum
 };
 
 wxBEGIN_EVENT_TABLE(CryptoGui, wxFrame)
-  
-  EVT_MENU(ID_Hello, CryptoGui::OnHello)
-  EVT_MENU(wxID_EXIT, CryptoGui::OnExit)
-  EVT_MENU(wxID_ABOUT, CryptoGui::OnAbout)
 
-  EVT_BUTTON(ID_CREATE_HISTORICAL_DATA, CryptoGuiPanel::OnCreateHistoricalData)
-  EVT_BUTTON(ID_SIMULATE_DATA, CryptoGuiPanel::OnStartSimulatedData)
-  EVT_BUTTON(ID_SIMULATE_DATA_STOP, CryptoGuiPanel::OnStopSimulatedData)
-  EVT_BUTTON(ID_HISTORICAL_DATA, CryptoGuiPanel::OnStartHistoricalData)
-  EVT_BUTTON(ID_HISTORICAL_DATA_STOP, CryptoGuiPanel::OnStopHistoricalData)
-  EVT_BUTTON(ID_REAL_DATA, CryptoGuiPanel::OnStartRealData)
-  EVT_BUTTON(ID_REAL_DATA_STOP, CryptoGuiPanel::OnStopRealData)
-  
-wxEND_EVENT_TABLE()
+    EVT_MENU(ID_Hello, CryptoGui::OnHello)
+        EVT_MENU(wxID_EXIT, CryptoGui::OnExit)
+            EVT_MENU(wxID_ABOUT, CryptoGui::OnAbout)
 
-wxIMPLEMENT_APP(CryptoBot);
+                EVT_BUTTON(ID_CREATE_HISTORICAL_DATA, CryptoGuiPanel::OnCreateHistoricalData)
+                    EVT_BUTTON(ID_SIMULATE_DATA, CryptoGuiPanel::OnStartSimulatedData)
+                        EVT_BUTTON(ID_SIMULATE_DATA_STOP, CryptoGuiPanel::OnStopSimulatedData)
+                            EVT_BUTTON(ID_HISTORICAL_DATA, CryptoGuiPanel::OnStartHistoricalData)
+                                EVT_BUTTON(ID_HISTORICAL_DATA_STOP, CryptoGuiPanel::OnStopHistoricalData)
+                                    EVT_BUTTON(ID_REAL_DATA, CryptoGuiPanel::OnStartRealData)
+                                        EVT_BUTTON(ID_REAL_DATA_STOP, CryptoGuiPanel::OnStopRealData)
+
+                                            wxEND_EVENT_TABLE()
+
+                                                wxIMPLEMENT_APP(CryptoBot);
 
 bool CryptoBot::OnInit()
 {
@@ -130,7 +131,7 @@ void CryptoGui::OnHello(wxCommandEvent &event)
   // wxPuts(str);
 }
 
-void CryptoGui::OnPaint(wxPaintEvent &event) //It is not used
+void CryptoGui::OnPaint(wxPaintEvent &event) // It is not used
 {
   std::cout << "\n ON PAINT DE CRYPTOGUI " << std::endl;
   // Graphic Lines
@@ -183,17 +184,6 @@ void CryptoGui::OnPaint(wxPaintEvent &event) //It is not used
 
   // this->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGui::OnTest));
 }
-
-
-
-
-
-
-
-
-
-
-
 
 CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr<CryptoLogic> cryptoLogic)
 {
@@ -253,7 +243,7 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr
 
   wxStaticText *data_simulated_label = new wxStaticText(parent, -1, wxT("Data Simulated: "));
 
-  simulate_btn = new wxButton(parent, ID_SIMULATE_DATA, wxT("Start")); 
+  simulate_btn = new wxButton(parent, ID_SIMULATE_DATA, wxT("Start"));
   stop_simulate_sim_data_btn = new wxButton(parent, ID_SIMULATE_DATA_STOP, wxT("Stop"));
   stop_simulate_sim_data_btn->Enable(false);
   wxStaticText *historic_data_label = new wxStaticText(parent, -1, wxT("Historic Data: "));
@@ -405,7 +395,7 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr
   _cryptoGraphic = new CryptoGraphic(parent, wxID_ANY);
 
   hrighttbox2->Add(_cryptoGraphic, 1, wxEXPAND | wxTOP | wxDOWN | wxLEFT | wxRIGHT, 20);
-  //cryptoLogic->SetCryptoGraphicHandle(_cryptoGraphic); //ESTO CREO QUE NO ES NECESARIO
+  // cryptoLogic->SetCryptoGraphicHandle(_cryptoGraphic); //ESTO CREO QUE NO ES NECESARIO
 
   // Stablish size from Panels
   parent->SetSizer(hbox);
@@ -420,24 +410,23 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr
 void CryptoGuiPanel::OnCreateHistoricalData(wxCommandEvent &event)
 {
 
-std::cout << "\nCreating new data series with real data: " << std::endl;
+  std::cout << "\nCreating new data series with real data: " << std::endl;
 
-// REAL DATA IN REAL TIME
-std::shared_ptr<Binance> binancePtr = std::make_shared<Binance>();
-std::thread binanceData = std::thread(&Binance::fetchData, binancePtr);
+  // REAL DATA IN REAL TIME
+  std::shared_ptr<Binance> binancePtr = std::make_shared<Binance>();
+  std::thread binanceData = std::thread(&Binance::fetchData, binancePtr);
 
-// 2. CREATE NEW DATA SERIES
-std::shared_ptr<HistoricData> dataFilePtr = std::make_shared<HistoricData>();
-std::thread writeHistoricData = std::thread(&HistoricData::createHistoricData, dataFilePtr, binancePtr);
+  // 2. CREATE NEW DATA SERIES
+  std::shared_ptr<HistoricData> dataFilePtr = std::make_shared<HistoricData>();
+  std::thread writeHistoricData = std::thread(&HistoricData::createHistoricData, dataFilePtr, binancePtr);
 
-writeHistoricData.detach();
-binanceData.detach();
-
+  writeHistoricData.detach();
+  binanceData.detach();
 }
 
 void CryptoGuiPanel::OnStartSimulatedData(wxCommandEvent &event)
 {
-  std::cout << "\nOn Start Simulated Data: "<< std::endl;
+  std::cout << "\nOn Start Simulated Data: " << std::endl;
   StartStrategy<SimulateData>(dataSimulated, strategyDataSimulatedBot, simulate_btn, stop_simulate_sim_data_btn);
 }
 
@@ -446,21 +435,19 @@ void CryptoGuiPanel::OnStopSimulatedData(wxCommandEvent &event)
   std::cout << "\nStopping Simulated Data Threads" << std::endl;
   std::vector<std::string> threadsToKill = {dataSimulated, strategyDataSimulatedBot};
   KillThreads(threadsToKill, simulate_btn, stop_simulate_sim_data_btn);
-
 }
 
 void CryptoGuiPanel::OnStartHistoricalData(wxCommandEvent &event)
 {
   std::cout << "\nOn Start Historical Data: " << std::endl;
   StartStrategy<HistoricData>(historicData, strategyHistoricBot, historic_btn, stop_simulate_hist_data_btn);
-
 }
 
 void CryptoGuiPanel::OnStopHistoricalData(wxCommandEvent &event)
 {
   std::cout << "\nStopping Historical Data Threads" << std::endl;
   std::vector<std::string> threadsToKill = {historicData, strategyHistoricBot};
-  KillThreads(threadsToKill, historic_btn, stop_simulate_hist_data_btn); 
+  KillThreads(threadsToKill, historic_btn, stop_simulate_hist_data_btn);
 }
 
 void CryptoGuiPanel::OnStartRealData(wxCommandEvent &event)
@@ -474,11 +461,10 @@ void CryptoGuiPanel::OnStopRealData(wxCommandEvent &event)
   std::cout << "\nStopping Real Data Threads" << std::endl;
   std::vector<std::string> threadsToKill = {binanceData, strategyBinanceBot};
   KillThreads(threadsToKill, realdata_btn, stop_simulate_real_data_btn);
-
 }
 
-
-template <class T> void CryptoGuiPanel::StartStrategy(std::string dataThrName, std::string strategyThrName, wxButton *start_btn, wxButton *stop_btn)
+template <class T>
+void CryptoGuiPanel::StartStrategy(std::string dataThrName, std::string strategyThrName, wxButton *start_btn, wxButton *stop_btn)
 {
 
   // Data thread
@@ -491,30 +477,32 @@ template <class T> void CryptoGuiPanel::StartStrategy(std::string dataThrName, s
   std::thread strategyThr = std::thread(&Strategy::cryptoBot, strategyPtr);
 
   // Save reference for threads
-  thrMap[dataThrName] = dataThr.native_handle(); 
-  thrMap[strategyThrName] = strategyThr.native_handle(); 
+  thrMap[dataThrName] = dataThr.native_handle();
+  thrMap[strategyThrName] = strategyThr.native_handle();
 
   // Manage buttons
-  start_btn->Enable(false); 
-  stop_btn->Enable(true); 
+  start_btn->Enable(false);
+  stop_btn->Enable(true);
 
   // Detach threads
   dataThr.detach();
   strategyThr.detach();
-
 }
-void CryptoGuiPanel::KillThreads(std::vector<std::string> threadsToKill, wxButton *start_btn,wxButton *stop_btn) {
 
-  ThreadMap::const_iterator it; 
-  
-  for( std::string thrToKill : threadsToKill){
+void CryptoGuiPanel::KillThreads(std::vector<std::string> threadsToKill, wxButton *start_btn, wxButton *stop_btn)
+{
+
+  ThreadMap::const_iterator it;
+
+  for (std::string thrToKill : threadsToKill)
+  {
     it = thrMap.find(thrToKill);
     if (it != thrMap.end())
-      {
-        pthread_cancel(it->second);
-        thrMap.erase(thrToKill);
-        std::cout << "Thread " << thrToKill << " killed:" << std::endl;
-      }
+    {
+      pthread_cancel(it->second);
+      thrMap.erase(thrToKill);
+      std::cout << "Thread " << thrToKill << " killed:" << std::endl;
+    }
   }
 
   // Manage buttons
@@ -523,13 +511,6 @@ void CryptoGuiPanel::KillThreads(std::vector<std::string> threadsToKill, wxButto
 
   std::cout << std::endl;
 }
-
-
-
-
-
-
-
 
 BEGIN_EVENT_TABLE(CryptoGraphic, wxPanel)
 // EVT_PAINT(CryptoGraphic::paintEvent) // catch paint events
@@ -561,15 +542,13 @@ CryptoGraphic::CryptoGraphic(wxWindow *parent, wxWindowID id)
   //   _cryptoLogic->LoadAnswerGraphFromFile(dataPath + "src/answergraph.txt");
 
   this->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGraphic::OnPaint));
-  x_tick_label0 = new wxStaticText(this, -1, wxT("0"));
-  x_tick_label1 = new wxStaticText(this, -1, wxT("16250"));
-  x_tick_label2 = new wxStaticText(this, -1, wxT("32500"));
-  x_tick_label3 = new wxStaticText(this, -1, wxT("48750"));
-  x_tick_label4 = new wxStaticText(this, -1, wxT("65000"));
+  x_tick_label0 = new wxStaticText(this, -1, wxT(""));
+  x_tick_label1 = new wxStaticText(this, -1, wxT(""));
+  x_tick_label2 = new wxStaticText(this, -1, wxT(""));
+  x_tick_label3 = new wxStaticText(this, -1, wxT(""));
+  x_tick_label4 = new wxStaticText(this, -1, wxT(""));
 
-  //x_tick_label1->SetLabel(wxString::Format(wxT("x: %d"), 243 ));
-  
-
+  // x_tick_label1->SetLabel(wxString::Format(wxT("x: %d"), 243 ));
 }
 
 CryptoGraphic::~CryptoGraphic()
@@ -583,7 +562,7 @@ void CryptoGraphic::setActualValue(double value)
   Refresh();
 }
 
-void CryptoGraphic::paintEvent(wxPaintEvent &evt) //It is not used
+void CryptoGraphic::paintEvent(wxPaintEvent &evt) // It is not used
 {
 
   // // wxPaintDC dc(this);
@@ -619,50 +598,54 @@ void CryptoGraphic::paintEvent(wxPaintEvent &evt) //It is not used
   // dc.DrawLine(xDown1, yDown, xDown2, yDown2);
 }
 
-void CryptoGraphic::paintNow() //It is not used...
+void CryptoGraphic::paintNow() // It is not used...
 {
   // wxPaintDC dc(this);
   // render(dc);
 }
 
-void CryptoGraphic::render(wxDC &dc) //It is not used...
+int CryptoGraphic::valueToPixel(int value, int sizey)
 {
-  //   wxImage image;
-  //   image.LoadFile(imgBasePath + "sf_bridge_inner.jpg");
-
-  //   wxSize sz = this->GetSize();
-  //   wxImage imgSmall =
-  //       image.Rescale(sz.GetWidth(), sz.GetHeight(), wxIMAGE_QUALITY_HIGH);
-
-  //   _image = wxBitmap(imgSmall);
-  //   dc.DrawBitmap(_image, 0, 0, false);
+  return (sizey - 30) * (65000 - value) / 65000;
 }
 
-void CryptoGraphic::OnPaint(wxPaintEvent &event)
+void CryptoGraphic::render(wxDC &dc) // It is not used...
 {
 
-  std::cout << "PIIIIIIIIIINTO EN CRYPTOGRAPHIC" << std::endl;
-  
+  wxSize size = this->GetSize();
+
+  if (oldSize != size)
+  {
+    paintGraphics = false;
+    oldSize = size;
+    x_tick_label0->SetLabel(wxString::Format(wxT("%d"), 0));
+    x_tick_label1->SetLabel(wxString::Format(wxT("%d"), 65000 * 1 / 4));
+    x_tick_label2->SetLabel(wxString::Format(wxT("%d"), 65000 * 2 / 4));
+    x_tick_label3->SetLabel(wxString::Format(wxT("%d"), 65000 * 3 / 4));
+    x_tick_label4->SetLabel(wxString::Format(wxT("%d"), 65000 * 4 / 4));
+  }
+  else
+  {
+    paintGraphics = true;
+  }
+
   // Draw axis
-  wxPaintDC dc(this);
   wxPen pen1(wxT("BLACK"), 2, wxPENSTYLE_SOLID);
   dc.SetPen(pen1);
-  wxSize size = this->GetSize();
   wxCoord xOrig = 50;
-  wxCoord yOrig = size.y-30;
+  wxCoord yOrig = size.y - 30;
   wxCoord xYmax = 50;
   wxCoord yYmax = 0;
-  wxCoord xXmax = size.x-1;
-  wxCoord yXmax = size.y-30;
+  wxCoord xXmax = size.x - 1;
+  wxCoord yXmax = size.y - 30;
   dc.DrawLine(xOrig, yOrig, xYmax, yYmax);
   dc.DrawLine(xOrig, yOrig, xXmax, yXmax);
 
   // Draw ticks
-
-  wxCoord y_tick_0 = (size.y-10-30)*4/4+10;
-  wxCoord y_tick_1 = (size.y-10-30)*3/4+10;
-  wxCoord y_tick_2 = (size.y-10-30)*2/4+10;
-  wxCoord y_tick_3 = (size.y-10-30)*1/4+10;
+  wxCoord y_tick_0 = (size.y - 10 - 30) * 4 / 4 + 10;
+  wxCoord y_tick_1 = (size.y - 10 - 30) * 3 / 4 + 10;
+  wxCoord y_tick_2 = (size.y - 10 - 30) * 2 / 4 + 10;
+  wxCoord y_tick_3 = (size.y - 10 - 30) * 1 / 4 + 10;
   wxCoord y_tick_4 = 10;
 
   dc.DrawLine(45, y_tick_0, xOrig, y_tick_0);
@@ -671,13 +654,11 @@ void CryptoGraphic::OnPaint(wxPaintEvent &event)
   dc.DrawLine(45, y_tick_3, xOrig, y_tick_3);
   dc.DrawLine(45, y_tick_4, xOrig, y_tick_4);
 
-  x_tick_label0->SetPosition(wxPoint(0,y_tick_0-9));
-  //x_tick->SetLabel(wxString::Format(wxT("x: %d"), size.x ));
-  x_tick_label1->SetPosition(wxPoint(0,y_tick_1-9));
-  x_tick_label2->SetPosition(wxPoint(0,y_tick_2-9));
-  x_tick_label3->SetPosition(wxPoint(0,y_tick_3-9));
-  x_tick_label4->SetPosition(wxPoint(0,y_tick_4-9));
-
+  x_tick_label0->SetPosition(wxPoint(0, y_tick_0 - 9));
+  x_tick_label1->SetPosition(wxPoint(0, y_tick_1 - 9));
+  x_tick_label2->SetPosition(wxPoint(0, y_tick_2 - 9));
+  x_tick_label3->SetPosition(wxPoint(0, y_tick_3 - 9));
+  x_tick_label4->SetPosition(wxPoint(0, y_tick_4 - 9));
 
   // Draw Quartiles
   wxPen pen2(wxT("RED"), 2, wxPENSTYLE_DOT_DASH);
@@ -685,66 +666,50 @@ void CryptoGraphic::OnPaint(wxPaintEvent &event)
 
   wxCoord xUp1 = 50;
   wxCoord yUp1 = y_tick_1;
-  wxCoord xUp2 = size.x-1;
+  wxCoord xUp2 = size.x - 1;
   wxCoord yUp2 = y_tick_1;
   wxCoord xDown1 = 50;
   wxCoord yDown = y_tick_3;
-  wxCoord xDown2 = size.x-1;
+  wxCoord xDown2 = size.x - 1;
   wxCoord yDown2 = y_tick_3;
   dc.DrawLine(xUp1, yUp1, xUp2, yUp2);
   dc.DrawLine(xDown1, yDown, xDown2, yDown2);
 
   std::cout << xDown1 << " " << yDown << " " << xDown2 << " " << yDown2 << std::endl;
 
-
   // Draw line of value
   wxPen pen3(wxT("GREEN"), 3, wxPENSTYLE_DOT_DASH);
   dc.SetPen(pen3);
-  // dc.DrawCircle (50, 50, 100);
-
-  wxCoord x5 = 50;
-  wxCoord y5 = 0;
 
   std::deque<wxCoord> x_val{};
-  for (size_t z = 0; z < 10; ++z) {
-    x_val.emplace_back(50+(z * size.x)/10); // 60 are the seconds to represent in the plot
+  for (size_t z = 0; z < 10; ++z)
+  {
+    x_val.emplace_back(50 + (z * size.x) / 10); // 60 are the seconds to represent in the plot
     // std::cout << " " << 50+(z * size.x)/10<< " " << std::endl;
   }
-  
-  
-  y5 = (size.y-30)*(65000-_actual_value)/65000;
-  
 
-  y_val.emplace_back(y5);
-
-  if(y_val.size()>10){
-    y_val.pop_front();
-  } 
-
-   
   for (size_t i = 0; i < y_val.size(); ++i)
+  {
+    if (i >= 1)
     {
-      std::cout << " " << y_val[i] << " " << std::endl;
-      
-      if(i>=1){
-        dc.DrawLine(x_val[i-1], y_val[i-1], x_val[i], y_val[i]);
-      }
-      
+      dc.DrawLine(x_val[i - 1], valueToPixel(y_val[i - 1], size.y), x_val[i], valueToPixel(y_val[i], size.y));
     }
-  
-  std::cout << "ACTUAL VALUE: " << _actual_value << " " << x5 << " " << y5 << " " << size.y << y_val.size() << std::endl;
+  }
 
-  
+  // Update line of values
+  if (paintGraphics)
+  {
 
-  // for (int i = 1; i < size.x; i++)
-  // {
-  //   x5 = i;
-  //   y5 = (51000 - _actual_value) * size.y / 2000;
-  //   dc.DrawPoint(x5, y5);
-  // }
-  // wxCoord x1_5 = 0;
-  // wxCoord y1_5 = (51000 - _actual_value) * size.y / 2000;
-  // wxCoord x2_5 = 591;
-  // wxCoord y2_5 = (51000 - _actual_value) * size.y / 2000;
-  // dc.DrawLine(x1_5, y1_5, x2_5, y2_5);
+    y_val.emplace_back(_actual_value);
+    if (y_val.size() > 10)
+    {
+      y_val.pop_front();
+    }
+  }
+}
+
+void CryptoGraphic::OnPaint(wxPaintEvent &event)
+{
+  wxPaintDC dc(this);
+  render(dc);
 }

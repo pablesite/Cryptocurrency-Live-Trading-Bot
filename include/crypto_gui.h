@@ -49,6 +49,7 @@ public:
   // getter / setter
   CryptoLogic *GetCryptoLogicHandle() { return _cryptoLogic.get(); }
   void setActualValue(double value);
+  int valueToPixel(int value, int sizey);
 
   // events
   void paintEvent(wxPaintEvent &evt);
