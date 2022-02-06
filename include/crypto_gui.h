@@ -56,6 +56,7 @@ public:
   void OnPaint(wxPaintEvent &evt);
   void paintNow();
   void render(wxDC &dc);
+  void drawAxis(wxDC &dc, wxSize size);
 
 
   // proprietary functions

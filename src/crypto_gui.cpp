@@ -36,6 +36,7 @@ ThreadMap thrMap;
 
 bool paintGraphics = true;
 wxSize oldSize;
+double oldValue;
 
 enum
 {
@@ -559,6 +560,7 @@ CryptoGraphic::~CryptoGraphic()
 void CryptoGraphic::setActualValue(double value)
 {
   _actual_value = value;
+  //oldValue = value;
   Refresh();
 }
 
@@ -604,6 +606,22 @@ void CryptoGraphic::paintNow() // It is not used...
   // render(dc);
 }
 
+
+void CryptoGraphic::drawAxis(wxDC &dc, wxSize size)
+{
+  wxPen pen1(wxT("BLACK"), 2, wxPENSTYLE_SOLID);
+  dc.SetPen(pen1);
+  wxCoord xOrig = 50;
+  wxCoord yOrig = size.y - 30;
+  wxCoord xYmax = 50;
+  wxCoord yYmax = 0;
+  wxCoord xXmax = size.x - 1;
+  wxCoord yXmax = size.y - 30;
+  dc.DrawLine(xOrig, yOrig, xYmax, yYmax);
+  dc.DrawLine(xOrig, yOrig, xXmax, yXmax);
+}
+
+
 int CryptoGraphic::valueToPixel(int value, int sizey)
 {
   return (sizey - 30) * (65000 - value) / 65000;
@@ -626,22 +644,29 @@ void CryptoGraphic::render(wxDC &dc) // It is not used...
   }
   else
   {
-    paintGraphics = true;
+    if(oldValue !=_actual_value){
+      paintGraphics = true;
+    }
+    
   }
 
   // Draw axis
-  wxPen pen1(wxT("BLACK"), 2, wxPENSTYLE_SOLID);
-  dc.SetPen(pen1);
-  wxCoord xOrig = 50;
-  wxCoord yOrig = size.y - 30;
-  wxCoord xYmax = 50;
-  wxCoord yYmax = 0;
-  wxCoord xXmax = size.x - 1;
-  wxCoord yXmax = size.y - 30;
-  dc.DrawLine(xOrig, yOrig, xYmax, yYmax);
-  dc.DrawLine(xOrig, yOrig, xXmax, yXmax);
+  // wxPen pen1(wxT("BLACK"), 2, wxPENSTYLE_SOLID);
+  // dc.SetPen(pen1);
+  // wxCoord xOrig = 50;
+  // wxCoord yOrig = size.y - 30;
+  // wxCoord xYmax = 50;
+  // wxCoord yYmax = 0;
+  // wxCoord xXmax = size.x - 1;
+  // wxCoord yXmax = size.y - 30;
+  // dc.DrawLine(xOrig, yOrig, xYmax, yYmax);
+  // dc.DrawLine(xOrig, yOrig, xXmax, yXmax);
+  drawAxis(dc, size);
+
 
   // Draw ticks
+  wxCoord xOrig = 50;
+  
   wxCoord y_tick_0 = (size.y - 10 - 30) * 4 / 4 + 10;
   wxCoord y_tick_1 = (size.y - 10 - 30) * 3 / 4 + 10;
   wxCoord y_tick_2 = (size.y - 10 - 30) * 2 / 4 + 10;
@@ -701,6 +726,7 @@ void CryptoGraphic::render(wxDC &dc) // It is not used...
   {
 
     y_val.emplace_back(_actual_value);
+    oldValue =_actual_value;
     if (y_val.size() > 10)
     {
       y_val.pop_front();
