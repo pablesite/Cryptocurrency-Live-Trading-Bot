@@ -130,6 +130,10 @@ void Strategy::cryptoBot()
     // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     base = getData(lookbackperiod);
+    _cryptoGraphic->setBase(base); 
+
+    _cryptoGraphic->setLimits(entry); 
+
     // _cryptoLogic->sendToLogic(base);
     std::cout << "data is: " << base << std::endl;
     //_cryptoGraphic->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGraphic::paintEvent));
@@ -144,7 +148,7 @@ void Strategy::cryptoBot()
         //  retrieve data
         actual_value = getData(lookbackperiod);
         // Esto es necesario para actualizar la gráfica, creo... El comentario de la línea siguiente no se a qué atiende
-        _cryptoGraphic->setActualValue(actual_value); // Esto hace que ya no se llamen los eventos
+        _cryptoGraphic->setActualValue(actual_value); 
         std::cout << "\n\nACTUALIZO EL VALOR Y LO MANDO " << actual_value << " " << std::endl;
 
         //_cryptoGraphic->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGraphic::OnPaint));
@@ -159,6 +163,7 @@ void Strategy::cryptoBot()
         {
             std::cout << "Update the base: Descending " << actual_value << " " << std::endl;
             base = actual_value;
+            _cryptoGraphic->setBase(base); 
         }
 
         // to make an order
@@ -169,6 +174,7 @@ void Strategy::cryptoBot()
                       << "Buying my position " << invest_qty << " bitcoint. Actual value: " << actual_value << ". Order = " << order << " $. " << std::endl;
 
             base = actual_value; // Define new base
+            _cryptoGraphic->setBase(base);
             open_position = true;
             // break;
         }
@@ -189,6 +195,7 @@ void Strategy::cryptoBot()
                 {
                     std::cout << "Update the base: Rising " << actual_value << std::endl;
                     base = actual_value; // Define new base
+                    _cryptoGraphic->setBase(base);
                 }
 
                 // if last_entry > x or last_entry < x --> Sell
@@ -200,6 +207,7 @@ void Strategy::cryptoBot()
                               << "Selling my position: " << invest_qty << " bitcoint. Actual value: " << actual_value << ". Benefits = " << benefit << " $." << std::endl;
 
                     base = actual_value; // Define new base
+                    _cryptoGraphic->setBase(base);
                     open_position = false;
                     benefits_acc += benefit;
                     std::cout << std::endl

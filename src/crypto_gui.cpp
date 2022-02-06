@@ -5,11 +5,8 @@
 #include "strategy.h"
 #include <unordered_map>
 
-std::string dataPath = "../";
-std::string imgBasePath = dataPath + "images/";
-
-int secs = 0; // secs for test
-std::deque<wxCoord> y_val{};
+// std::string dataPath = "../";
+// std::string imgBasePath = dataPath + "images/";
 
 std::string dataSimulated = "dataSimulated";
 std::string strategyDataSimulatedBot = "strategyDataSimulatedBot";
@@ -25,18 +22,33 @@ wxButton *stop_simulate_hist_data_btn;
 wxButton *realdata_btn;
 wxButton *stop_simulate_real_data_btn;
 
+typedef std::unordered_map<std::string, pthread_t> ThreadMap;
+ThreadMap thrMap;
+
+
+//Graphics globals
+bool updateGraphics = true;
+wxSize oldSize;
+double oldValue;
+
 wxStaticText *x_tick_label0;
 wxStaticText *x_tick_label1;
 wxStaticText *x_tick_label2;
 wxStaticText *x_tick_label3;
 wxStaticText *x_tick_label4;
 
-typedef std::unordered_map<std::string, pthread_t> ThreadMap;
-ThreadMap thrMap;
+std::deque<wxCoord> y_val{};
 
-bool paintGraphics = true;
-wxSize oldSize;
-double oldValue;
+
+int maxValue = 65000;
+int minValue = 0;
+int xBorderLeft = 50;
+int yBorderUp = 30;
+int yBorderDown = 10;
+int xTime = 30;
+
+
+
 
 enum
 {
@@ -66,7 +78,7 @@ wxBEGIN_EVENT_TABLE(CryptoGui, wxFrame)
 
                                             wxEND_EVENT_TABLE()
 
-wxIMPLEMENT_APP(CryptoBot);
+                                                wxIMPLEMENT_APP(CryptoBot);
 
 bool CryptoBot::OnInit()
 {
@@ -134,56 +146,6 @@ void CryptoGui::OnHello(wxCommandEvent &event)
 
 void CryptoGui::OnPaint(wxPaintEvent &event) // It is not used
 {
-  std::cout << "\n ON PAINT DE CRYPTOGUI " << std::endl;
-  // Graphic Lines
-  wxPaintDC dc(this);
-  wxSize size = this->GetSize();
-
-  // Crypto Value
-  wxPen pen3(wxT("BLUE"), 1, wxPENSTYLE_DOT_DASH);
-  dc.SetPen(pen3);
-  // dc.DrawCircle (50, 50, 100);
-
-  // //10 - 50567
-  // wxCoord x1 = 10;
-  // wxCoord y1 = (51000-50567)*size.y/2000;
-  // dc.DrawPoint(x1, y1);
-
-  // //20 - 50435
-  // wxCoord x2 = 20;
-  // wxCoord y2 = (51000-50435)*size.y/2000;
-  // dc.DrawPoint(x2, y2);
-
-  // //30 - 50615
-  // wxCoord x3 = 30;
-  // wxCoord y3 = (51000-50215)*size.y/2000;
-  // dc.DrawPoint(x3, y3);
-
-  // //40 - 49923
-  // wxCoord x4 = 40;
-  // wxCoord y4 = (51000-49723)*size.y/2000;
-  // dc.DrawPoint(x4, y4);
-
-  wxCoord x5 = 0;
-  wxCoord y5 = 0;
-  for (int i = 1; i < size.x; i++)
-  {
-    x5 = i;
-    y5 = (51000 - 49000 - i) * size.y / 2000;
-    dc.DrawPoint(x5, y5);
-  }
-  // dc.DrawLine(150, 150, 150, 200);
-  // dc.DrawPoint(40, 170);
-
-  //   for (int i = 0; i<size.x; i++) {
-  //         x = i % size.x + 1;
-  //         y = rand() % size.y + 1;
-  //         dc.DrawPoint(x, y);
-  //   }
-
-  // std::cout << "Sizees: " << size.x << " " << size.y << " " << x4 << " " << y4 << " " << x3 << " " << y3 << std::endl;
-
-  // this->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGui::OnTest));
 }
 
 CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr<CryptoLogic> cryptoLogic)
@@ -548,8 +510,7 @@ CryptoGraphic::CryptoGraphic(wxWindow *parent, wxWindowID id)
   x_tick_label2 = new wxStaticText(this, -1, wxT(""));
   x_tick_label3 = new wxStaticText(this, -1, wxT(""));
   x_tick_label4 = new wxStaticText(this, -1, wxT(""));
-
-  // x_tick_label1->SetLabel(wxString::Format(wxT("x: %d"), 243 ));
+  
 }
 
 CryptoGraphic::~CryptoGraphic()
@@ -560,9 +521,33 @@ CryptoGraphic::~CryptoGraphic()
 void CryptoGraphic::setActualValue(double value)
 {
   _actual_value = value;
-  //oldValue = value;
   Refresh();
 }
+
+void CryptoGraphic::setBase(double base)
+{
+  _actual_base = (int)base;
+  //updateTicks(); //con los datos de realtimedata falla... con los otros no, y es importante. Falla también con la simulación un poco...
+
+  //Cuidado con estas actualizaciones. Creo que me estaba dando error a veces de coma flotante. Aparte la actualización de la base desde la estrategia aquí va regular
+  maxValue = ((int)_limit_up*2-_actual_base);
+  minValue = ((int)_limit_down*2-_actual_base);
+
+  std::cout << " \n\nMax Value: " << maxValue << " minValue: " << minValue << std::endl;
+  std::cout << "BASE: " << base << " " << _actual_base << std::endl;
+  
+}
+
+void CryptoGraphic::setLimits(double entry)
+{
+  _limit_up = (int)((1+entry*2)*_actual_base);
+  _limit_down = (int)((1-entry*2)*_actual_base);
+
+  std::cout << "LIMITS: " << _limit_up << " " << _limit_down << std::endl;
+  
+}
+
+
 
 void CryptoGraphic::paintEvent(wxPaintEvent &evt) // It is not used
 {
@@ -606,72 +591,28 @@ void CryptoGraphic::paintNow() // It is not used...
   // render(dc);
 }
 
-
 void CryptoGraphic::drawAxis(wxDC &dc, wxSize size)
 {
-  wxPen pen1(wxT("BLACK"), 2, wxPENSTYLE_SOLID);
-  dc.SetPen(pen1);
-  wxCoord xOrig = 50;
-  wxCoord yOrig = size.y - 30;
-  wxCoord xYmax = 50;
-  wxCoord yYmax = 0;
-  wxCoord xXmax = size.x - 1;
-  wxCoord yXmax = size.y - 30;
+  wxCoord xOrig = xBorderLeft;
+  wxCoord yOrig = size.y - yBorderUp;
+  wxCoord xYmax = xBorderLeft;
+  wxCoord yYmax = yBorderDown;
+  wxCoord xXmax = size.x;
+  wxCoord yXmax = size.y - yBorderUp;
   dc.DrawLine(xOrig, yOrig, xYmax, yYmax);
   dc.DrawLine(xOrig, yOrig, xXmax, yXmax);
+
 }
 
-
-int CryptoGraphic::valueToPixel(int value, int sizey)
+void CryptoGraphic::drawTics(wxDC &dc, wxSize size)
 {
-  return (sizey - 30) * (65000 - value) / 65000;
-}
+  wxCoord xOrig = xBorderLeft;
 
-void CryptoGraphic::render(wxDC &dc) // It is not used...
-{
-
-  wxSize size = this->GetSize();
-
-  if (oldSize != size)
-  {
-    paintGraphics = false;
-    oldSize = size;
-    x_tick_label0->SetLabel(wxString::Format(wxT("%d"), 0));
-    x_tick_label1->SetLabel(wxString::Format(wxT("%d"), 65000 * 1 / 4));
-    x_tick_label2->SetLabel(wxString::Format(wxT("%d"), 65000 * 2 / 4));
-    x_tick_label3->SetLabel(wxString::Format(wxT("%d"), 65000 * 3 / 4));
-    x_tick_label4->SetLabel(wxString::Format(wxT("%d"), 65000 * 4 / 4));
-  }
-  else
-  {
-    if(oldValue !=_actual_value){
-      paintGraphics = true;
-    }
-    
-  }
-
-  // Draw axis
-  // wxPen pen1(wxT("BLACK"), 2, wxPENSTYLE_SOLID);
-  // dc.SetPen(pen1);
-  // wxCoord xOrig = 50;
-  // wxCoord yOrig = size.y - 30;
-  // wxCoord xYmax = 50;
-  // wxCoord yYmax = 0;
-  // wxCoord xXmax = size.x - 1;
-  // wxCoord yXmax = size.y - 30;
-  // dc.DrawLine(xOrig, yOrig, xYmax, yYmax);
-  // dc.DrawLine(xOrig, yOrig, xXmax, yXmax);
-  drawAxis(dc, size);
-
-
-  // Draw ticks
-  wxCoord xOrig = 50;
-  
-  wxCoord y_tick_0 = (size.y - 10 - 30) * 4 / 4 + 10;
-  wxCoord y_tick_1 = (size.y - 10 - 30) * 3 / 4 + 10;
-  wxCoord y_tick_2 = (size.y - 10 - 30) * 2 / 4 + 10;
-  wxCoord y_tick_3 = (size.y - 10 - 30) * 1 / 4 + 10;
-  wxCoord y_tick_4 = 10;
+  wxCoord y_tick_0 = (size.y-yBorderDown-yBorderUp)*4/4+yBorderDown;
+  wxCoord y_tick_1 = (size.y-yBorderDown-yBorderUp)*3/4+yBorderDown;
+  wxCoord y_tick_2 = (size.y-yBorderDown-yBorderUp)*2/4+yBorderDown;
+  wxCoord y_tick_3 = (size.y-yBorderDown-yBorderUp)*1/4+yBorderDown;
+  wxCoord y_tick_4 = yBorderDown;
 
   dc.DrawLine(45, y_tick_0, xOrig, y_tick_0);
   dc.DrawLine(45, y_tick_1, xOrig, y_tick_1);
@@ -679,58 +620,117 @@ void CryptoGraphic::render(wxDC &dc) // It is not used...
   dc.DrawLine(45, y_tick_3, xOrig, y_tick_3);
   dc.DrawLine(45, y_tick_4, xOrig, y_tick_4);
 
-  x_tick_label0->SetPosition(wxPoint(0, y_tick_0 - 9));
-  x_tick_label1->SetPosition(wxPoint(0, y_tick_1 - 9));
-  x_tick_label2->SetPosition(wxPoint(0, y_tick_2 - 9));
-  x_tick_label3->SetPosition(wxPoint(0, y_tick_3 - 9));
-  x_tick_label4->SetPosition(wxPoint(0, y_tick_4 - 9));
+  x_tick_label0->SetPosition(wxPoint(0, y_tick_0-9));
+  x_tick_label1->SetPosition(wxPoint(0, y_tick_1-9));
+  x_tick_label2->SetPosition(wxPoint(0, y_tick_2-9));
+  x_tick_label3->SetPosition(wxPoint(0, y_tick_3-9));
+  x_tick_label4->SetPosition(wxPoint(0, y_tick_4-9));
+}
 
-  // Draw Quartiles
-  wxPen pen2(wxT("RED"), 2, wxPENSTYLE_DOT_DASH);
-  dc.SetPen(pen2);
-
-  wxCoord xUp1 = 50;
+void CryptoGraphic::drawQuartiles(wxDC &dc, wxSize size)
+{
+  wxCoord y_tick_1 = (size.y-yBorderDown-yBorderUp)*3/4+yBorderDown; // no son los quartiles ... así que esto habrá que modificarlo
+  wxCoord y_tick_3 = (size.y-yBorderDown-yBorderUp)*1/4+yBorderDown;
+  wxCoord xUp1 = xBorderLeft;
   wxCoord yUp1 = y_tick_1;
-  wxCoord xUp2 = size.x - 1;
+  wxCoord xUp2 = size.x;
   wxCoord yUp2 = y_tick_1;
-  wxCoord xDown1 = 50;
+  wxCoord xDown1 = xBorderLeft;
   wxCoord yDown = y_tick_3;
-  wxCoord xDown2 = size.x - 1;
+  wxCoord xDown2 = size.x;
   wxCoord yDown2 = y_tick_3;
   dc.DrawLine(xUp1, yUp1, xUp2, yUp2);
   dc.DrawLine(xDown1, yDown, xDown2, yDown2);
 
-  std::cout << xDown1 << " " << yDown << " " << xDown2 << " " << yDown2 << std::endl;
+  // std::cout << xDown1 << " " << yDown << " " << xDown2 << " " << yDown2 << std::endl;
+}
 
-  // Draw line of value
-  wxPen pen3(wxT("GREEN"), 3, wxPENSTYLE_DOT_DASH);
-  dc.SetPen(pen3);
-
+void CryptoGraphic::drawGraphic(wxDC &dc, wxSize size)
+{
   std::deque<wxCoord> x_val{};
-  for (size_t z = 0; z < 10; ++z)
+  for (size_t z = 0; z < xTime; ++z)
   {
-    x_val.emplace_back(50 + (z * size.x) / 10); // 60 are the seconds to represent in the plot
-    // std::cout << " " << 50+(z * size.x)/10<< " " << std::endl;
+    x_val.emplace_back(xBorderLeft+(z*size.x)/xTime); // 60 are the seconds to represent in the plot
   }
 
   for (size_t i = 0; i < y_val.size(); ++i)
   {
     if (i >= 1)
     {
-      dc.DrawLine(x_val[i - 1], valueToPixel(y_val[i - 1], size.y), x_val[i], valueToPixel(y_val[i], size.y));
+      dc.DrawLine(x_val[i-1], valueToPixel(y_val[i-1], size.y), x_val[i], valueToPixel(y_val[i], size.y));
+    }
+  }
+}
+
+void CryptoGraphic::updateVectorValues()
+{
+  y_val.emplace_back(_actual_value);
+  if (y_val.size() > xTime)
+  {
+    y_val.pop_front();
+  }
+  oldValue = _actual_value;
+}
+
+void CryptoGraphic::updateTicks()
+{
+  x_tick_label0->SetLabel(wxString::Format(wxT("%d"), _limit_down*2-_actual_base));
+  x_tick_label1->SetLabel(wxString::Format(wxT("%d"), _limit_down));
+  x_tick_label2->SetLabel(wxString::Format(wxT("%d"), _actual_base));
+  x_tick_label3->SetLabel(wxString::Format(wxT("%d"), _limit_up));
+  x_tick_label4->SetLabel(wxString::Format(wxT("%d"), _limit_up*2-_actual_base));
+
+}
+
+int CryptoGraphic::valueToPixel(int value, int sizey)
+{
+  return (sizey-yBorderUp-yBorderDown)*(maxValue-value)/(maxValue-minValue)+yBorderDown;
+}
+
+void CryptoGraphic::render(wxDC &dc) // It is not used...
+{
+
+  wxSize size = this->GetSize();
+  
+  // Logics of update graphics
+  if (oldSize != size )
+  {
+    updateTicks();
+    oldSize = size;
+    updateGraphics = false;
+  }
+  else
+  {
+    if (oldValue != _actual_value)
+    {
+      updateGraphics = true;
+    } else {
+      updateTicks();
     }
   }
 
-  // Update line of values
-  if (paintGraphics)
-  {
+  // Draw axis
+  wxPen pen1(wxT("BLACK"), 2, wxPENSTYLE_SOLID);
+  dc.SetPen(pen1);
+  drawAxis(dc, size);
 
-    y_val.emplace_back(_actual_value);
-    oldValue =_actual_value;
-    if (y_val.size() > 10)
-    {
-      y_val.pop_front();
-    }
+  // Draw ticks
+  drawTics(dc, size);
+
+  // Draw Quartiles
+  wxPen pen2(wxT("RED"), 2, wxPENSTYLE_DOT_DASH);
+  dc.SetPen(pen2);
+  drawQuartiles(dc, size);
+
+  // Draw line of value
+  wxPen pen3(wxT("GREEN"), 3, wxPENSTYLE_DOT_DASH);
+  dc.SetPen(pen3);
+  drawGraphic(dc, size);
+
+  // Update line of values
+  if (updateGraphics)
+  {
+    updateVectorValues();
   }
 }
 

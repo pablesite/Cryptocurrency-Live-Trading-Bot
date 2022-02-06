@@ -40,6 +40,9 @@ private:
   //std::unique_ptr<ChatLogic> _chatLogic;
   std::unique_ptr<CryptoLogic> _cryptoLogic; 
   double _actual_value;
+  int _actual_base;
+  double _actual_entry;
+  int _limit_up, _limit_down;
 
 public:
   // constructor / destructor
@@ -49,6 +52,8 @@ public:
   // getter / setter
   CryptoLogic *GetCryptoLogicHandle() { return _cryptoLogic.get(); }
   void setActualValue(double value);
+  void setBase(double base);
+  void setLimits(double entry);
   int valueToPixel(int value, int sizey);
 
   // events
@@ -57,6 +62,11 @@ public:
   void paintNow();
   void render(wxDC &dc);
   void drawAxis(wxDC &dc, wxSize size);
+  void drawTics(wxDC &dc, wxSize size);
+  void drawQuartiles(wxDC &dc, wxSize size);
+  void drawGraphic(wxDC &dc, wxSize size);
+  void updateVectorValues();
+  void updateTicks();
 
 
   // proprietary functions
