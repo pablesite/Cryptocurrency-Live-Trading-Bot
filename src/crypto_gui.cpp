@@ -66,7 +66,7 @@ wxBEGIN_EVENT_TABLE(CryptoGui, wxFrame)
 
                                             wxEND_EVENT_TABLE()
 
-                                                wxIMPLEMENT_APP(CryptoBot);
+wxIMPLEMENT_APP(CryptoBot);
 
 bool CryptoBot::OnInit()
 {
