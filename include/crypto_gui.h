@@ -40,9 +40,9 @@ private:
   //std::unique_ptr<ChatLogic> _chatLogic;
   std::unique_ptr<CryptoLogic> _cryptoLogic; 
   double _actual_value;
-  int _actual_base;
+  double _actual_base;
   double _actual_entry;
-  int _limit_up, _limit_down;
+  int _limit_up=0, _limit_down=0;
 
 public:
   // constructor / destructor

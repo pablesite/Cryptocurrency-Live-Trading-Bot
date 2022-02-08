@@ -130,9 +130,8 @@ void Strategy::cryptoBot()
     // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     base = getData(lookbackperiod);
-    _cryptoGraphic->setBase(base); 
-
-    _cryptoGraphic->setLimits(entry); 
+    _cryptoGraphic->setLimits(entry);
+    _cryptoGraphic->setBase(base);
 
     // _cryptoLogic->sendToLogic(base);
     std::cout << "data is: " << base << std::endl;
@@ -142,18 +141,16 @@ void Strategy::cryptoBot()
 
     while (true)
     {
-
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         // std::this_thread::sleep_for(std::chrono::milliseconds(100));
         //  retrieve data
         actual_value = getData(lookbackperiod);
         // Esto es necesario para actualizar la gráfica, creo... El comentario de la línea siguiente no se a qué atiende
-        _cryptoGraphic->setActualValue(actual_value); 
-        std::cout << "\n\nACTUALIZO EL VALOR Y LO MANDO " << actual_value << " " << std::endl;
+        _cryptoGraphic->setActualValue(actual_value);
 
+        std::cout << "\n\nACTUALIZO EL VALOR Y LO MANDO " << actual_value << " " << std::endl;
         //_cryptoGraphic->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGraphic::OnPaint));
         // cryptologic->setDataFromStrategy(actual_value);
-
 
         count += 1;
 
@@ -163,7 +160,7 @@ void Strategy::cryptoBot()
         {
             std::cout << "Update the base: Descending " << actual_value << " " << std::endl;
             base = actual_value;
-            _cryptoGraphic->setBase(base); 
+            _cryptoGraphic->setBase(base);
         }
 
         // to make an order
@@ -187,6 +184,7 @@ void Strategy::cryptoBot()
 
                 // retrieve data
                 actual_value = getData(lookbackperiod);
+                _cryptoGraphic->setActualValue(actual_value);
                 count += 1;
                 std::cout << std::setprecision(4) << std::fixed << "To sell " << actual_value << " => " << (1 + recession) * base << " < " << base << " > " << (1 + rupture) * base << std::endl;
 
