@@ -26,10 +26,18 @@ typedef std::unordered_map<std::string, pthread_t> ThreadMap;
 ThreadMap thrMap;
 
 // Graphics globals
+bool paintGraphics = false;
 bool updateGraphics = true;
 wxSize oldSize;
 double oldValue;
 double oldBase;
+int oldSecs;
+
+wxStaticText *y_tick_label0;
+wxStaticText *y_tick_label1;
+wxStaticText *y_tick_label2;
+wxStaticText *y_tick_label3;
+wxStaticText *y_tick_label4;
 
 wxStaticText *x_tick_label0;
 wxStaticText *x_tick_label1;
@@ -45,6 +53,7 @@ int xBorderLeft = 50;
 int yBorderUp = 30;
 int yBorderDown = 10;
 int xTime = 30;
+int secs = 0;
 
 enum
 {
@@ -446,6 +455,9 @@ void CryptoGuiPanel::StartStrategy(std::string dataThrName, std::string strategy
   // Detach threads
   dataThr.detach();
   strategyThr.detach();
+
+  //
+  paintGraphics = true;
 }
 
 void CryptoGuiPanel::KillThreads(std::vector<std::string> threadsToKill, wxButton *start_btn, wxButton *stop_btn)
@@ -467,6 +479,11 @@ void CryptoGuiPanel::KillThreads(std::vector<std::string> threadsToKill, wxButto
   // Manage buttons
   start_btn->Enable(true);
   stop_btn->Enable(false);
+
+  //
+  paintGraphics = false;
+  y_val.clear();
+  secs = 0;
 
   std::cout << std::endl;
 }
@@ -501,6 +518,12 @@ CryptoGraphic::CryptoGraphic(wxWindow *parent, wxWindowID id)
   //   _cryptoLogic->LoadAnswerGraphFromFile(dataPath + "src/answergraph.txt");
 
   this->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGraphic::OnPaint));
+  y_tick_label0 = new wxStaticText(this, -1, wxT(""));
+  y_tick_label1 = new wxStaticText(this, -1, wxT(""));
+  y_tick_label2 = new wxStaticText(this, -1, wxT(""));
+  y_tick_label3 = new wxStaticText(this, -1, wxT(""));
+  y_tick_label4 = new wxStaticText(this, -1, wxT(""));
+
   x_tick_label0 = new wxStaticText(this, -1, wxT(""));
   x_tick_label1 = new wxStaticText(this, -1, wxT(""));
   x_tick_label2 = new wxStaticText(this, -1, wxT(""));
@@ -516,29 +539,20 @@ CryptoGraphic::~CryptoGraphic()
 void CryptoGraphic::setActualValue(double value)
 {
   _actual_value = value;
+  secs++;
   Refresh();
 }
 
 void CryptoGraphic::setBase(double base)
 {
 
-  // std::cout << "\n Test " << std::endl;
   _actual_base = base;
-  // updateTicks(); //con los datos de realtimedata falla... con los otros no, y es importante. Falla también con la simulación un poco...
-
-  // Cuidado con estas actualizaciones. Creo que me estaba dando error a veces de coma flotante. Aparte la actualización de la base desde la estrategia aquí va regular
-  std::cout << "\nLimit up: " << _limit_up << " " << _limit_down << " " << _actual_base << std::endl;
 
   _limit_up = (int)((1 + _actual_entry * 2) * _actual_base);
   _limit_down = (int)((1 - _actual_entry * 2) * _actual_base);
 
   maxValue = (int)(_limit_up * 2 - _actual_base);
   minValue = (int)(_limit_down * 2 - _actual_base);
-
-  std::cout << "LIMITS: " << _limit_up << " " << _limit_down << " " << _actual_entry << " " << _actual_base << std::endl;
-
-  // std::cout << " \n\nEnd Test \nMax Value: " << maxValue << " minValue: " << minValue << std::endl;
-  // std::cout << "BASE: " << base << " " << _actual_base << std::endl;
 }
 
 void CryptoGraphic::setLimits(double entry)
@@ -616,11 +630,29 @@ void CryptoGraphic::drawTics(wxDC &dc, wxSize size)
   dc.DrawLine(45, y_tick_3, xOrig, y_tick_3);
   dc.DrawLine(45, y_tick_4, xOrig, y_tick_4);
 
-  x_tick_label0->SetPosition(wxPoint(0, y_tick_0 - 9));
-  x_tick_label1->SetPosition(wxPoint(0, y_tick_1 - 9));
-  x_tick_label2->SetPosition(wxPoint(0, y_tick_2 - 9));
-  x_tick_label3->SetPosition(wxPoint(0, y_tick_3 - 9));
-  x_tick_label4->SetPosition(wxPoint(0, y_tick_4 - 9));
+  y_tick_label0->SetPosition(wxPoint(0, y_tick_0 - 9));
+  y_tick_label1->SetPosition(wxPoint(0, y_tick_1 - 9));
+  y_tick_label2->SetPosition(wxPoint(0, y_tick_2 - 9));
+  y_tick_label3->SetPosition(wxPoint(0, y_tick_3 - 9));
+  y_tick_label4->SetPosition(wxPoint(0, y_tick_4 - 9));
+
+  wxCoord x_tick_0 = xBorderLeft;
+  wxCoord x_tick_1 = xBorderLeft + (size.x - xBorderLeft) * 1 / 4;
+  wxCoord x_tick_2 = xBorderLeft + (size.x - xBorderLeft) * 2 / 4;
+  wxCoord x_tick_3 = xBorderLeft + (size.x - xBorderLeft) * 3 / 4;
+  wxCoord x_tick_4 = xBorderLeft + (size.x - xBorderLeft) * 4 / 4;
+
+  dc.DrawLine(x_tick_0, size.y - 30, x_tick_0, size.y - 25);
+  dc.DrawLine(x_tick_1, size.y - 30, x_tick_1, size.y - 25);
+  dc.DrawLine(x_tick_2, size.y - 30, x_tick_2, size.y - 25);
+  dc.DrawLine(x_tick_3, size.y - 30, x_tick_3, size.y - 25);
+  dc.DrawLine(x_tick_4, size.y - 30, x_tick_4, size.y - 25);
+
+  x_tick_label0->SetPosition(wxPoint(x_tick_0 - 5, size.y - 20));
+  x_tick_label1->SetPosition(wxPoint(x_tick_1 - 5, size.y - 20));
+  x_tick_label2->SetPosition(wxPoint(x_tick_2 - 5, size.y - 20));
+  x_tick_label3->SetPosition(wxPoint(x_tick_3 - 5, size.y - 20));
+  x_tick_label4->SetPosition(wxPoint(x_tick_4 - 5, size.y - 20));
 }
 
 void CryptoGraphic::drawQuartiles(wxDC &dc, wxSize size)
@@ -670,11 +702,29 @@ void CryptoGraphic::updateVectorValues()
 
 void CryptoGraphic::updateTicks()
 {
-  x_tick_label0->SetLabel(wxString::Format(wxT("%d"), _limit_down * 2 - (int)_actual_base));
-  x_tick_label1->SetLabel(wxString::Format(wxT("%d"), _limit_down));
-  x_tick_label2->SetLabel(wxString::Format(wxT("%d"), (int)_actual_base));
-  x_tick_label3->SetLabel(wxString::Format(wxT("%d"), _limit_up));
-  x_tick_label4->SetLabel(wxString::Format(wxT("%d"), _limit_up * 2 - (int)_actual_base));
+  y_tick_label0->SetLabel(wxString::Format(wxT("%d"), _limit_down * 2 - (int)_actual_base));
+  y_tick_label1->SetLabel(wxString::Format(wxT("%d"), _limit_down));
+  y_tick_label2->SetLabel(wxString::Format(wxT("%d"), (int)_actual_base));
+  y_tick_label3->SetLabel(wxString::Format(wxT("%d"), _limit_up));
+  y_tick_label4->SetLabel(wxString::Format(wxT("%d"), _limit_up * 2 - (int)_actual_base));
+
+  x_tick_label0->SetLabel(wxString::Format(wxT("%d"), 0));
+  if (secs - xTime * 3 / 4 >= 0)
+  {
+    x_tick_label1->SetLabel(wxString::Format(wxT("%d"), (int)(xTime - secs * 3 / 4)));
+  }
+  if (secs - xTime * 2 / 4 >= 0)
+  {
+    x_tick_label1->SetLabel(wxString::Format(wxT("%d"), (int)(secs - xTime * 2 / 4)));
+  }
+  if (secs - xTime * 1 / 4 >= 0)
+  {
+    x_tick_label1->SetLabel(wxString::Format(wxT("%d"), (int)(secs - xTime * 3 / 4)));
+  }
+  if (secs >= xTime)
+  {
+    x_tick_label4->SetLabel(wxString::Format(wxT("%d"), (int)(secs)));
+  }
 }
 
 int CryptoGraphic::valueToPixel(int value, int sizey)
@@ -691,21 +741,32 @@ void CryptoGraphic::render(wxDC &dc)
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   // Logics of update graphic
-  if (oldSize != size)
+  // if (oldSize != size)
+  // {
+  //   updateTicks();
+  //   oldSize = size;
+  //   updateGraphics = false;
+  // }
+  // else
+  // {
+  //   updateGraphics = true;
+  // }
+
+  // if (oldBase != _actual_base)
+  // {
+  //   updateTicks();
+  //   oldBase = _actual_base;
+  // }
+
+  if (oldSecs != secs)
   {
     updateTicks();
-    oldSize = size;
+    oldSecs = secs;
     updateGraphics = false;
   }
   else
   {
     updateGraphics = true;
-  }
-
-  if (oldBase != _actual_base)
-  {
-    updateTicks();
-    oldBase = _actual_base;
   }
 
   // Draw axis
@@ -737,6 +798,9 @@ void CryptoGraphic::OnPaint(wxPaintEvent &event)
 {
 
   wxPaintDC dc(this);
-  std::cout << " Test OnPaint: " << std::endl;
-  render(dc);
+  if (paintGraphics)
+  {
+    std::cout << " Test OnPaint: " << std::endl;
+    render(dc);
+  }
 }
