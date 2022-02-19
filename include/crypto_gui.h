@@ -57,15 +57,14 @@ public:
   int valueToPixel(int value, int sizey);
 
   // events
-  void paintEvent(wxPaintEvent &evt);
   void OnPaint(wxPaintEvent &evt);
-  void paintNow();
   void render(wxDC &dc);
   void drawAxis(wxDC &dc, wxSize size);
   void drawTics(wxDC &dc, wxSize size);
   void drawQuartiles(wxDC &dc, wxSize size);
   void drawGraphic(wxDC &dc, wxSize size);
   void updateVectorValues();
+  void createTicks();
   void updateTicks();
 
 
@@ -143,8 +142,8 @@ public:
   void OnStartRealData(wxCommandEvent& event);
   void OnStopRealData(wxCommandEvent& event);
 
-  template <class T> void StartStrategy(std::string dataThrName, std::string strategyThrName, wxButton *start_btn, wxButton *stop_btn);
-  void KillThreads(std::vector<std::string> threadsToKill, wxButton *start_btn,wxButton *stop_btn);
+  template <class T> void StartStrategy(std::string dataThrName, std::string strategyThrName, wxButton *stop_btn);
+  void KillThreads(std::vector<std::string> threadsToKill, wxButton *stop_btn);
 
      
 };

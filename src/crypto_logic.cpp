@@ -59,7 +59,6 @@ void CryptoLogic::SetCryptoGraphicHandle(CryptoGraphic * cryptoGraphic) {
 void CryptoLogic::sendToLogic(double value)
 {
     std::cout << "data is: " << value << std::endl;
-    _cryptoGraphic->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGraphic::paintEvent)); 
-    //_cryptoGraphic->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGraphic::OnPaint)); //Esto sobreescribe el asunto. 
+    _cryptoGraphic->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGraphic::OnPaint)); 
     //Estamos jodidos. Además, no es necesario porque se puede usar la de la clase CryptoGui
 }
