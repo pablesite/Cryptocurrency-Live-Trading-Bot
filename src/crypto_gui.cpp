@@ -523,15 +523,18 @@ void CryptoGraphic::setActualValue(double value)
   Refresh();
 }
 
-void CryptoGraphic::setBase(double base)
+void CryptoGraphic::setLimits()
 {
-  _actual_base = base;
+
+  _actual_base = _strategy->getBase();
 
   _limit_up = (int)((1 + _actual_entry * 2) * _actual_base);
   _limit_down = (int)((1 - _actual_entry * 2) * _actual_base);
 
   maxValue = (int)(_limit_up * 2 - _actual_base);
   minValue = (int)(_limit_down * 2 - _actual_base);
+
+  // std::cout << "\n\nBase is: " << _strategy->getBase() << std::endl;
 }
 
 void CryptoGraphic::setStrategyData(double commission, double entry, double rupture, double recession)
@@ -546,7 +549,6 @@ void CryptoGraphic::setStrategyData(double commission, double entry, double rupt
 void CryptoGraphic::setStrategyHandle(Strategy *strategy)
 {
     _strategy = strategy;
-    std::cout << "\n\nStrategy is: " << _strategy->getBase();
 }
 
 

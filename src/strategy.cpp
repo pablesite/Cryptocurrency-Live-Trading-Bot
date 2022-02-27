@@ -93,8 +93,7 @@ void Strategy::cryptoBot()
 
     // temporary strategy data
     bool open_position = false;
-    double base;
-    _base = 5; //testing
+    // double base;
     double actual_value;
 
     // output strategy data
@@ -134,16 +133,16 @@ void Strategy::cryptoBot()
 
     // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-    base = getData(lookbackperiod);
+    _base = getData(lookbackperiod);
 
     _cryptoGraphic->setStrategyData(commission, entry, rupture, recession);
     _cryptoGraphic->setStrategyHandle(this);
-    _cryptoGraphic->setBase(base);
+    _cryptoGraphic->setLimits();
 
     // _cryptoLogic->sendToLogic(base);
-    std::cout << "data is: " << base << std::endl;
+    std::cout << "data is: " << _base << std::endl;
 
-    invest = invest_qty * base; // TO REVIEW...
+    invest = invest_qty * _base; // TO REVIEW...
 
     while (true)
     {
@@ -160,26 +159,25 @@ void Strategy::cryptoBot()
 
         count += 1;
 
-        std::cout << std::setprecision(4) << std::fixed << "To buy " << actual_value << " => " << (1 - entry * 2) * base << " < " << base << " > " << (1 + entry) * base << std::endl;
+        std::cout << std::setprecision(4) << std::fixed << "To buy " << actual_value << " => " << (1 - entry * 2) * _base << " < " << _base << " > " << (1 + entry) * _base << std::endl;
         // to update base if the trend is negative
-        if ((actual_value / base - 1) < -entry * 2)
+        if ((actual_value / _base - 1) < -entry * 2)
         {
             std::cout << "Update the base: Descending " << actual_value << " " << std::endl;
-            base = actual_value;
-            _cryptoGraphic->setBase(base);
+            _base = actual_value;
+            _cryptoGraphic->setLimits();
         }
 
         // to make an order
-        if ((actual_value / base - 1) > entry)
+        if ((actual_value / _base - 1) > entry)
         {
-            order = invest_qty * (1 + commission) * actual_value * (actual_value / base); // simulate the bought
+            order = invest_qty * (1 + commission) * actual_value * (actual_value / _base); // simulate the bought
             std::cout << std::endl
                       << "Buying my position " << invest_qty << " bitcoint. Actual value: " << actual_value << ". Order = " << order << " $. " << std::endl;
 
-            base = actual_value; // Define new base
+            _base = actual_value; // Define new base
             open_position = true;
-
-            _cryptoGraphic->setBase(base);
+            _cryptoGraphic->setLimits();
             //_cryptoGraphic->setPosition(open_position);
             //_cryptoGraphic->setOrder(order);
             // break;
@@ -195,25 +193,25 @@ void Strategy::cryptoBot()
                 actual_value = getData(lookbackperiod);
                 _cryptoGraphic->setActualValue(actual_value);
                 count += 1;
-                std::cout << std::setprecision(4) << std::fixed << "To sell " << actual_value << " => " << (1 + recession) * base << " < " << base << " > " << (1 + rupture) * base << std::endl;
+                std::cout << std::setprecision(4) << std::fixed << "To sell " << actual_value << " => " << (1 + recession) * _base << " < " << _base << " > " << (1 + rupture) * _base << std::endl;
 
                 // update base while the value is rissing
-                if ((actual_value / base - 1) > rupture)
+                if ((actual_value / _base - 1) > rupture)
                 {
                     std::cout << "Update the base: Rising " << actual_value << std::endl;
-                    base = actual_value; // Define new base
-                    _cryptoGraphic->setBase(base);
+                    _base = actual_value; // Define new base
+                    _cryptoGraphic->setLimits();
                 }
 
                 // if last_entry > x or last_entry < x --> Sell
-                if ((actual_value / base - 1) < recession)
+                if ((actual_value / _base - 1) < recession)
                 {
 
                     benefit = (invest_qty * actual_value * (1 - commission)) - order; // simulate the sell
                     std::cout << std::endl
                               << "Selling my position: " << invest_qty << " bitcoint. Actual value: " << actual_value << ". Benefits = " << benefit << " $." << std::endl;
 
-                    base = actual_value; // Define new base
+                    _base = actual_value; // Define new base
                     open_position = false;
                     benefits_acc += benefit;
                     std::cout << std::endl
@@ -221,7 +219,7 @@ void Strategy::cryptoBot()
                               << std::endl;
 
 
-                    _cryptoGraphic->setBase(base);
+                    _cryptoGraphic->setLimits();
                     //_cryptoGraphic->setPosition(open_position);
                     //_cryptoGraphic->setResults(invest, invest_qty, benefit, benefits_acc);
 

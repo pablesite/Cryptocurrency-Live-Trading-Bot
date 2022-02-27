@@ -62,7 +62,7 @@ public:
   // getter / setter
   CryptoLogic *GetCryptoLogicHandle() { return _cryptoLogic.get(); }
   void setActualValue(double value);
-  void setBase(double base);
+  void setLimits();
   void setStrategyHandle(Strategy *strategy);
   void setStrategyData(double commission, double entry, double rupture, double recession);
   int valueToPixel(int value, int sizey);
