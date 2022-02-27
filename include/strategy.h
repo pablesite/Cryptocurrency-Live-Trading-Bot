@@ -30,6 +30,7 @@ public:
     void SetCryptoLogicHandle(std::shared_ptr<CryptoLogic> cryptoLogic);
     //void SetCryptoGraphicHandle(std::shared_ptr<CryptoGraphic> cryptoGraphic);
     void SetCryptoGraphicHandle(CryptoGraphic * cryptoGraphic);
+    void SetCryptoGuiPanelHandle(CryptoGuiPanel * cryptoGuiPanel);
     
     double getData(double lookbackperiod);
     void cryptoBot();
@@ -43,7 +44,8 @@ private:
     //graphicsPanel...
     std::shared_ptr<CryptoLogic> _cryptoLogic;
     CryptoGraphic * _cryptoGraphic;
-
+    CryptoGuiPanel * _cryptoGuiPanel;
+    
 };
 
 #endif

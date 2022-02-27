@@ -53,7 +53,7 @@ int xBorderLeft = 50;
 int xBorderRight = 30;
 int yBorderUp = 30;
 int yBorderDown = 10;
-int xTime = 30;
+int xTime = 300;
 int secs = 0;
 
 enum
@@ -236,7 +236,7 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr
   // Set text variables (TO DO) //
   strategy_type = new wxStaticText(parent, -1, wxT("Simple"));
   exchange = new wxStaticText(parent, -1, wxT("Binance"));
-  commission_value = new wxStaticText(parent, -1, wxT("0.000075"));
+  commission_value = new wxStaticText(parent, -1, wxT("0"));
   cryptocurrency_type = new wxStaticText(parent, -1, wxT("Bitcoint"));
 
   wxStaticLine *line_ver_2 = new wxStaticLine(parent, -1);
@@ -422,7 +422,9 @@ void CryptoGuiPanel::OnStopHistoricalData(wxCommandEvent &event)
 void CryptoGuiPanel::OnStartRealData(wxCommandEvent &event)
 {
   std::cout << "\nOn Start Real Data: " << std::endl;
-  StartStrategy<Binance>(binanceData, strategyBinanceBot, stop_simulate_real_data_btn);
+  //commission_value->SetLabel(wxString::Format(wxT("%d"), 5));
+
+  StartStrategy<Binance>(binanceData, strategyBinanceBot, stop_simulate_real_data_btn); //TEST PARA VER SI AQUÍ ESTARÏA GUAY...
 }
 
 void CryptoGuiPanel::OnStopRealData(wxCommandEvent &event)
@@ -443,12 +445,14 @@ void CryptoGuiPanel::StartStrategy(std::string dataThrName, std::string strategy
   // Strategy thread
   std::shared_ptr<Strategy> strategyPtr = std::make_shared<Strategy>(dataPtr);
   strategyPtr->SetCryptoGraphicHandle(_cryptoGraphic);
+  strategyPtr->SetCryptoGuiPanelHandle(this);
   std::thread strategyThr = std::thread(&Strategy::cryptoBot, strategyPtr);
 
   // Save reference for threads
   thrMap[dataThrName] = dataThr.native_handle();
   thrMap[strategyThrName] = strategyThr.native_handle();
 
+  std::this_thread::sleep_for(std::chrono::milliseconds(3000)); // con esto casi siempre me aseguro que al parar hilos no pete. Pero hay que afinar mejor
   // Manage buttons
   simulate_btn->Enable(false);
   historic_btn->Enable(false);
@@ -515,6 +519,7 @@ void CryptoGraphic::setActualValue(double value)
 {
   _actual_value = value;
   secs++;
+
   Refresh();
 }
 
@@ -529,9 +534,13 @@ void CryptoGraphic::setBase(double base)
   minValue = (int)(_limit_down * 2 - _actual_base);
 }
 
-void CryptoGraphic::setLimits(double entry)
+void CryptoGraphic::setStrategyData(double commission, double entry, double rupture, double recession)
 {
+  _actual_commission = commission;
   _actual_entry = entry;
+  _actual_rupture = rupture;
+  _actual_recession = recession;
+
 }
 
 

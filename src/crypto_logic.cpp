@@ -40,10 +40,7 @@ void CryptoLogic::startSimulation(){
 
     dataSimulated.join();
     // strategyDataSimulatedBot.join();
-    std::cout << "Paso por startSimulation 2" << std::endl;
-
-
-    
+    std::cout << "Paso por startSimulation 2" << std::endl;    
 
 }
 

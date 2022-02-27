@@ -22,6 +22,7 @@ class CryptoBot : public wxApp
 {
 public:
   virtual bool OnInit();
+
 };
 
 
@@ -41,7 +42,12 @@ private:
   std::unique_ptr<CryptoLogic> _cryptoLogic; 
   double _actual_value;
   double _actual_base;
-  double _actual_entry;
+
+  double _actual_commission = 0;
+  double _actual_entry = 0;
+  double _actual_rupture = 0;
+  double _actual_recession = 0;
+
   int _limit_up=0, _limit_down=0;
 
 public:
@@ -53,7 +59,7 @@ public:
   CryptoLogic *GetCryptoLogicHandle() { return _cryptoLogic.get(); }
   void setActualValue(double value);
   void setBase(double base);
-  void setLimits(double entry);
+  void setStrategyData(double commission, double entry, double rupture, double recession);
   int valueToPixel(int value, int sizey);
 
   // events
@@ -93,6 +99,8 @@ private:
 
   std::shared_ptr<CryptoLogic> _cryptoLogic; //El puntero de la lógica está repetido......está también en CryptoGraphic. Cuidado
   std::shared_ptr<SimulateData> dataSimulatedPtr;
+
+  
 
   
   wxDECLARE_EVENT_TABLE();

@@ -130,13 +130,13 @@ void Strategy::cryptoBot()
     // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     base = getData(lookbackperiod);
-    _cryptoGraphic->setLimits(entry);
+
+    _cryptoGraphic->setStrategyData(commission, entry, rupture, recession);
     _cryptoGraphic->setBase(base);
 
     // _cryptoLogic->sendToLogic(base);
     std::cout << "data is: " << base << std::endl;
-    //_cryptoGraphic->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGraphic::paintEvent));
-    // _cryptoGraphic->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGraphic::OnPaint));
+
     invest = invest_qty * base; // TO REVIEW...
 
     while (true)
@@ -171,8 +171,11 @@ void Strategy::cryptoBot()
                       << "Buying my position " << invest_qty << " bitcoint. Actual value: " << actual_value << ". Order = " << order << " $. " << std::endl;
 
             base = actual_value; // Define new base
-            _cryptoGraphic->setBase(base);
             open_position = true;
+
+            _cryptoGraphic->setBase(base);
+            //_cryptoGraphic->setPosition(open_position);
+            //_cryptoGraphic->setOrder(order);
             // break;
         }
 
@@ -205,12 +208,17 @@ void Strategy::cryptoBot()
                               << "Selling my position: " << invest_qty << " bitcoint. Actual value: " << actual_value << ". Benefits = " << benefit << " $." << std::endl;
 
                     base = actual_value; // Define new base
-                    _cryptoGraphic->setBase(base);
                     open_position = false;
                     benefits_acc += benefit;
                     std::cout << std::endl
                               << "TOTAL BENEFITS: " << benefits_acc << "$. " << benefits_acc / invest * 100 << "%. " << count << std::endl
                               << std::endl;
+
+
+                    _cryptoGraphic->setBase(base);
+                    //_cryptoGraphic->setPosition(open_position);
+                    //_cryptoGraphic->setResults(invest, invest_qty, benefit, benefits_acc);
+
                     break;
                 }
             }
@@ -229,4 +237,10 @@ void Strategy::SetCryptoGraphicHandle(CryptoGraphic *cryptoGraphic)
 {
     _cryptoGraphic = cryptoGraphic;
     std::cout << "\n\nGraphics in Strategy is: " << _cryptoGraphic;
+}
+
+void Strategy::SetCryptoGuiPanelHandle(CryptoGuiPanel *cryptoGuiPanel)
+{
+    _cryptoGuiPanel = cryptoGuiPanel;
+    std::cout << "\n\nGraphics in Strategy is: " << cryptoGuiPanel;
 }
