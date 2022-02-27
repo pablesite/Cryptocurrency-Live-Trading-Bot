@@ -61,6 +61,10 @@ double Strategy::getData(double lookbackperiod)
     }
 }
 
+double Strategy::getBase(){
+    return _base;
+}
+
 void Strategy::cryptoBot()
 {
 
@@ -90,6 +94,7 @@ void Strategy::cryptoBot()
     // temporary strategy data
     bool open_position = false;
     double base;
+    _base = 5; //testing
     double actual_value;
 
     // output strategy data
@@ -132,6 +137,7 @@ void Strategy::cryptoBot()
     base = getData(lookbackperiod);
 
     _cryptoGraphic->setStrategyData(commission, entry, rupture, recession);
+    _cryptoGraphic->setStrategyHandle(this);
     _cryptoGraphic->setBase(base);
 
     // _cryptoLogic->sendToLogic(base);

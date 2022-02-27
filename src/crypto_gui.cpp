@@ -543,6 +543,12 @@ void CryptoGraphic::setStrategyData(double commission, double entry, double rupt
 
 }
 
+void CryptoGraphic::setStrategyHandle(Strategy *strategy)
+{
+    _strategy = strategy;
+    std::cout << "\n\nStrategy is: " << _strategy->getBase();
+}
+
 
 void CryptoGraphic::drawAxis(wxDC &dc, wxSize size)
 {

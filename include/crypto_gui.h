@@ -12,9 +12,11 @@
 #include "crypto_logic.h"
 #include "simulate_data.h"
 #include <unordered_map>
+#include "strategy.h"
 
 class CryptoLogic; // forward declaration
 class CryptoGraphic; // forward declaration
+class Strategy; // forward declaration
 
 static CryptoGraphic * _cryptoGraphic;
 
@@ -50,6 +52,8 @@ private:
 
   int _limit_up=0, _limit_down=0;
 
+  Strategy * _strategy;
+
 public:
   // constructor / destructor
   CryptoGraphic(wxWindow *parent, wxWindowID id);
@@ -59,6 +63,7 @@ public:
   CryptoLogic *GetCryptoLogicHandle() { return _cryptoLogic.get(); }
   void setActualValue(double value);
   void setBase(double base);
+  void setStrategyHandle(Strategy *strategy);
   void setStrategyData(double commission, double entry, double rupture, double recession);
   int valueToPixel(int value, int sizey);
 

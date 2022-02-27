@@ -10,6 +10,13 @@
 #include "message_queue.h"
 #include "crypto_logic.h"
 
+#include "crypto_gui.h"
+
+// forward declarations
+class CryptoGuiPanel;
+class CryptoLogic;
+class CryptoGraphic;
+
 /*
 Basic class for Fetch Data of Cryptoconcurrency
 */
@@ -35,6 +42,8 @@ public:
     double getData(double lookbackperiod);
     void cryptoBot();
 
+    double getBase();
+
 private:
     std::shared_ptr<Binance> data_binance;
     std::shared_ptr<SimulateData> data_simulated;
@@ -45,6 +54,9 @@ private:
     std::shared_ptr<CryptoLogic> _cryptoLogic;
     CryptoGraphic * _cryptoGraphic;
     CryptoGuiPanel * _cryptoGuiPanel;
+
+
+    double _base=0;
     
 };
 
