@@ -45,6 +45,10 @@ public:
     double getBase();
 
 private:
+
+    double getIndex();
+    void updateBase();
+
     std::shared_ptr<Binance> data_binance;
     std::shared_ptr<SimulateData> data_simulated;
     std::shared_ptr<HistoricData> data_historic;
@@ -55,8 +59,8 @@ private:
     CryptoGraphic * _cryptoGraphic;
     CryptoGuiPanel * _cryptoGuiPanel;
 
-
-    double _base=0;
+    double _value = 0;
+    double _base = 0;
     
 };
 

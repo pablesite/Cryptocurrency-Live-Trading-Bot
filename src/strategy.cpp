@@ -61,8 +61,23 @@ double Strategy::getData(double lookbackperiod)
     }
 }
 
-double Strategy::getBase(){
+double Strategy::getBase()
+{
     return _base;
+}
+
+double Strategy::getIndex()
+{
+    return _value / _base - 1;
+}
+
+void Strategy::updateBase()
+{
+    // update base value
+    _base = _value;
+
+    // update limits in cryptoGraphic
+    _cryptoGraphic->setLimits();
 }
 
 void Strategy::cryptoBot()
@@ -86,15 +101,18 @@ void Strategy::cryptoBot()
     double commission = 0.00075;
 
     // input strategy data
-    double entry = 2 * commission; // to make robust my positions
-    double rupture = commission / 0.3;
-    double recession = -2 * commission;
+    double entry = commission; // to make robust my positions
+    double bottom_break = -2 * commission;
+
+    double recession = commission;
+    double top_break = 2 * commission;
+
     double lookbackperiod = 1;
 
     // temporary strategy data
     bool open_position = false;
     // double base;
-    double actual_value;
+    // double actual_value;
 
     // output strategy data
     double order;
@@ -109,127 +127,111 @@ void Strategy::cryptoBot()
     // theoric value = invest_qty * base price
     // theoric value = 10 * 2 = 20 €
     // entry (value to buy)
-    // rupture
+    // top_break
     // recession
 
-    // if % rupture (10 %) --> Buy position
-    // order = invest_qty * (1 + % commission) * base price * (1 + % rupture)
+    // if % top_break (10 %) --> Buy position
+    // order = invest_qty * (1 + % commission) * base price * (1 + % top_break)
     // order = 10 * (1 + 0.05) * 2 * (1.1) = 23.1€ //ME HA COSTADO 23.1€ invertir en 10 cryptos
     // order = 10 * (1 + 0.05) * 2 * (1.05) = 22.05€ //ME HA COSTADO 23.1€ invertir en 10 cryptos
     // order = 10 * (1 + 0.05) * 2 * (1.15) = 24.15€ //ME HA COSTADO 23.1€ invertir en 10 cryptos
 
-    // if % rupture UP 10 % --> .....
+    // if % top_break UP 10 % --> .....
     // ...
-    // benefits = (invest_qty * base price * (1 + rupture)exp2 * (1 - % commission)) - order
+    // benefits = (invest_qty * base price * (1 + top_break)exp2 * (1 - % commission)) - order
     // benefits = (10 * 2 * (1 + 0.1)exp2 * 0.95) - 23.1 = -0.11
     //  benefits = (10 * 2 * (1 + 0.05)exp2 * 0.95) - 22.05 = 1.105
     //  benefits = (10 * 2 * (1 + 0.15)exp2 * 0.95) - 24.15 = 0.9775
 
     // if % recession DOWN 10 % --> Sell
-    // benefits = (invest_qty * base price * (1 + rupture)* (1 - recession) * (1 - % commission)) - order
+    // benefits = (invest_qty * base price * (1 + top_break)* (1 - recession) * (1 - % commission)) - order
     // benefits = (10 * 2 * (1 + 0.1) * (1 - 0.1) * 0.95) - 23.1 = - 4.29
 
-    // (1 + % commission)/(1 - % commission)  >  (1 + %rupture) //This is not too clear
+    // (1 + % commission)/(1 - % commission)  >  (1 + %top_break) //This is not too clear
 
     // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     _base = getData(lookbackperiod);
 
-    _cryptoGraphic->setStrategyData(commission, entry, rupture, recession);
-    _cryptoGraphic->setStrategyHandle(this);
+    _cryptoGraphic->setStrategyData(commission, entry, top_break, recession);
+    _cryptoGraphic->setStrategyHandle(this); // Faltará hacer lo mismo con cryptoGuiPanel
     _cryptoGraphic->setLimits();
-
-    // _cryptoLogic->sendToLogic(base);
-    std::cout << "data is: " << _base << std::endl;
 
     invest = invest_qty * _base; // TO REVIEW...
 
     while (true)
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        // std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        //  retrieve data
-        actual_value = getData(lookbackperiod);
-        // Esto es necesario para actualizar la gráfica, creo... El comentario de la línea siguiente no se a qué atiende
-        _cryptoGraphic->setActualValue(actual_value);
+        // std::this_thread::sleep_for(std::chrono::milliseconds(1000)); //Para que las simulaciones vayan a tiempo real.
 
-        std::cout << "\n\nACTUALIZO EL VALOR Y LO MANDO " << actual_value << " " << std::endl;
-        //_cryptoGraphic->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGraphic::OnPaint));
-        // cryptologic->setDataFromStrategy(actual_value);
+        // retrieve data
+        _value = getData(lookbackperiod);
+        _cryptoGraphic->setActualValue(_value);
 
         count += 1;
 
-        std::cout << std::setprecision(4) << std::fixed << "To buy " << actual_value << " => " << (1 - entry * 2) * _base << " < " << _base << " > " << (1 + entry) * _base << std::endl;
-        // to update base if the trend is negative
-        if ((actual_value / _base - 1) < -entry * 2)
+        if (open_position == false)
         {
-            std::cout << "Update the base: Descending " << actual_value << " " << std::endl;
-            _base = actual_value;
-            _cryptoGraphic->setLimits();
+            std::cout << std::setprecision(4) << std::fixed << "To buy " << _value << " => " << (1 - entry * 2) * _base << " < " << _base << " > " << (1 + entry) * _base << std::endl;
+            // to update base if the trend is negative
+            if (getIndex() < bottom_break)
+            {
+                // console log
+                std::cout << "Update the base: Descending " << _value << " " << std::endl;
+
+                updateBase();
+            }
+
+            // to make an order
+            if (getIndex() > entry)
+            {
+                // perform an order
+                order = invest_qty * _value * (1 + commission); // simulate the bought
+
+                // console log
+                std::cout << std::endl
+                          << "Buying my position " << invest_qty << " bitcoint. Actual value: " << _value << ". Order = " << order << " $. " << std::endl;
+
+                // manage position
+                open_position = true;
+
+                updateBase();
+            }
         }
-
-        // to make an order
-        if ((actual_value / _base - 1) > entry)
+        else
         {
-            order = invest_qty * (1 + commission) * actual_value * (actual_value / _base); // simulate the bought
-            std::cout << std::endl
-                      << "Buying my position " << invest_qty << " bitcoint. Actual value: " << actual_value << ". Order = " << order << " $. " << std::endl;
+            std::cout << std::setprecision(4) << std::fixed << "To sell " << _value << " => " << (1 + recession) * _base << " < " << _base << " > " << (1 + top_break) * _base << std::endl;
 
-            _base = actual_value; // Define new base
-            open_position = true;
-            _cryptoGraphic->setLimits();
-            //_cryptoGraphic->setPosition(open_position);
-            //_cryptoGraphic->setOrder(order);
-            // break;
-        }
+            // update base while the value is rissing
+            if (getIndex() > top_break)
+            {
+                // console log
+                std::cout << "Update the base: Rising " << _value << std::endl;
 
-        // to return the order
-        if (open_position == true)
-        {
-            while (true)
+                updateBase();
+            }
+
+            // if last_entry > x or last_entry < x --> Sell
+            if (getIndex() < recession)
             {
 
-                // retrieve data
-                actual_value = getData(lookbackperiod);
-                _cryptoGraphic->setActualValue(actual_value);
-                count += 1;
-                std::cout << std::setprecision(4) << std::fixed << "To sell " << actual_value << " => " << (1 + recession) * _base << " < " << _base << " > " << (1 + rupture) * _base << std::endl;
+                // sell the order
+                benefit = (invest_qty * _value * (1 - commission)) - order; // simulate the sell
+                benefits_acc += benefit;
 
-                // update base while the value is rissing
-                if ((actual_value / _base - 1) > rupture)
-                {
-                    std::cout << "Update the base: Rising " << actual_value << std::endl;
-                    _base = actual_value; // Define new base
-                    _cryptoGraphic->setLimits();
-                }
+                // console log
+                std::cout << std::endl
+                          << "Selling my position: " << invest_qty << " bitcoint. Actual value: " << _value << ". Benefits = " << benefit << " $." << std::endl;
+                std::cout << std::endl
+                          << "TOTAL BENEFITS: " << benefits_acc << "$. " << benefits_acc / invest * 100 << "%. " << count << std::endl
+                          << std::endl;
 
-                // if last_entry > x or last_entry < x --> Sell
-                if ((actual_value / _base - 1) < recession)
-                {
+                // manage position
+                open_position = false;
 
-                    benefit = (invest_qty * actual_value * (1 - commission)) - order; // simulate the sell
-                    std::cout << std::endl
-                              << "Selling my position: " << invest_qty << " bitcoint. Actual value: " << actual_value << ". Benefits = " << benefit << " $." << std::endl;
-
-                    _base = actual_value; // Define new base
-                    open_position = false;
-                    benefits_acc += benefit;
-                    std::cout << std::endl
-                              << "TOTAL BENEFITS: " << benefits_acc << "$. " << benefits_acc / invest * 100 << "%. " << count << std::endl
-                              << std::endl;
-
-
-                    _cryptoGraphic->setLimits();
-                    //_cryptoGraphic->setPosition(open_position);
-                    //_cryptoGraphic->setResults(invest, invest_qty, benefit, benefits_acc);
-
-                    break;
-                }
+                updateBase();
             }
         }
     }
-
-    return;
 }
 
 void Strategy::SetCryptoLogicHandle(std::shared_ptr<CryptoLogic> cryptoLogic)
