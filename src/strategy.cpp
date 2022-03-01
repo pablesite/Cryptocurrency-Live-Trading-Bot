@@ -161,7 +161,9 @@ void Strategy::cryptoBot()
 
     while (true)
     {
-        //std::this_thread::sleep_for(std::chrono::milliseconds(1000)); //Para que las simulaciones vayan a tiempo real.
+        std::this_thread::sleep_for(std::chrono::milliseconds(100)); //Para que las simulaciones vayan a tiempo real (1000).
+        //Además, si paro el hilo de ejecución (botón stop) cuando no está esperando, peta el hilo y da error de core dump o cosas similares. 
+        // Puede que esto tenga que ver por qué da error más veces lo de los datos reales. Pensar bien esto!!!
 
         // retrieve data
         _value = getData(lookbackperiod);
