@@ -121,7 +121,7 @@ CryptoGui::CryptoGui(const wxString &title, const wxPoint &pos, const wxSize &si
   bool isFromUser = false;
 
  
-  CryptoGuiPanel *item = new CryptoGuiPanel(panel, isFromUser);
+  _cryptoGuiPanel = new CryptoGuiPanel(panel, isFromUser); 
 }
 
 void CryptoGui::OnExit(wxCommandEvent &event)
@@ -444,7 +444,7 @@ void CryptoGuiPanel::StartStrategy(std::string dataThrName, std::string strategy
   // Strategy thread
   std::shared_ptr<Strategy> strategyPtr = std::make_shared<Strategy>(dataPtr);
   strategyPtr->SetCryptoGraphicHandle(_cryptoGraphic);
-  strategyPtr->SetCryptoGuiPanelHandle(this);
+  strategyPtr->SetCryptoGuiPanelHandle(_cryptoGuiPanel); //no sé si será necesario. Sólo para el caso en que en strategy tenga que meter cosas hacia criptoGuiPanel. Si las puedo leer desde criptoGuiPanel no hace falta
   std::thread strategyThr = std::thread(&Strategy::cryptoBot, strategyPtr);
 
   // Save reference for threads

@@ -15,9 +15,11 @@
 
 
 class CryptoGraphic; // forward declaration
+class CryptoGuiPanel; // forward declaration
 class Strategy; // forward declaration
 
 static CryptoGraphic * _cryptoGraphic;
+static CryptoGuiPanel * _cryptoGuiPanel; 
 
 class CryptoBot : public wxApp
 {
@@ -135,6 +137,7 @@ private:
   wxStaticText *interest_value;
 
   wxPanel *graphics_results;
+
 
   //DECLARE_EVENT_TABLE()
 
