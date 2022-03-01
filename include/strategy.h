@@ -32,9 +32,10 @@ public:
     Strategy(std::shared_ptr<Binance> data);
     Strategy(std::shared_ptr<SimulateData> data);
     Strategy(std::shared_ptr<HistoricData> data);
-    //void SetCryptoGraphicHandle(std::shared_ptr<CryptoGraphic> cryptoGraphic);
-    void SetCryptoGraphicHandle(CryptoGraphic * cryptoGraphic);
-    void SetCryptoGuiPanelHandle(CryptoGuiPanel *cryptoGuiPanel);
+    void SetCryptoGraphicHandle(std::shared_ptr<CryptoGraphic> cryptoGraphic);
+    //void SetCryptoGraphicHandle(CryptoGraphic * cryptoGraphic);
+    //void SetCryptoGuiPanelHandle(CryptoGuiPanel *cryptoGuiPanel);
+    void SetCryptoGuiPanelHandle(std::shared_ptr<CryptoGuiPanel> cryptoGuiPanel);
     
     double getData(double lookbackperiod);
     void cryptoBot();
@@ -55,7 +56,7 @@ private:
 
     // CryptoGraphic * _cryptoGraphic;
     //std::shared_ptr<CryptoGuiPanel> _cryptoGuiPanel;
-     CryptoGuiPanel * _cryptoGuiPanel;
+    //  CryptoGuiPanel * _cryptoGuiPanel;
 
     double _value = 0;
     double _base = 0;

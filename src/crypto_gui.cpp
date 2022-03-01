@@ -121,7 +121,8 @@ CryptoGui::CryptoGui(const wxString &title, const wxPoint &pos, const wxSize &si
   bool isFromUser = false;
 
  
-  _cryptoGuiPanel = new CryptoGuiPanel(panel, isFromUser); 
+  //_cryptoGuiPanel = new CryptoGuiPanel(panel, isFromUser); 
+  _cryptoGuiPanel = std::make_shared<CryptoGuiPanel>(panel, isFromUser);
 }
 
 void CryptoGui::OnExit(wxCommandEvent &event)
@@ -360,10 +361,10 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
   // hrighttbox2->Add(graphics_results, 1, wxEXPAND | wxTOP | wxDOWN | wxLEFT | wxRIGHT, 20);
   // graphics_results->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGui::OnPaint));
 
-  //_cryptoGraphic = std::make_shared<CryptoGraphic>(parent, wxID_ANY);
-  _cryptoGraphic = new CryptoGraphic(parent, wxID_ANY);
+  _cryptoGraphic = std::make_shared<CryptoGraphic>(parent, wxID_ANY);
+  //_cryptoGraphic = new CryptoGraphic(parent, wxID_ANY);
 
-  hrighttbox2->Add(_cryptoGraphic, 1, wxEXPAND | wxTOP | wxDOWN | wxLEFT | wxRIGHT, 20);
+  hrighttbox2->Add(_cryptoGraphic.get(), 1, wxEXPAND | wxTOP | wxDOWN | wxLEFT | wxRIGHT, 20);
 
   // Stablish size from Panels
   parent->SetSizer(hbox);

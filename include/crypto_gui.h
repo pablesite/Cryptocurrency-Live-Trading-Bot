@@ -18,8 +18,10 @@ class CryptoGraphic; // forward declaration
 class CryptoGuiPanel; // forward declaration
 class Strategy; // forward declaration
 
-static CryptoGraphic * _cryptoGraphic;
-static CryptoGuiPanel * _cryptoGuiPanel; 
+//static CryptoGraphic * _cryptoGraphic;
+static std::shared_ptr<CryptoGraphic> _cryptoGraphic;
+//static CryptoGuiPanel * _cryptoGuiPanel; 
+static std::shared_ptr<CryptoGuiPanel> _cryptoGuiPanel;
 
 class CryptoBot : public wxApp
 {

@@ -235,13 +235,13 @@ void Strategy::cryptoBot()
 }
 
 
-void Strategy::SetCryptoGraphicHandle(CryptoGraphic *cryptoGraphic)
+void Strategy::SetCryptoGraphicHandle(std::shared_ptr<CryptoGraphic> cryptoGraphic)
 {
     _cryptoGraphic = cryptoGraphic;
     std::cout << "\n\nGraphics in Strategy is: " << _cryptoGraphic;
 }
 
-void Strategy::SetCryptoGuiPanelHandle(CryptoGuiPanel * cryptoGuiPanel)
+void Strategy::SetCryptoGuiPanelHandle(std::shared_ptr<CryptoGuiPanel> cryptoGuiPanel)
 {
     // std::cout << "\n\nCRYPTOGUIPANEL in Strategy is: " << cryptoGuiPanel.get();
     _cryptoGuiPanel = cryptoGuiPanel;
