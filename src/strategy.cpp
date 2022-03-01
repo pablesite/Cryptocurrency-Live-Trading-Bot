@@ -101,11 +101,11 @@ void Strategy::cryptoBot()
     double commission = 0.00075;
 
     // input strategy data
-    double entry = commission; // to make robust my positions
+    double entry = 1 * commission; // to make robust my positions
     double bottom_break = -2 * commission;
 
-    double recession = commission;
-    double top_break = 2 * commission;
+    double recession = -3*commission;
+    double top_break = 6 * commission; //para asegurar beneficios, esto debería actualizarse el doble de cuando voy a vender... pensar mejor y hacer pruebas
 
     double lookbackperiod = 1;
 
@@ -154,14 +154,14 @@ void Strategy::cryptoBot()
     _base = getData(lookbackperiod);
 
     _cryptoGraphic->setStrategyData(commission, entry, top_break, recession);
-    _cryptoGraphic->setStrategyHandle(this); // Faltará hacer lo mismo con cryptoGuiPanel
+    _cryptoGraphic->setStrategyHandle(shared_from_this()); // Faltará hacer lo mismo con cryptoGuiPanel
     _cryptoGraphic->setLimits();
 
     invest = invest_qty * _base; // TO REVIEW...
 
     while (true)
     {
-        // std::this_thread::sleep_for(std::chrono::milliseconds(1000)); //Para que las simulaciones vayan a tiempo real.
+        //std::this_thread::sleep_for(std::chrono::milliseconds(1000)); //Para que las simulaciones vayan a tiempo real.
 
         // retrieve data
         _value = getData(lookbackperiod);
@@ -245,8 +245,9 @@ void Strategy::SetCryptoGraphicHandle(CryptoGraphic *cryptoGraphic)
     std::cout << "\n\nGraphics in Strategy is: " << _cryptoGraphic;
 }
 
-void Strategy::SetCryptoGuiPanelHandle(CryptoGuiPanel *cryptoGuiPanel)
+void Strategy::SetCryptoGuiPanelHandle(CryptoGuiPanel * cryptoGuiPanel)
 {
+    // std::cout << "\n\nCRYPTOGUIPANEL in Strategy is: " << cryptoGuiPanel.get();
     _cryptoGuiPanel = cryptoGuiPanel;
-    std::cout << "\n\nGraphics in Strategy is: " << cryptoGuiPanel;
+    
 }

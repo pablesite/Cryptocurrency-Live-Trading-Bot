@@ -546,9 +546,10 @@ void CryptoGraphic::setStrategyData(double commission, double entry, double rupt
 
 }
 
-void CryptoGraphic::setStrategyHandle(Strategy *strategy)
+void CryptoGraphic::setStrategyHandle(std::shared_ptr<Strategy> strategy)
 {
     _strategy = strategy;
+    // std::cout << "\n\n STRATEGY in Strategy is: " << strategy.get();
 }
 
 

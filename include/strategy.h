@@ -28,7 +28,7 @@ enum class TypesOfData
     HistoricData
 };
 
-class Strategy
+class Strategy : public std::enable_shared_from_this<Strategy> 
 {
 public:
     Strategy(std::shared_ptr<Binance> data);
@@ -37,7 +37,7 @@ public:
     void SetCryptoLogicHandle(std::shared_ptr<CryptoLogic> cryptoLogic);
     //void SetCryptoGraphicHandle(std::shared_ptr<CryptoGraphic> cryptoGraphic);
     void SetCryptoGraphicHandle(CryptoGraphic * cryptoGraphic);
-    void SetCryptoGuiPanelHandle(CryptoGuiPanel * cryptoGuiPanel);
+    void SetCryptoGuiPanelHandle(CryptoGuiPanel *cryptoGuiPanel);
     
     double getData(double lookbackperiod);
     void cryptoBot();
@@ -56,8 +56,9 @@ private:
     TypesOfData _type;
     //graphicsPanel...
     std::shared_ptr<CryptoLogic> _cryptoLogic;
-    CryptoGraphic * _cryptoGraphic;
-    CryptoGuiPanel * _cryptoGuiPanel;
+    // CryptoGraphic * _cryptoGraphic;
+    //std::shared_ptr<CryptoGuiPanel> _cryptoGuiPanel;
+     CryptoGuiPanel * _cryptoGuiPanel;
 
     double _value = 0;
     double _base = 0;

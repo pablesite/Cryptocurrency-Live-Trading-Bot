@@ -52,7 +52,7 @@ private:
 
   int _limit_up=0, _limit_down=0;
 
-  Strategy * _strategy;
+  std::shared_ptr<Strategy> _strategy;
 
 public:
   // constructor / destructor
@@ -63,7 +63,7 @@ public:
   CryptoLogic *GetCryptoLogicHandle() { return _cryptoLogic.get(); }
   void setActualValue(double value);
   void setLimits();
-  void setStrategyHandle(Strategy *strategy);
+  void setStrategyHandle(std::shared_ptr<Strategy> strategy);
   void setStrategyData(double commission, double entry, double rupture, double recession);
   int valueToPixel(int value, int sizey);
 
@@ -103,7 +103,7 @@ private:
   void OnAbout(wxCommandEvent &event);
 
   std::shared_ptr<CryptoLogic> _cryptoLogic; //El puntero de la lógica está repetido......está también en CryptoGraphic. Cuidado
-  std::shared_ptr<SimulateData> dataSimulatedPtr;
+  // std::shared_ptr<SimulateData> _dataSimulatedPtr;
 
   
 
@@ -120,7 +120,7 @@ private:
 
 
 
-class CryptoGuiPanel : public wxPanel
+class CryptoGuiPanel : public wxPanel 
 {
 private:
   // control elements
