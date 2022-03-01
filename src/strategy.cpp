@@ -234,10 +234,6 @@ void Strategy::cryptoBot()
     }
 }
 
-void Strategy::SetCryptoLogicHandle(std::shared_ptr<CryptoLogic> cryptoLogic)
-{
-    _cryptoLogic = cryptoLogic;
-}
 
 void Strategy::SetCryptoGraphicHandle(CryptoGraphic *cryptoGraphic)
 {

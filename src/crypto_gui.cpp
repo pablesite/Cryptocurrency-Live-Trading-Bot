@@ -120,8 +120,8 @@ CryptoGui::CryptoGui(const wxString &title, const wxPoint &pos, const wxSize &si
   wxPanel *panel = new wxPanel(this, -1);
   bool isFromUser = false;
 
-  _cryptoLogic = std::make_shared<CryptoLogic>();
-  CryptoGuiPanel *item = new CryptoGuiPanel(panel, isFromUser, _cryptoLogic);
+ 
+  CryptoGuiPanel *item = new CryptoGuiPanel(panel, isFromUser);
 }
 
 void CryptoGui::OnExit(wxCommandEvent &event)
@@ -154,7 +154,7 @@ void CryptoGui::OnPaint(wxPaintEvent &event) // It is not used
 {
 }
 
-CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr<CryptoLogic> cryptoLogic)
+CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
 {
 
   // Create Box Sizers
@@ -364,7 +364,6 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr
   _cryptoGraphic = new CryptoGraphic(parent, wxID_ANY);
 
   hrighttbox2->Add(_cryptoGraphic, 1, wxEXPAND | wxTOP | wxDOWN | wxLEFT | wxRIGHT, 20);
-  // cryptoLogic->SetCryptoGraphicHandle(_cryptoGraphic); //ESTO CREO QUE NO ES NECESARIO
 
   // Stablish size from Panels
   parent->SetSizer(hbox);

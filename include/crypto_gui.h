@@ -9,12 +9,11 @@
 
 #include <future>
 #include <optional>
-#include "crypto_logic.h"
 #include "simulate_data.h"
 #include <unordered_map>
 #include "strategy.h"
 
-class CryptoLogic; // forward declaration
+
 class CryptoGraphic; // forward declaration
 class Strategy; // forward declaration
 
@@ -40,8 +39,7 @@ private:
   // wxBoxSizer *_dialogSizer;
   // wxBitmap _image;
 
-  //std::unique_ptr<ChatLogic> _chatLogic;
-  std::unique_ptr<CryptoLogic> _cryptoLogic; 
+
   double _actual_value;
   double _actual_base;
 
@@ -60,7 +58,6 @@ public:
   ~CryptoGraphic();
 
   // getter / setter
-  CryptoLogic *GetCryptoLogicHandle() { return _cryptoLogic.get(); }
   void setActualValue(double value);
   void setLimits();
   void setStrategyHandle(std::shared_ptr<Strategy> strategy);
@@ -102,7 +99,6 @@ private:
   void OnExit(wxCommandEvent &event);
   void OnAbout(wxCommandEvent &event);
 
-  std::shared_ptr<CryptoLogic> _cryptoLogic; //El puntero de la lógica está repetido......está también en CryptoGraphic. Cuidado
   // std::shared_ptr<SimulateData> _dataSimulatedPtr;
 
   
@@ -144,7 +140,7 @@ private:
 
 public:
   // constructor / destructor
-  CryptoGuiPanel(wxPanel *parent, bool isFromUser, std::shared_ptr<CryptoLogic> cryptoLogic);
+  CryptoGuiPanel(wxPanel *parent, bool isFromUser);
   // ~CryptoGuiPanel();
 
   void OnCreateHistoricalData(wxCommandEvent &event);
