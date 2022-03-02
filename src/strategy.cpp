@@ -80,6 +80,11 @@ void Strategy::updateBase()
     _cryptoGraphic->setLimits();
 }
 
+void Strategy::setInvestment(double investment)
+{
+    _investment = investment;
+}
+
 void Strategy::cryptoBot()
 {
 
@@ -104,10 +109,10 @@ void Strategy::cryptoBot()
     double entry = 1 * commission; // to make robust my positions
     double bottom_break = -2 * commission;
 
-    double recession = -3*commission;
-    double top_break = 6 * commission; //para asegurar beneficios, esto debería actualizarse el doble de cuando voy a vender... pensar mejor y hacer pruebas
+    double recession = -3 * commission;
+    double top_break = 6 * commission; // para asegurar beneficios, esto debería actualizarse el doble de cuando voy a vender... pensar mejor y hacer pruebas
 
-    double lookbackperiod = 1;
+    double lookbackperiod = 15;
 
     // temporary strategy data
     bool open_position = false;
@@ -154,7 +159,7 @@ void Strategy::cryptoBot()
     _base = getData(lookbackperiod);
 
     _cryptoGraphic->setStrategyData(commission, entry, top_break, recession);
-    _cryptoGraphic->setStrategyHandle(shared_from_this()); // Faltará hacer lo mismo con cryptoGuiPanel
+    _cryptoGraphic->setStrategyHandle(shared_from_this());
     _cryptoGuiPanel->setStrategyHandle(shared_from_this());
     _cryptoGraphic->setLimits();
 
@@ -162,9 +167,9 @@ void Strategy::cryptoBot()
 
     while (true)
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100)); //Para que las simulaciones vayan a tiempo real (1000).
-        //Además, si paro el hilo de ejecución (botón stop) cuando no está esperando, peta el hilo y da error de core dump o cosas similares. 
-        // Puede que esto tenga que ver por qué da error más veces lo de los datos reales. Pensar bien esto!!!
+        std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Para que las simulaciones vayan a tiempo real (1000).
+        // Además, si paro el hilo de ejecución (botón stop) cuando no está esperando, peta el hilo y da error de core dump o cosas similares.
+        //  Puede que esto tenga que ver por qué da error más veces lo de los datos reales. Pensar bien esto!!!
 
         // retrieve data
         _value = getData(lookbackperiod);
@@ -189,6 +194,7 @@ void Strategy::cryptoBot()
             {
                 // perform an order
                 order = invest_qty * _value * (1 + commission); // simulate the bought
+                // crypto_value = investment/(_value*(1 + commission))
 
                 // console log
                 std::cout << std::endl
@@ -237,7 +243,6 @@ void Strategy::cryptoBot()
     }
 }
 
-
 void Strategy::SetCryptoGraphicHandle(std::shared_ptr<CryptoGraphic> cryptoGraphic)
 {
     _cryptoGraphic = cryptoGraphic;
@@ -248,5 +253,4 @@ void Strategy::SetCryptoGuiPanelHandle(std::shared_ptr<CryptoGuiPanel> cryptoGui
 {
     // std::cout << "\n\nCRYPTOGUIPANEL in Strategy is: " << cryptoGuiPanel.get();
     _cryptoGuiPanel = cryptoGuiPanel;
-    
 }

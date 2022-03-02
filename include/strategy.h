@@ -41,6 +41,7 @@ public:
     void cryptoBot();
 
     double getBase();
+    void setInvestment(double investment);
 
 private:
 
@@ -60,6 +61,8 @@ private:
 
     double _value = 0;
     double _base = 0;
+
+    double _investment;
     
 };
 

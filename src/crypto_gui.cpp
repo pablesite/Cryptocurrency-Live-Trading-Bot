@@ -131,6 +131,10 @@ void CryptoGui::OnExit(wxCommandEvent &event)
 
 void CryptoGui::OnAbout(wxCommandEvent &event)
 {
+
+  _strategy->setInvestment(100); // la estrategia aún no ha arrancado, por lo tanto no puedo acceder a su configuración. 
+  //Mhhh... quizá debo ejecutar un constructor desde aquí, y luego en el start lanzar una función del objeto strategy... 
+  // o mejor pensar en configurar esto de otra manera. quizá tener los parámetros en cryptoGui y desde strategy cargarlos.
   wxMessageBox("This is a wxWidgets' Hello world sample",
                "About Hello World", wxOK | wxICON_INFORMATION);
 }
