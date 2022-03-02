@@ -120,8 +120,7 @@ CryptoGui::CryptoGui(const wxString &title, const wxPoint &pos, const wxSize &si
   wxPanel *panel = new wxPanel(this, -1);
   bool isFromUser = false;
 
- 
-  //_cryptoGuiPanel = new CryptoGuiPanel(panel, isFromUser); 
+  //_cryptoGuiPanel = new CryptoGuiPanel(panel, isFromUser);
   _cryptoGuiPanel = std::make_shared<CryptoGuiPanel>(panel, isFromUser);
 }
 
@@ -422,9 +421,9 @@ void CryptoGuiPanel::OnStopHistoricalData(wxCommandEvent &event)
 void CryptoGuiPanel::OnStartRealData(wxCommandEvent &event)
 {
   std::cout << "\nOn Start Real Data: " << std::endl;
-  //commission_value->SetLabel(wxString::Format(wxT("%d"), 5));
+  // commission_value->SetLabel(wxString::Format(wxT("%d"), 5));
 
-  StartStrategy<Binance>(binanceData, strategyBinanceBot, stop_simulate_real_data_btn); //TEST PARA VER SI AQUÍ ESTARÏA GUAY...
+  StartStrategy<Binance>(binanceData, strategyBinanceBot, stop_simulate_real_data_btn); // TEST PARA VER SI AQUÍ ESTARÏA GUAY...
 }
 
 void CryptoGuiPanel::OnStopRealData(wxCommandEvent &event)
@@ -445,7 +444,7 @@ void CryptoGuiPanel::StartStrategy(std::string dataThrName, std::string strategy
   // Strategy thread
   std::shared_ptr<Strategy> strategyPtr = std::make_shared<Strategy>(dataPtr);
   strategyPtr->SetCryptoGraphicHandle(_cryptoGraphic);
-  strategyPtr->SetCryptoGuiPanelHandle(_cryptoGuiPanel); //no sé si será necesario. Sólo para el caso en que en strategy tenga que meter cosas hacia criptoGuiPanel. Si las puedo leer desde criptoGuiPanel no hace falta
+  strategyPtr->SetCryptoGuiPanelHandle(_cryptoGuiPanel); // no sé si será necesario. Sólo para el caso en que en strategy tenga que meter cosas hacia criptoGuiPanel. Si las puedo leer desde criptoGuiPanel no hace falta
   std::thread strategyThr = std::thread(&Strategy::cryptoBot, strategyPtr);
 
   // Save reference for threads
@@ -498,6 +497,17 @@ void CryptoGuiPanel::KillThreads(std::vector<std::string> threadsToKill, wxButto
   std::cout << std::endl;
 }
 
+void CryptoGuiPanel::setStrategyHandle(std::shared_ptr<Strategy> strategy)
+{
+  _strategy = strategy;
+  // std::cout << "\n\n STRATEGY in Strategy is: " << _strategy->getBase() << std::endl;
+}
+
+void CryptoGuiPanel::setPosition()
+{
+  position_bool->SetLabel(wxString::Format(wxT("%s"), "TEST"));
+}
+
 
 BEGIN_EVENT_TABLE(CryptoGraphic, wxPanel)
 // EVT_PAINT(CryptoGraphic::paintEvent) // catch paint events
@@ -543,15 +553,13 @@ void CryptoGraphic::setStrategyData(double commission, double entry, double rupt
   _actual_entry = entry;
   _actual_rupture = rupture;
   _actual_recession = recession;
-
 }
 
 void CryptoGraphic::setStrategyHandle(std::shared_ptr<Strategy> strategy)
 {
-    _strategy = strategy;
-    // std::cout << "\n\n STRATEGY in Strategy is: " << strategy.get();
+  _strategy = strategy;
+  // std::cout << "\n\n STRATEGY in Strategy is: " << strategy.get();
 }
-
 
 void CryptoGraphic::drawAxis(wxDC &dc, wxSize size)
 {
@@ -567,13 +575,13 @@ void CryptoGraphic::drawAxis(wxDC &dc, wxSize size)
 
 void CryptoGraphic::drawTics(wxDC &dc, wxSize size)
 {
-  //Revisar variables estáticas
+  // Revisar variables estáticas
   wxCoord xOrig = xBorderLeft;
 
-  wxCoord y_tick_0 = (size.y-yBorderDown-yBorderUp)*4/4+yBorderDown;
-  wxCoord y_tick_1 = (size.y-yBorderDown-yBorderUp)*3/4+yBorderDown;
-  wxCoord y_tick_2 = (size.y-yBorderDown-yBorderUp)*2/4+yBorderDown;
-  wxCoord y_tick_3 = (size.y-yBorderDown-yBorderUp)*1/4+yBorderDown;
+  wxCoord y_tick_0 = (size.y - yBorderDown - yBorderUp) * 4 / 4 + yBorderDown;
+  wxCoord y_tick_1 = (size.y - yBorderDown - yBorderUp) * 3 / 4 + yBorderDown;
+  wxCoord y_tick_2 = (size.y - yBorderDown - yBorderUp) * 2 / 4 + yBorderDown;
+  wxCoord y_tick_3 = (size.y - yBorderDown - yBorderUp) * 1 / 4 + yBorderDown;
   wxCoord y_tick_4 = yBorderDown;
 
   dc.DrawLine(45, y_tick_0, xOrig, y_tick_0);
@@ -582,35 +590,35 @@ void CryptoGraphic::drawTics(wxDC &dc, wxSize size)
   dc.DrawLine(45, y_tick_3, xOrig, y_tick_3);
   dc.DrawLine(45, y_tick_4, xOrig, y_tick_4);
 
-  y_tick_label0->SetPosition(wxPoint(0, y_tick_0-9));
-  y_tick_label1->SetPosition(wxPoint(0, y_tick_1-9));
-  y_tick_label2->SetPosition(wxPoint(0, y_tick_2-9));
-  y_tick_label3->SetPosition(wxPoint(0, y_tick_3-9));
-  y_tick_label4->SetPosition(wxPoint(0, y_tick_4-9));
+  y_tick_label0->SetPosition(wxPoint(0, y_tick_0 - 9));
+  y_tick_label1->SetPosition(wxPoint(0, y_tick_1 - 9));
+  y_tick_label2->SetPosition(wxPoint(0, y_tick_2 - 9));
+  y_tick_label3->SetPosition(wxPoint(0, y_tick_3 - 9));
+  y_tick_label4->SetPosition(wxPoint(0, y_tick_4 - 9));
 
   wxCoord x_tick_0 = xBorderLeft;
-  wxCoord x_tick_1 = xBorderLeft+(size.x-xBorderLeft-xBorderRight)*1/4;
-  wxCoord x_tick_2 = xBorderLeft+(size.x-xBorderLeft-xBorderRight)*2/4;
-  wxCoord x_tick_3 = xBorderLeft+(size.x-xBorderLeft-xBorderRight)*3/4;
-  wxCoord x_tick_4 = xBorderLeft+(size.x-xBorderLeft-xBorderRight)*4/4;
+  wxCoord x_tick_1 = xBorderLeft + (size.x - xBorderLeft - xBorderRight) * 1 / 4;
+  wxCoord x_tick_2 = xBorderLeft + (size.x - xBorderLeft - xBorderRight) * 2 / 4;
+  wxCoord x_tick_3 = xBorderLeft + (size.x - xBorderLeft - xBorderRight) * 3 / 4;
+  wxCoord x_tick_4 = xBorderLeft + (size.x - xBorderLeft - xBorderRight) * 4 / 4;
 
-  dc.DrawLine(x_tick_0, size.y-30, x_tick_0, size.y-25);
-  dc.DrawLine(x_tick_1, size.y-30, x_tick_1, size.y-25);
-  dc.DrawLine(x_tick_2, size.y-30, x_tick_2, size.y-25);
-  dc.DrawLine(x_tick_3, size.y-30, x_tick_3, size.y-25);
-  dc.DrawLine(x_tick_4, size.y-30, x_tick_4, size.y-25);
+  dc.DrawLine(x_tick_0, size.y - 30, x_tick_0, size.y - 25);
+  dc.DrawLine(x_tick_1, size.y - 30, x_tick_1, size.y - 25);
+  dc.DrawLine(x_tick_2, size.y - 30, x_tick_2, size.y - 25);
+  dc.DrawLine(x_tick_3, size.y - 30, x_tick_3, size.y - 25);
+  dc.DrawLine(x_tick_4, size.y - 30, x_tick_4, size.y - 25);
 
-  x_tick_label0->SetPosition(wxPoint(x_tick_0-5, size.y-20));
-  x_tick_label1->SetPosition(wxPoint(x_tick_1-5, size.y-20));
-  x_tick_label2->SetPosition(wxPoint(x_tick_2-5, size.y-20));
-  x_tick_label3->SetPosition(wxPoint(x_tick_3-5, size.y-20));
-  x_tick_label4->SetPosition(wxPoint(x_tick_4-5, size.y-20));
+  x_tick_label0->SetPosition(wxPoint(x_tick_0 - 5, size.y - 20));
+  x_tick_label1->SetPosition(wxPoint(x_tick_1 - 5, size.y - 20));
+  x_tick_label2->SetPosition(wxPoint(x_tick_2 - 5, size.y - 20));
+  x_tick_label3->SetPosition(wxPoint(x_tick_3 - 5, size.y - 20));
+  x_tick_label4->SetPosition(wxPoint(x_tick_4 - 5, size.y - 20));
 }
 
 void CryptoGraphic::drawQuartiles(wxDC &dc, wxSize size)
 {
-  wxCoord y_tick_1 = (size.y-yBorderDown-yBorderUp)*3/4+yBorderDown; // no son los quartiles ... así que esto habrá que modificarlo
-  wxCoord y_tick_3 = (size.y-yBorderDown-yBorderUp)*3/8+yBorderDown;
+  wxCoord y_tick_1 = (size.y - yBorderDown - yBorderUp) * 3 / 4 + yBorderDown; // no son los quartiles ... así que esto habrá que modificarlo
+  wxCoord y_tick_3 = (size.y - yBorderDown - yBorderUp) * 3 / 8 + yBorderDown;
   wxCoord xUp1 = xBorderLeft;
   wxCoord yUp1 = y_tick_1;
   wxCoord xUp2 = size.x - xBorderRight;
@@ -628,7 +636,7 @@ void CryptoGraphic::drawGraphic(wxDC &dc, wxSize size)
   std::deque<wxCoord> x_val{};
   for (size_t z = 0; z <= xTime; ++z)
   {
-    x_val.emplace_back((z*(size.x-xBorderLeft-xBorderRight)/xTime)+xBorderLeft);
+    x_val.emplace_back((z * (size.x - xBorderLeft - xBorderRight) / xTime) + xBorderLeft);
   }
 
   for (size_t i = 0; i < y_val.size(); ++i)
@@ -668,8 +676,7 @@ void CryptoGraphic::createTicks()
 void CryptoGraphic::updateTicks()
 {
 
-  //Revisar qué pasa cuando se pone a vender... se lian los tiempos.
-
+  // Revisar qué pasa cuando se pone a vender... se lian los tiempos.
 
   y_tick_label0->SetLabel(wxString::Format(wxT("%d"), _limit_down * 2 - (int)_actual_base));
   y_tick_label1->SetLabel(wxString::Format(wxT("%d"), _limit_down));
@@ -677,44 +684,49 @@ void CryptoGraphic::updateTicks()
   y_tick_label3->SetLabel(wxString::Format(wxT("%d"), _limit_up));
   y_tick_label4->SetLabel(wxString::Format(wxT("%d"), _limit_up * 2 - (int)_actual_base));
 
-  if (secs-2<1){
+  if (secs - 2 < 1)
+  {
     x_tick_label0->SetLabel(wxString::Format(wxT("%s"), " "));
   }
-  if (secs>1 && secs<=xTime+2)
+  if (secs > 1 && secs <= xTime + 2)
   {
-    x_tick_label0->SetLabel(wxString::Format(wxT("%d"), secs-2));
-  } 
+    x_tick_label0->SetLabel(wxString::Format(wxT("%d"), secs - 2));
+  }
 
-  if (secs-2-xTime*1/4<=0){
+  if (secs - 2 - xTime * 1 / 4 <= 0)
+  {
     x_tick_label1->SetLabel(wxString::Format(wxT("%s"), " "));
   }
-  if (secs-2-xTime*1/4>=0 && secs<=xTime+2)
+  if (secs - 2 - xTime * 1 / 4 >= 0 && secs <= xTime + 2)
   {
-    x_tick_label1->SetLabel(wxString::Format(wxT("%d"), (int)(secs-2-xTime*1/4)));
-  } 
+    x_tick_label1->SetLabel(wxString::Format(wxT("%d"), (int)(secs - 2 - xTime * 1 / 4)));
+  }
 
-  if (secs-2-xTime*2/4<=0){
+  if (secs - 2 - xTime * 2 / 4 <= 0)
+  {
     x_tick_label2->SetLabel(wxString::Format(wxT("%s"), " "));
   }
-  if (secs-2-xTime*2/4>=0 && secs<=xTime+2)
+  if (secs - 2 - xTime * 2 / 4 >= 0 && secs <= xTime + 2)
   {
-    x_tick_label2->SetLabel(wxString::Format(wxT("%d"), (int)(secs-2-xTime*2/4)));
-  } 
+    x_tick_label2->SetLabel(wxString::Format(wxT("%d"), (int)(secs - 2 - xTime * 2 / 4)));
+  }
 
-  if (secs-2-xTime*3/4<=0){
+  if (secs - 2 - xTime * 3 / 4 <= 0)
+  {
     x_tick_label3->SetLabel(wxString::Format(wxT("%s"), " "));
   }
-  if (secs-2-xTime*3/4>=0 && secs<=xTime+2)
+  if (secs - 2 - xTime * 3 / 4 >= 0 && secs <= xTime + 2)
   {
-    x_tick_label3->SetLabel(wxString::Format(wxT("%d"), (int)(secs-2-xTime*3/4)));
+    x_tick_label3->SetLabel(wxString::Format(wxT("%d"), (int)(secs - 2 - xTime * 3 / 4)));
   }
 
-  if (secs-2-xTime<=0){
+  if (secs - 2 - xTime <= 0)
+  {
     x_tick_label4->SetLabel(wxString::Format(wxT("%s"), " "));
   }
-  if (secs-2-xTime>=0 && secs<=xTime+2)
+  if (secs - 2 - xTime >= 0 && secs <= xTime + 2)
   {
-    x_tick_label4->SetLabel(wxString::Format(wxT("%d"), (int)(secs-2-xTime)));
+    x_tick_label4->SetLabel(wxString::Format(wxT("%d"), (int)(secs - 2 - xTime)));
   }
 }
 
@@ -768,11 +780,13 @@ void CryptoGraphic::render(wxDC &dc)
   }
 }
 
+
 void CryptoGraphic::OnPaint(wxPaintEvent &event)
 {
   wxPaintDC dc(this);
   if (paintGraphics)
   {
     render(dc);
-  } 
+    _cryptoGuiPanel->setPosition();
+  }
 }

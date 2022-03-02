@@ -155,6 +155,7 @@ void Strategy::cryptoBot()
 
     _cryptoGraphic->setStrategyData(commission, entry, top_break, recession);
     _cryptoGraphic->setStrategyHandle(shared_from_this()); // Faltará hacer lo mismo con cryptoGuiPanel
+    _cryptoGuiPanel->setStrategyHandle(shared_from_this());
     _cryptoGraphic->setLimits();
 
     invest = invest_qty * _base; // TO REVIEW...
