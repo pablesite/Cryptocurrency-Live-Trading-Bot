@@ -4,6 +4,7 @@
 #include "simulate_data.h"
 #include "strategy.h"
 #include <unordered_map>
+#include <sstream>
 
 // std::string dataPath = "../";
 // std::string imgBasePath = dataPath + "images/";
@@ -131,10 +132,6 @@ void CryptoGui::OnExit(wxCommandEvent &event)
 
 void CryptoGui::OnAbout(wxCommandEvent &event)
 {
-
-  _strategy->setInvestment(100); // la estrategia aún no ha arrancado, por lo tanto no puedo acceder a su configuración. 
-  //Mhhh... quizá debo ejecutar un constructor desde aquí, y luego en el start lanzar una función del objeto strategy... 
-  // o mejor pensar en configurar esto de otra manera. quizá tener los parámetros en cryptoGui y desde strategy cargarlos.
   wxMessageBox("This is a wxWidgets' Hello world sample",
                "About Hello World", wxOK | wxICON_INFORMATION);
 }
@@ -158,6 +155,20 @@ void CryptoGui::OnPaint(wxPaintEvent &event) // It is not used
 {
 }
 
+std::string simple_tokenizer(std::string s)
+{
+  std::stringstream ss(s);
+  std::string word;
+  if (ss >> word)
+  {
+    return word;
+  }
+  else
+  {
+    return s;
+  }
+}
+
 CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
 {
 
@@ -176,7 +187,9 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
   wxBoxSizer *create_action_box = new wxBoxSizer(wxHORIZONTAL);
 
   wxBoxSizer *simulate_label_box = new wxBoxSizer(wxHORIZONTAL);
+  wxBoxSizer *simulate_select_exchange_box = new wxBoxSizer(wxHORIZONTAL);
   wxBoxSizer *simulate_select_crypto_box = new wxBoxSizer(wxHORIZONTAL);
+  wxBoxSizer *simulate_select_investment_box = new wxBoxSizer(wxHORIZONTAL);
   wxBoxSizer *simulate_select_strategy_box = new wxBoxSizer(wxHORIZONTAL);
   wxBoxSizer *simulate_sim_data_buttons_box = new wxBoxSizer(wxHORIZONTAL);
   wxBoxSizer *simulate_hist_data_buttons_box = new wxBoxSizer(wxHORIZONTAL);
@@ -205,14 +218,30 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
 
   // Inside simulate boxes
   wxStaticText *simulate_label = new wxStaticText(parent, -1, wxT("Simulate your strategy "));
-  wxStaticText *simulate_select_crypto_label = new wxStaticText(parent, -1, wxT("Select Crypto: "));
+  wxStaticText *simulate_select_exchange_label = new wxStaticText(parent, -1, wxT("Select Exchange: "));
+  wxStaticText *simulate_select_crypto_label = new wxStaticText(parent, -1, wxT("Select Cryptoconcurrency: "));
+  wxStaticText *simulate_select_investment_label = new wxStaticText(parent, -1, wxT("Select Investment: "));
   wxStaticText *simulate_select_strategy_label = new wxStaticText(parent, -1, wxT("Select your strategy: "));
+
+  const wxString simulation_exchange_choices = wxT("Binance");
+  wxChoice *simulate_choice_exchange = new wxChoice(parent, -1, wxDefaultPosition, wxDefaultSize, 1, &simulation_exchange_choices, wxCB_SORT | wxCB_DROPDOWN, wxDefaultValidator);
+  simulate_choice_exchange->SetSelection(0);
+  _exchange = simulate_choice_exchange->GetString(simulate_choice_exchange->GetSelection());
 
   const wxString simulation_crypto_choices = wxT("Bitcoint");
   wxChoice *simulate_choice_crypto = new wxChoice(parent, -1, wxDefaultPosition, wxDefaultSize, 1, &simulation_crypto_choices, wxCB_SORT | wxCB_DROPDOWN, wxDefaultValidator);
+  simulate_choice_crypto->SetSelection(0);
+  _cryptoConcurrency = simulate_choice_crypto->GetString(simulate_choice_crypto->GetSelection());
 
-  const wxString simulation_choices = wxT("Simple one");
-  wxChoice *simulate_choice_strategy = new wxChoice(parent, -1, wxDefaultPosition, wxDefaultSize, 1, &simulation_choices, wxCB_SORT | wxCB_DROPDOWN, wxDefaultValidator);
+  const wxString simulation_strategy_choices = wxT("Standard");
+  wxChoice *simulate_choice_strategy = new wxChoice(parent, -1, wxDefaultPosition, wxDefaultSize, 1, &simulation_strategy_choices, wxCB_SORT | wxCB_DROPDOWN, wxDefaultValidator);
+  simulate_choice_strategy->SetSelection(0);
+  _strategy = simulate_choice_strategy->GetString(simulate_choice_strategy->GetSelection());
+
+  const wxString simulation_investment_choices = wxT("100 $");
+  wxChoice *simulate_choice_investment = new wxChoice(parent, -1, wxDefaultPosition, wxDefaultSize, 1, &simulation_investment_choices, wxCB_SORT | wxCB_DROPDOWN, wxDefaultValidator);
+  simulate_choice_investment->SetSelection(0);
+  _investment = simulate_choice_investment->GetString(simulate_choice_investment->GetSelection());
 
   wxStaticText *data_simulated_label = new wxStaticText(parent, -1, wxT("Data Simulated: "));
 
@@ -284,7 +313,9 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
 
   // inside hleftbox2
   hleftbox2->Add(simulate_label_box, 1, wxALIGN_CENTER | wxTOP, 0);
+  hleftbox2->Add(simulate_select_exchange_box, 1, wxEXPAND);
   hleftbox2->Add(simulate_select_crypto_box, 1, wxEXPAND);
+  hleftbox2->Add(simulate_select_investment_box, 1, wxEXPAND);
   hleftbox2->Add(simulate_select_strategy_box, 1, wxEXPAND);
   hleftbox2->Add(simulate_sim_data_buttons_box, 1, wxEXPAND);
   hleftbox2->Add(simulate_hist_data_buttons_box, 1, wxEXPAND);
@@ -302,8 +333,12 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
 
   // inside simulate_label_box
   simulate_label_box->Add(simulate_label, 1, wxALIGN_CENTER_VERTICAL | wxLEFT | wxRIGHT, 10);
+  simulate_select_exchange_box->Add(simulate_select_exchange_label, 1, wxALIGN_CENTER_VERTICAL | wxLEFT | wxRIGHT, 10);
+  simulate_select_exchange_box->Add(simulate_choice_exchange, 1, wxALIGN_CENTER_VERTICAL | wxLEFT | wxRIGHT, 10);
   simulate_select_crypto_box->Add(simulate_select_crypto_label, 1, wxALIGN_CENTER_VERTICAL | wxLEFT | wxRIGHT, 10);
   simulate_select_crypto_box->Add(simulate_choice_crypto, 1, wxALIGN_CENTER_VERTICAL | wxLEFT | wxRIGHT, 10);
+  simulate_select_investment_box->Add(simulate_select_investment_label, 1, wxALIGN_CENTER_VERTICAL | wxLEFT | wxRIGHT, 10);
+  simulate_select_investment_box->Add(simulate_choice_investment, 1, wxALIGN_CENTER_VERTICAL | wxLEFT | wxRIGHT, 10);
   simulate_select_strategy_box->Add(simulate_select_strategy_label, 1, wxALIGN_CENTER_VERTICAL | wxLEFT | wxRIGHT, 10);
   simulate_select_strategy_box->Add(simulate_choice_strategy, 1, wxALIGN_CENTER_VERTICAL | wxLEFT | wxRIGHT, 10);
 
@@ -455,7 +490,7 @@ void CryptoGuiPanel::StartStrategy(std::string dataThrName, std::string strategy
   thrMap[dataThrName] = dataThr.native_handle();
   thrMap[strategyThrName] = strategyThr.native_handle();
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(3000)); // con esto casi siempre me aseguro que al parar hilos no pete. Pero hay que afinar mejor
+  //std::this_thread::sleep_for(std::chrono::milliseconds(3000)); // con esto casi siempre me aseguro que al parar hilos no pete. Pero hay que afinar mejor
   // Manage buttons
   simulate_btn->Enable(false);
   historic_btn->Enable(false);
@@ -468,6 +503,7 @@ void CryptoGuiPanel::StartStrategy(std::string dataThrName, std::string strategy
 
   //
   paintGraphics = true;
+
 }
 
 void CryptoGuiPanel::KillThreads(std::vector<std::string> threadsToKill, wxButton *stop_btn)
@@ -503,15 +539,34 @@ void CryptoGuiPanel::KillThreads(std::vector<std::string> threadsToKill, wxButto
 
 void CryptoGuiPanel::setStrategyHandle(std::shared_ptr<Strategy> strategy)
 {
-  _strategy = strategy;
-  // std::cout << "\n\n STRATEGY in Strategy is: " << _strategy->getBase() << std::endl;
+  _strategyPtr = strategy;
+  // std::cout << "\n\n STRATEGY in Strategy is: " << _strategyPtr->getBase() << std::endl;
 }
 
-void CryptoGuiPanel::setPosition()
+void CryptoGuiPanel::setPosition() //for test
 {
   position_bool->SetLabel(wxString::Format(wxT("%s"), "TEST"));
 }
 
+std::string CryptoGuiPanel::getExchange()
+{
+  return _exchange;
+}
+
+std::string CryptoGuiPanel::getCryptoConcurrency()
+{
+  return _cryptoConcurrency;
+}
+
+std::string CryptoGuiPanel::getStrategy()
+{
+  return _strategy;
+}
+
+double CryptoGuiPanel::getInvestment()
+{
+  return std::stod(simple_tokenizer(_investment));
+}
 
 BEGIN_EVENT_TABLE(CryptoGraphic, wxPanel)
 // EVT_PAINT(CryptoGraphic::paintEvent) // catch paint events
@@ -540,7 +595,7 @@ void CryptoGraphic::setActualValue(double value)
 void CryptoGraphic::setLimits()
 {
 
-  _actual_base = _strategy->getBase();
+  _actual_base = _strategyPtr->getBase();
 
   _limit_up = (int)((1 + _actual_entry * 2) * _actual_base);
   _limit_down = (int)((1 - _actual_entry * 2) * _actual_base);
@@ -548,7 +603,7 @@ void CryptoGraphic::setLimits()
   maxValue = (int)(_limit_up * 2 - _actual_base);
   minValue = (int)(_limit_down * 2 - _actual_base);
 
-  // std::cout << "\n\nBase is: " << _strategy->getBase() << std::endl;
+  // std::cout << "\n\nBase is: " << _strategyPtr->getBase() << std::endl;
 }
 
 void CryptoGraphic::setStrategyData(double commission, double entry, double rupture, double recession)
@@ -561,7 +616,7 @@ void CryptoGraphic::setStrategyData(double commission, double entry, double rupt
 
 void CryptoGraphic::setStrategyHandle(std::shared_ptr<Strategy> strategy)
 {
-  _strategy = strategy;
+  _strategyPtr = strategy;
   // std::cout << "\n\n STRATEGY in Strategy is: " << strategy.get();
 }
 
@@ -784,13 +839,11 @@ void CryptoGraphic::render(wxDC &dc)
   }
 }
 
-
 void CryptoGraphic::OnPaint(wxPaintEvent &event)
 {
   wxPaintDC dc(this);
   if (paintGraphics)
   {
     render(dc);
-    _cryptoGuiPanel->setPosition();
   }
 }

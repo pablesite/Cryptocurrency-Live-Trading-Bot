@@ -22,7 +22,7 @@ class Strategy; // forward declaration
 static std::shared_ptr<CryptoGraphic> _cryptoGraphic;
 //static CryptoGuiPanel * _cryptoGuiPanel; 
 static std::shared_ptr<CryptoGuiPanel> _cryptoGuiPanel;
-static std::shared_ptr<Strategy> _strategy;
+static std::shared_ptr<Strategy> _strategyPtr;
 
 class CryptoBot : public wxApp
 {
@@ -141,6 +141,12 @@ private:
 
   wxPanel *graphics_results;
 
+  // config data
+  std::string _exchange;
+  std::string _cryptoConcurrency;
+  std::string _strategy;
+  std::string _investment;
+
 
   //DECLARE_EVENT_TABLE()
 
@@ -159,6 +165,12 @@ public:
   void setStrategyHandle(std::shared_ptr<Strategy> strategy);
 
   void setPosition();
+
+  std::string getExchange();
+  std::string getCryptoConcurrency();
+  std::string getStrategy();
+  double getInvestment();
+
 
   template <class T> void StartStrategy(std::string dataThrName, std::string strategyThrName, wxButton *stop_btn);
   void KillThreads(std::vector<std::string> threadsToKill, wxButton *stop_btn);

@@ -88,7 +88,7 @@ void Strategy::setInvestment(double investment)
 void Strategy::cryptoBot()
 {
 
-    std::cout << "CryptoBot working " << std::endl;
+    std::cout << "CryptoBot working " <<  std::endl;
 
     // this while is for avoid the rest of the strategy, because in there, there is some problem with core dump
     //  while (true)
@@ -97,7 +97,17 @@ void Strategy::cryptoBot()
     //      std::cout << "Crypto working " << std::endl;
     //  }
 
-    // this->SetCryptoLogicHandle(cryptoLogic);
+    // set strategy handle
+    _cryptoGuiPanel->setStrategyHandle(shared_from_this());
+    _cryptoGraphic->setStrategyHandle(shared_from_this());
+
+    // get config data
+    _exchange = _cryptoGuiPanel->getExchange();
+    _cryptoConcurrency = _cryptoGuiPanel->getCryptoConcurrency();
+    _strategy = _cryptoGuiPanel->getStrategy();
+    _investment = _cryptoGuiPanel->getInvestment();
+
+
 
     // investment data
     double invest_qty = 0.004;
@@ -158,9 +168,11 @@ void Strategy::cryptoBot()
 
     _base = getData(lookbackperiod);
 
-    _cryptoGraphic->setStrategyData(commission, entry, top_break, recession);
-    _cryptoGraphic->setStrategyHandle(shared_from_this());
-    _cryptoGuiPanel->setStrategyHandle(shared_from_this());
+
+
+    _cryptoGraphic->setStrategyData(commission, entry, top_break, recession); // to review. 
+    
+    
     _cryptoGraphic->setLimits();
 
     invest = invest_qty * _base; // TO REVIEW...
@@ -174,6 +186,7 @@ void Strategy::cryptoBot()
         // retrieve data
         _value = getData(lookbackperiod);
         _cryptoGraphic->setActualValue(_value);
+        
 
         count += 1;
 

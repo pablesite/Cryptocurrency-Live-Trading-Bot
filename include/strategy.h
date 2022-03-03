@@ -62,7 +62,13 @@ private:
     double _value = 0;
     double _base = 0;
 
+    // config data
+    std::string _exchange;
+    std::string _cryptoConcurrency;
+    std::string _strategy;
     double _investment;
+
+
     
 };
 
