@@ -64,7 +64,8 @@ public:
 
   // getter / setter
   void setActualValue(double value);
-  void setLimits();
+  //void setLimits();
+  void setLimits(bool open_position, double _entry, double _bottom_break, double _recession, double _top_break);
   void setStrategyHandle(std::shared_ptr<Strategy> strategy);
   void setStrategyData(double commission, double entry, double rupture, double recession);
   int valueToPixel(int value, int sizey);

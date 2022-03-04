@@ -581,16 +581,44 @@ void CryptoGraphic::setActualValue(double value)
   Refresh();
 }
 
-void CryptoGraphic::setLimits()
+void CryptoGraphic::setLimits(bool open_position, double _entry, double _bottom_break, double _recession, double _top_break)
 {
 
   _actual_base = _strategyPtr->getBase();
 
-  _limit_up = (int)((1 + _actual_entry * 2) * _actual_base);
-  _limit_down = (int)((1 - _actual_entry * 2) * _actual_base);
+  if (!open_position)
+  {
+    // limits to buy
+    _limit_up = (int)((1 + _entry) * _actual_base);
+    _limit_down = (int)((1 + _bottom_break) * _actual_base);
+  }
+  else
+  {
+    // limits to sell
+    _limit_up = (int)((1 + _top_break) * _actual_base);
+    _limit_down = (int)((1 + _recession) * _actual_base);
+  }
 
-  maxValue = (int)(_limit_up * 2 - _actual_base);
-  minValue = (int)(_limit_down * 2 - _actual_base);
+  if ((_limit_up - _actual_base) > (_actual_base - _limit_down))
+  {
+    maxValue = (int)(2 * _limit_up - _actual_base);
+    minValue = (int)(_actual_base - 2 * (_limit_up - _actual_base));
+    std::cout << "\nUP-> maxValue: " << maxValue << " minValue: " << minValue << std::endl;
+    std::cout << "\nUP-> diff: " << maxValue-_actual_base << " diff: " << _actual_base - minValue << std::endl;
+  }
+  else
+  {
+    maxValue = (int)(_actual_base + 2 * (_actual_base - _limit_down));
+    minValue = (int)(2 * _limit_down - _actual_base);
+    std::cout << "\nDOWN-> maxValue: " << maxValue << " minValue: " << minValue << std::endl;
+    std::cout << "\nDOWN-> diff: " << maxValue-_actual_base << " diff: " << _actual_base - minValue << std::endl;
+  }
+
+  // _limit_up = (int)((1 + _actual_entry * 2) * _actual_base);
+  // _limit_down = (int)((1 - _actual_entry * 2) * _actual_base);
+
+  // maxValue = (int)(_limit_up * 2 - _actual_base);
+  // minValue = (int)(_limit_down * 2 - _actual_base);
 
   // std::cout << "\n\nBase is: " << _strategyPtr->getBase() << std::endl;
 }
@@ -606,7 +634,6 @@ void CryptoGraphic::setStrategyData(double commission, double entry, double rupt
 void CryptoGraphic::setStrategyHandle(std::shared_ptr<Strategy> strategy)
 {
   _strategyPtr = strategy;
-  // std::cout << "\n\n STRATEGY in Strategy is: " << strategy.get();
 }
 
 void CryptoGraphic::drawAxis(wxDC &dc, wxSize size)
@@ -627,9 +654,9 @@ void CryptoGraphic::drawTics(wxDC &dc, wxSize size)
   wxCoord xOrig = xBorderLeft;
 
   wxCoord y_tick_0 = (size.y - yBorderDown - yBorderUp) * 4 / 4 + yBorderDown;
-  wxCoord y_tick_1 = (size.y - yBorderDown - yBorderUp) * 3 / 4 + yBorderDown;
+  wxCoord y_tick_1 = valueToPixel(_limit_down, size.y); 
   wxCoord y_tick_2 = (size.y - yBorderDown - yBorderUp) * 2 / 4 + yBorderDown;
-  wxCoord y_tick_3 = (size.y - yBorderDown - yBorderUp) * 1 / 4 + yBorderDown;
+  wxCoord y_tick_3 = valueToPixel(_limit_up, size.y);
   wxCoord y_tick_4 = yBorderDown;
 
   dc.DrawLine(45, y_tick_0, xOrig, y_tick_0);
@@ -665,8 +692,11 @@ void CryptoGraphic::drawTics(wxDC &dc, wxSize size)
 
 void CryptoGraphic::drawQuartiles(wxDC &dc, wxSize size)
 {
-  wxCoord y_tick_1 = (size.y - yBorderDown - yBorderUp) * 3 / 4 + yBorderDown; // no son los quartiles ... así que esto habrá que modificarlo
-  wxCoord y_tick_3 = (size.y - yBorderDown - yBorderUp) * 3 / 8 + yBorderDown;
+  wxCoord y_tick_1 = valueToPixel(_limit_down, size.y); 
+  wxCoord y_tick_3 = valueToPixel(_limit_up, size.y);
+  // std::cout << " TESTTTTTTTTTTTTTT " << y_tick_1 << std::endl;
+  // std::cout << " TESTTTTTTTTTTTTTT " <<  << std::endl;
+
   wxCoord xUp1 = xBorderLeft;
   wxCoord yUp1 = y_tick_1;
   wxCoord xUp2 = size.x - xBorderRight;
@@ -726,11 +756,11 @@ void CryptoGraphic::updateTicks()
 
   // Revisar qué pasa cuando se pone a vender... se lian los tiempos.
 
-  y_tick_label0->SetLabel(wxString::Format(wxT("%d"), _limit_down * 2 - (int)_actual_base));
+  y_tick_label0->SetLabel(wxString::Format(wxT("%d"), minValue));
   y_tick_label1->SetLabel(wxString::Format(wxT("%d"), _limit_down));
   y_tick_label2->SetLabel(wxString::Format(wxT("%d"), (int)_actual_base));
   y_tick_label3->SetLabel(wxString::Format(wxT("%d"), _limit_up));
-  y_tick_label4->SetLabel(wxString::Format(wxT("%d"), _limit_up * 2 - (int)_actual_base));
+  y_tick_label4->SetLabel(wxString::Format(wxT("%d"), maxValue));
 
   if (secs - 2 < 1)
   {
@@ -789,7 +819,7 @@ void CryptoGraphic::render(wxDC &dc)
 
   wxSize size = this->GetSize();
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
   // Logics of update graphic
   if (oldSecs != secs)

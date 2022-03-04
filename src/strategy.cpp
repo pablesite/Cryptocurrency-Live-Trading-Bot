@@ -77,7 +77,7 @@ void Strategy::updateBase()
     _base = _value;
 
     // update limits in cryptoGraphic
-    _cryptoGraphic->setLimits();
+    _cryptoGraphic->setLimits(_open_position, _entry, _bottom_break, _recession, _top_break);
 }
 
 void Strategy::setInvestment(double investment)
@@ -101,24 +101,28 @@ void Strategy::cryptoBot()
     _investment = _cryptoGuiPanel->getInvestment();
 
     // output strategy data
-    bool open_position = false; // to send
+    // _open_position = false;     // to send
     double investment_acc = 0;  // to send
-    double order;               // to send
-    double benefit;             // to send
+    double order = 0;           // to send
+    double benefit = 0;         // to send
     double benefits_acc = 0;    // to send
     double computedData = 0;
-    double nOrders = 0; // to send
+    double nOrders = 0;         // to send
 
     // set base value
     _base = getData(_lookbackperiod);
+    std::cout << "data generated: " << _base << std::endl;  //DEBUG
 
     // set CryptoGraphic
-    _cryptoGraphic->setStrategyData(_commission, _entry, _top_break, _recession); // TO REVIEW
-    _cryptoGraphic->setLimits();
+    // _cryptoGraphic->setStrategyData(_commission, _entry, _top_break, _recession); // TO REVIEW
+    // _cryptoGraphic->setLimits();
+    //_cryptoGraphic->setLimits(_open_position, _entry, _bottom_break, _recession, _top_break);
+    updateBase();
+    
 
     while (true)
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1)); // Para que las simulaciones vayan a tiempo real (1000).
+        std::this_thread::sleep_for(std::chrono::milliseconds(10)); // Para que las simulaciones vayan a tiempo real (1000).
         // Además, si paro el hilo de ejecución (botón stop) cuando no está esperando, peta el hilo y da error de core dump o cosas similares.
         //  Puede que esto tenga que ver por qué da error más veces lo de los datos reales. Pensar bien esto!!!
 
@@ -128,9 +132,9 @@ void Strategy::cryptoBot()
 
         computedData += 1;
 
-        if (open_position == false)
+        if (_open_position == false)
         {
-            std::cout << std::setprecision(4) << std::fixed << "To buy " << _value << " => " << (1 - _entry * 2) * _base << " < " << _base << " > " << (1 + _entry) * _base << std::endl;
+            std::cout << std::setprecision(4) << std::fixed << "To buy " << _value << " => " << (1 + _bottom_break) * _base << " < " << _base << " > " << (1 + _entry) * _base << std::endl;
             // to update base if the trend is negative
             if (getIndex() < _bottom_break)
             {
@@ -148,7 +152,7 @@ void Strategy::cryptoBot()
                 // order = invest_qty * _value * (1 + _commission); // simulate the bought
 
                 // manage position
-                open_position = true;
+                _open_position = true;
                 nOrders += 1;
 
                 // updateBase
@@ -176,7 +180,7 @@ void Strategy::cryptoBot()
                 benefits_acc += benefit;
 
                 // manage position
-                open_position = false;
+                _open_position = false;
 
                 // updateBase
                 std::cout << "\nSelling my position: " << order << " bitcoints. Actual value: " << _value << ". Benefits = " << benefit << " $." << std::endl;
