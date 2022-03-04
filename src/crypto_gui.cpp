@@ -192,11 +192,12 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
   wxBoxSizer *investment_box = new wxBoxSizer(wxHORIZONTAL);
 
   wxBoxSizer *position_box = new wxBoxSizer(wxHORIZONTAL);
-  wxBoxSizer *last_order_cc_box = new wxBoxSizer(wxHORIZONTAL);
-  wxBoxSizer *last_order_$_box = new wxBoxSizer(wxHORIZONTAL);
+  wxBoxSizer *last_order_box = new wxBoxSizer(wxHORIZONTAL);
   wxBoxSizer *benefits_box = new wxBoxSizer(wxHORIZONTAL);
-  wxBoxSizer *benefits_acc_box = new wxBoxSizer(wxHORIZONTAL);
   wxBoxSizer *interest_box = new wxBoxSizer(wxHORIZONTAL);
+  wxBoxSizer *number_of_orders_box = new wxBoxSizer(wxHORIZONTAL);
+  wxBoxSizer *benefits_acc_box = new wxBoxSizer(wxHORIZONTAL);
+  wxBoxSizer *interest_acc_box = new wxBoxSizer(wxHORIZONTAL);
 
   //// Define elements ////
 
@@ -257,7 +258,6 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
   wxStaticText *cryptocurrency = new wxStaticText(parent, -1, wxT("Crypto: "));
   wxStaticText *investment = new wxStaticText(parent, -1, wxT("Investment: "));
   wxStaticText *strategy = new wxStaticText(parent, -1, wxT("Strategy: "));
-    
 
   // Set text variables
   exchange = new wxStaticText(parent, -1, _exchange);
@@ -265,25 +265,27 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
   cryptocurrency_type = new wxStaticText(parent, -1, _cryptoConcurrency);
   investment_value = new wxStaticText(parent, -1, _investment);
   strategy_type = new wxStaticText(parent, -1, _strategy);
-  
+
   // Separator vertical line
   wxStaticLine *line_ver_2 = new wxStaticLine(parent, -1);
 
   // Inside vrighttbox2
-  wxStaticText *position = new wxStaticText(parent, -1, wxT("Position: "));
-  wxStaticText *last_order_cc = new wxStaticText(parent, -1, wxT("Last order (cc): "));
-  wxStaticText *last_order_$ = new wxStaticText(parent, -1, wxT("Last order ($): "));
-  wxStaticText *benefits = new wxStaticText(parent, -1, wxT("Benefits in last order ($): "));
-  wxStaticText *benefits_acc = new wxStaticText(parent, -1, wxT("Benefits accumulated ($): "));
+  wxStaticText *position = new wxStaticText(parent, -1, wxT("Open position: "));
+  wxStaticText *last_order = new wxStaticText(parent, -1, wxT("Last order (btc): "));
+  wxStaticText *benefits = new wxStaticText(parent, -1, wxT("Benefits ($): "));
   wxStaticText *interest = new wxStaticText(parent, -1, wxT("Interest (%): "));
+  wxStaticText *number_of_orders = new wxStaticText(parent, -1, wxT("Number of orders: "));
+  wxStaticText *benefits_acc = new wxStaticText(parent, -1, wxT("Benefits accumulated ($): "));
+  wxStaticText *interest_acc = new wxStaticText(parent, -1, wxT("Interest accumulated (%): "));
 
   // Set text variables (TO DO) //
-  position_bool = new wxStaticText(parent, -1, wxT("Open"));
-  last_order_cc_value = new wxStaticText(parent, -1, wxT("0.004"));
-  last_order_$_value = new wxStaticText(parent, -1, wxT("192.48"));
-  benefits_value = new wxStaticText(parent, -1, wxT("0.35"));
-  benefits_acc_value = new wxStaticText(parent, -1, wxT("7.17"));
-  interest_value = new wxStaticText(parent, -1, wxT("2.47"));
+  position_bool = new wxStaticText(parent, -1, wxT("False"));
+  last_order_value = new wxStaticText(parent, -1, wxT("0"));
+  benefits_value = new wxStaticText(parent, -1, wxT("0"));
+  interest_value = new wxStaticText(parent, -1, wxT("0"));
+  number_of_orders_value = new wxStaticText(parent, -1, wxT("0"));
+  benefits_acc_value = new wxStaticText(parent, -1, wxT("0"));
+  interest_acc_value = new wxStaticText(parent, -1, wxT("0"));
 
   // Separator horizontal line
   wxStaticLine *line_hor_4 = new wxStaticLine(parent, -1);
@@ -355,13 +357,14 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
   vrighttbox1->Add(cryptocurrency_box, 1, wxEXPAND);
   vrighttbox1->Add(investment_box, 1, wxEXPAND);
   vrighttbox1->Add(strategy_box, 1, wxEXPAND);
-  
+
   vrighttbox2->Add(position_box, 1, wxEXPAND);
-  vrighttbox2->Add(last_order_cc_box, 1, wxEXPAND);
-  vrighttbox2->Add(last_order_$_box, 1, wxEXPAND);
+  vrighttbox2->Add(last_order_box, 1, wxEXPAND);
   vrighttbox2->Add(benefits_box, 1, wxEXPAND);
-  vrighttbox2->Add(benefits_acc_box, 1, wxEXPAND);
   vrighttbox2->Add(interest_box, 1, wxEXPAND);
+  vrighttbox2->Add(number_of_orders_box, 1, wxEXPAND);
+  vrighttbox2->Add(benefits_acc_box, 1, wxEXPAND);
+  vrighttbox2->Add(interest_acc_box, 1, wxEXPAND);
 
   // inside vrighttbox1
   strategy_box->Add(strategy, 1, wxALIGN_LEFT | wxLEFT, 20);
@@ -380,17 +383,18 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
   // inside vrighttbox2
   position_box->Add(position, 1, wxALIGN_LEFT | wxLEFT, 20);
   position_box->Add(position_bool, 1, wxALIGN_LEFT);
-  last_order_cc_box->Add(last_order_cc, 1, wxALIGN_LEFT | wxLEFT, 20);
-  last_order_cc_box->Add(last_order_cc_value, 1, wxALIGN_LEFT);
-  last_order_$_box->Add(last_order_$, 1, wxALIGN_LEFT | wxLEFT, 20);
-  last_order_$_box->Add(last_order_$_value, 1, wxALIGN_LEFT);
+  last_order_box->Add(last_order, 1, wxALIGN_LEFT | wxLEFT, 20);
+  last_order_box->Add(last_order_value, 1, wxALIGN_LEFT);
   benefits_box->Add(benefits, 1, wxALIGN_LEFT | wxLEFT, 20);
   benefits_box->Add(benefits_value, 1, wxALIGN_LEFT);
-  // benefits_value->SetBackgroundColour(wxT("RED"));
-  benefits_acc_box->Add(benefits_acc, 1, wxALIGN_LEFT | wxLEFT, 20);
-  benefits_acc_box->Add(benefits_acc_value, 1, wxALIGN_LEFT);
   interest_box->Add(interest, 1, wxALIGN_LEFT | wxLEFT, 20);
   interest_box->Add(interest_value, 1, wxALIGN_LEFT);
+  number_of_orders_box->Add(number_of_orders, 1, wxALIGN_LEFT | wxLEFT, 20);
+  number_of_orders_box->Add(number_of_orders_value, 1, wxALIGN_LEFT);
+  benefits_acc_box->Add(benefits_acc, 1, wxALIGN_LEFT | wxLEFT, 20);
+  benefits_acc_box->Add(benefits_acc_value, 1, wxALIGN_LEFT);
+  interest_acc_box->Add(interest_acc, 1, wxALIGN_LEFT | wxLEFT, 20);
+  interest_acc_box->Add(interest_acc_value, 1, wxALIGN_LEFT);
 
   // Graphics
   // graphics_results = new wxPanel(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, wxPanelNameStr);
@@ -537,12 +541,23 @@ void CryptoGuiPanel::KillThreads(std::vector<std::string> threadsToKill, wxButto
 void CryptoGuiPanel::setStrategyHandle(std::shared_ptr<Strategy> strategy)
 {
   _strategyPtr = strategy;
-  // std::cout << "\n\n STRATEGY in Strategy is: " << _strategyPtr->getBase() << std::endl;
 }
 
 void CryptoGuiPanel::setPosition() // for test
 {
   position_bool->SetLabel(wxString::Format(wxT("%s"), "TEST"));
+}
+
+void CryptoGuiPanel::setOutputDataStrategy(bool _open_position, double order, double benefit, int nOrders, double benefits_acc, double investment_acc)
+{
+   
+  position_bool->SetLabel(wxString::Format(wxT("%s"), _open_position ? "true" : "false" ));
+  last_order_value->SetLabel(wxString::Format(wxT("%f"), order));
+  benefits_value->SetLabel(wxString::Format(wxT("%.2f"), benefit));
+  interest_value->SetLabel(wxString::Format(wxT("%.2f"), benefit/std::stod(_investment)*100));
+  number_of_orders_value->SetLabel(wxString::Format(wxT("%d"), nOrders));
+  benefits_acc_value->SetLabel(wxString::Format(wxT("%.2f"), benefits_acc));
+  interest_acc_value->SetLabel(wxString::Format(wxT("%.2f"), benefits_acc/investment_acc*100));
 }
 
 std::string CryptoGuiPanel::getExchange()
@@ -612,14 +627,14 @@ void CryptoGraphic::setLimits(bool open_position, double _entry, double _bottom_
     maxValue = (int)(2 * _limit_up - _actual_base);
     minValue = (int)(_actual_base - 2 * (_limit_up - _actual_base));
     std::cout << "\nUP-> maxValue: " << maxValue << " minValue: " << minValue << std::endl;
-    std::cout << "\nUP-> diff: " << maxValue-_actual_base << " diff: " << _actual_base - minValue << std::endl;
+    std::cout << "\nUP-> diff: " << maxValue - _actual_base << " diff: " << _actual_base - minValue << std::endl;
   }
   else
   {
     maxValue = (int)(_actual_base + 2 * (_actual_base - _limit_down));
     minValue = (int)(2 * _limit_down - _actual_base);
     std::cout << "\nDOWN-> maxValue: " << maxValue << " minValue: " << minValue << std::endl;
-    std::cout << "\nDOWN-> diff: " << maxValue-_actual_base << " diff: " << _actual_base - minValue << std::endl;
+    std::cout << "\nDOWN-> diff: " << maxValue - _actual_base << " diff: " << _actual_base - minValue << std::endl;
   }
 
   // _limit_up = (int)((1 + _actual_entry * 2) * _actual_base);
@@ -662,7 +677,7 @@ void CryptoGraphic::drawTics(wxDC &dc, wxSize size)
   wxCoord xOrig = xBorderLeft;
 
   wxCoord y_tick_0 = (size.y - yBorderDown - yBorderUp) * 4 / 4 + yBorderDown;
-  wxCoord y_tick_1 = valueToPixel(_limit_down, size.y); 
+  wxCoord y_tick_1 = valueToPixel(_limit_down, size.y);
   wxCoord y_tick_2 = (size.y - yBorderDown - yBorderUp) * 2 / 4 + yBorderDown;
   wxCoord y_tick_3 = valueToPixel(_limit_up, size.y);
   wxCoord y_tick_4 = yBorderDown;
@@ -700,7 +715,7 @@ void CryptoGraphic::drawTics(wxDC &dc, wxSize size)
 
 void CryptoGraphic::drawQuartiles(wxDC &dc, wxSize size)
 {
-  wxCoord y_tick_1 = valueToPixel(_limit_down, size.y); 
+  wxCoord y_tick_1 = valueToPixel(_limit_down, size.y);
   wxCoord y_tick_3 = valueToPixel(_limit_up, size.y);
   // std::cout << " TESTTTTTTTTTTTTTT " << y_tick_1 << std::endl;
   // std::cout << " TESTTTTTTTTTTTTTT " <<  << std::endl;

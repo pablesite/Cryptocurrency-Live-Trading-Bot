@@ -135,11 +135,12 @@ private:
   wxStaticText *investment_value;
 
   wxStaticText *position_bool;
-  wxStaticText *last_order_cc_value;
-  wxStaticText *last_order_$_value;
+  wxStaticText *last_order_value;
   wxStaticText *benefits_value;
-  wxStaticText *benefits_acc_value;
   wxStaticText *interest_value;
+  wxStaticText *number_of_orders_value;
+  wxStaticText *benefits_acc_value;
+  wxStaticText *interest_acc_value;
 
   wxPanel *graphics_results;
 
@@ -167,6 +168,7 @@ public:
   void setStrategyHandle(std::shared_ptr<Strategy> strategy);
 
   void setPosition();
+  void setOutputDataStrategy(bool _open_position, double order, double benefit, int nOrders, double benefits_acc, double investment_acc);
 
   std::string getExchange();
   std::string getCryptoConcurrency();

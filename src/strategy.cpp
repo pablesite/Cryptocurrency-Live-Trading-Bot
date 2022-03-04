@@ -102,24 +102,17 @@ void Strategy::cryptoBot()
 
     // output strategy data
     // _open_position = false;     // to send
-    double investment_acc = 0;  // to send
     double order = 0;           // to send
     double benefit = 0;         // to send
+    int nOrders = 0;             // to send
     double benefits_acc = 0;    // to send
+    double investment_acc = 0;  // to send
     double computedData = 0;
-    double nOrders = 0;         // to send
 
     // set base value
     _base = getData(_lookbackperiod);
-    std::cout << "data generated: " << _base << std::endl;  //DEBUG
-
-    // set CryptoGraphic
-    // _cryptoGraphic->setStrategyData(_commission, _entry, _top_break, _recession); // TO REVIEW
-    // _cryptoGraphic->setLimits();
-    //_cryptoGraphic->setLimits(_open_position, _entry, _bottom_break, _recession, _top_break);
     updateBase();
     
-
     while (true)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(10)); // Para que las simulaciones vayan a tiempo real (1000). ¿no debería limitar el tiempo sólo en la obtención de datos?
@@ -158,6 +151,7 @@ void Strategy::cryptoBot()
                 // updateBase
                 std::cout << "\nBuying my position " << order << " bitcoint. Actual value: " << _value << "." << std::endl;
                 updateBase();
+                _cryptoGuiPanel->setOutputDataStrategy(_open_position, order, benefit, nOrders, benefits_acc, investment_acc);
             }
         }
         else
@@ -186,6 +180,7 @@ void Strategy::cryptoBot()
                 std::cout << "\nSelling my position: " << order << " bitcoints. Actual value: " << _value << ". Benefits = " << benefit << " $." << std::endl;
                 std::cout << "\nTOTAL BENEFITS: " << benefits_acc << "$. " << benefits_acc / investment_acc * 100 << "%. " << computedData << std::endl;
                 updateBase();
+                _cryptoGuiPanel->setOutputDataStrategy(_open_position, order, benefit, nOrders, benefits_acc, investment_acc);
             }
         }
     }
