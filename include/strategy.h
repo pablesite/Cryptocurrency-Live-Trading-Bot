@@ -70,7 +70,7 @@ private:
     double _investment;
 
     // data from binance
-    double _commission = 0.00075;
+    double _commission = 0.00075; //0.075%
 
     // input strategy data //To do: get from CryptoGuiPanel in Menu: "Configure Strategy"
     double _entry = 4 * _commission; // to make robust my positions

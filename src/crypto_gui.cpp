@@ -189,6 +189,7 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
   wxBoxSizer *exchange_box = new wxBoxSizer(wxHORIZONTAL);
   wxBoxSizer *commission_box = new wxBoxSizer(wxHORIZONTAL);
   wxBoxSizer *cryptocurrency_box = new wxBoxSizer(wxHORIZONTAL);
+  wxBoxSizer *investment_box = new wxBoxSizer(wxHORIZONTAL);
 
   wxBoxSizer *position_box = new wxBoxSizer(wxHORIZONTAL);
   wxBoxSizer *last_order_cc_box = new wxBoxSizer(wxHORIZONTAL);
@@ -251,17 +252,21 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
   wxStaticLine *line_ver_1 = new wxStaticLine(parent, -1);
 
   // Inside vrighttbox1
-  wxStaticText *strategy = new wxStaticText(parent, -1, wxT("Strategy: "));
   wxStaticText *data_from = new wxStaticText(parent, -1, wxT("Data from: "));
   wxStaticText *commission = new wxStaticText(parent, -1, wxT("Commission: "));
   wxStaticText *cryptocurrency = new wxStaticText(parent, -1, wxT("Crypto: "));
+  wxStaticText *investment = new wxStaticText(parent, -1, wxT("Investment: "));
+  wxStaticText *strategy = new wxStaticText(parent, -1, wxT("Strategy: "));
+    
 
-  // Set text variables (TO DO) //
-  strategy_type = new wxStaticText(parent, -1, wxT("Simple"));
-  exchange = new wxStaticText(parent, -1, wxT("Binance"));
-  commission_value = new wxStaticText(parent, -1, wxT("0"));
-  cryptocurrency_type = new wxStaticText(parent, -1, wxT("Bitcoint"));
-
+  // Set text variables
+  exchange = new wxStaticText(parent, -1, _exchange);
+  commission_value = new wxStaticText(parent, -1, wxT("0.075 %"));
+  cryptocurrency_type = new wxStaticText(parent, -1, _cryptoConcurrency);
+  investment_value = new wxStaticText(parent, -1, _investment);
+  strategy_type = new wxStaticText(parent, -1, _strategy);
+  
+  // Separator vertical line
   wxStaticLine *line_ver_2 = new wxStaticLine(parent, -1);
 
   // Inside vrighttbox2
@@ -345,11 +350,12 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
   simulate_real_data_buttons_box->Add(stop_simulate_real_data_btn, 1, wxALIGN_CENTER_VERTICAL | wxLEFT, 10);
 
   // inside hrighttbox1
-  vrighttbox1->Add(strategy_box, 1, wxEXPAND);
   vrighttbox1->Add(exchange_box, 1, wxEXPAND);
   vrighttbox1->Add(commission_box, 1, wxEXPAND);
   vrighttbox1->Add(cryptocurrency_box, 1, wxEXPAND);
-
+  vrighttbox1->Add(investment_box, 1, wxEXPAND);
+  vrighttbox1->Add(strategy_box, 1, wxEXPAND);
+  
   vrighttbox2->Add(position_box, 1, wxEXPAND);
   vrighttbox2->Add(last_order_cc_box, 1, wxEXPAND);
   vrighttbox2->Add(last_order_$_box, 1, wxEXPAND);
@@ -361,13 +367,15 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
   strategy_box->Add(strategy, 1, wxALIGN_LEFT | wxLEFT, 20);
   strategy_box->Add(strategy_type, 1, wxALIGN_LEFT);
   // strategy->SetBackgroundColour(wxT("BLUE"));
-  strategy_type->SetBackgroundColour(wxT("RED"));
+  // strategy_type->SetBackgroundColour(wxT("RED"));
   exchange_box->Add(data_from, 1, wxALIGN_LEFT | wxLEFT, 20);
   exchange_box->Add(exchange, 1, wxALIGN_LEFT);
   commission_box->Add(commission, 1, wxALIGN_LEFT | wxLEFT, 20);
   commission_box->Add(commission_value, 1, wxALIGN_LEFT);
   cryptocurrency_box->Add(cryptocurrency, 1, wxALIGN_LEFT | wxLEFT, 20);
   cryptocurrency_box->Add(cryptocurrency_type, 1, wxALIGN_LEFT);
+  investment_box->Add(investment, 1, wxALIGN_LEFT | wxLEFT, 20);
+  investment_box->Add(investment_value, 1, wxALIGN_LEFT);
 
   // inside vrighttbox2
   position_box->Add(position, 1, wxALIGN_LEFT | wxLEFT, 20);
@@ -378,7 +386,7 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
   last_order_$_box->Add(last_order_$_value, 1, wxALIGN_LEFT);
   benefits_box->Add(benefits, 1, wxALIGN_LEFT | wxLEFT, 20);
   benefits_box->Add(benefits_value, 1, wxALIGN_LEFT);
-  benefits_value->SetBackgroundColour(wxT("RED"));
+  // benefits_value->SetBackgroundColour(wxT("RED"));
   benefits_acc_box->Add(benefits_acc, 1, wxALIGN_LEFT | wxLEFT, 20);
   benefits_acc_box->Add(benefits_acc_value, 1, wxALIGN_LEFT);
   interest_box->Add(interest, 1, wxALIGN_LEFT | wxLEFT, 20);

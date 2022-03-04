@@ -132,6 +132,7 @@ private:
   wxStaticText *exchange;
   wxStaticText *commission_value;
   wxStaticText *cryptocurrency_type;
+  wxStaticText *investment_value;
 
   wxStaticText *position_bool;
   wxStaticText *last_order_cc_value;

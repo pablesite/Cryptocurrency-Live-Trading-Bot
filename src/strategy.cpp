@@ -122,7 +122,7 @@ void Strategy::cryptoBot()
 
     while (true)
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(10)); // Para que las simulaciones vayan a tiempo real (1000).
+        std::this_thread::sleep_for(std::chrono::milliseconds(10)); // Para que las simulaciones vayan a tiempo real (1000). ¿no debería limitar el tiempo sólo en la obtención de datos?
         // Además, si paro el hilo de ejecución (botón stop) cuando no está esperando, peta el hilo y da error de core dump o cosas similares.
         //  Puede que esto tenga que ver por qué da error más veces lo de los datos reales. Pensar bien esto!!!
 
