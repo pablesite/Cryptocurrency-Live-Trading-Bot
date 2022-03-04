@@ -59,7 +59,7 @@ int secs = 0;
 
 enum
 {
-  ID_Hello = wxID_HIGHEST + 1,
+  ID_CONFIGURE_STRATEGY = wxID_HIGHEST + 1,
   ID_CREATE_HISTORICAL_DATA,
   ID_SIMULATE_DATA,
   ID_SIMULATE_DATA_STOP,
@@ -71,7 +71,7 @@ enum
 
 wxBEGIN_EVENT_TABLE(CryptoGui, wxFrame)
 
-    EVT_MENU(ID_Hello, CryptoGui::OnHello)
+    EVT_MENU(ID_CONFIGURE_STRATEGY, CryptoGui::OnConfigureStrategy)
         EVT_MENU(wxID_EXIT, CryptoGui::OnExit)
             EVT_MENU(wxID_ABOUT, CryptoGui::OnAbout)
 
@@ -90,7 +90,7 @@ wxBEGIN_EVENT_TABLE(CryptoGui, wxFrame)
 bool CryptoBot::OnInit()
 {
   // With header and footer, 88 pixels height extra are needed.
-  CryptoGui *frame = new CryptoGui("Crypyoconcurrency Live Trading Bot", wxPoint(50, 50), wxSize(965, 538));
+  CryptoGui *frame = new CryptoGui("Cryptoconcurrency Live Trading Bot", wxPoint(50, 50), wxSize(965, 538));
   frame->Show(true);
 
   return true;
@@ -101,8 +101,8 @@ CryptoGui::CryptoGui(const wxString &title, const wxPoint &pos, const wxSize &si
 {
 
   wxMenu *menuFile = new wxMenu;
-  menuFile->Append(ID_Hello, "&Hello...\tCtrl-H",
-                   "Help string shown in status bar for this menu item");
+  menuFile->Append(ID_CONFIGURE_STRATEGY, "&Configure Strategy...\tCtrl-H",
+                   "You can configure input data of strategy from here");
   menuFile->AppendSeparator();
   menuFile->Append(wxID_EXIT);
 
@@ -132,23 +132,13 @@ void CryptoGui::OnExit(wxCommandEvent &event)
 
 void CryptoGui::OnAbout(wxCommandEvent &event)
 {
-  wxMessageBox("This is a wxWidgets' Hello world sample",
-               "About Hello World", wxOK | wxICON_INFORMATION);
+  wxMessageBox("This is CryptoBot. Created by Pablo Ruiz",
+               "About CryptoBot", wxOK | wxICON_INFORMATION);
 }
 
-void CryptoGui::OnHello(wxCommandEvent &event)
+void CryptoGui::OnConfigureStrategy(wxCommandEvent &event)
 {
-
-  wxLogMessage("Hello world from wxWidgets!");
-
-  // wxString newName = wxGetTextFromUser(_("New Diagram Name"), _("Diagram Name"), _("unnamed"), this);
-  // wxLogMessage( wxT("The user entered the value %ls"), newName );
-
-  // wxString str1 = wxT("Linux");
-  // wxString str2 = wxT("Operating");
-  // wxString str3 = wxT("System");
-  // wxString str = str1 + wxT(" ") + str2 + wxT(" ") + str3;
-  // wxPuts(str);
+  wxLogMessage("To do: wxPanel to configure input data of strategy");
 }
 
 void CryptoGui::OnPaint(wxPaintEvent &event) // It is not used
@@ -490,8 +480,8 @@ void CryptoGuiPanel::StartStrategy(std::string dataThrName, std::string strategy
   thrMap[dataThrName] = dataThr.native_handle();
   thrMap[strategyThrName] = strategyThr.native_handle();
 
-  //std::this_thread::sleep_for(std::chrono::milliseconds(3000)); // con esto casi siempre me aseguro que al parar hilos no pete. Pero hay que afinar mejor
-  // Manage buttons
+  // std::this_thread::sleep_for(std::chrono::milliseconds(3000)); // con esto casi siempre me aseguro que al parar hilos no pete. Pero hay que afinar mejor
+  //  Manage buttons
   simulate_btn->Enable(false);
   historic_btn->Enable(false);
   realdata_btn->Enable(false);
@@ -503,7 +493,6 @@ void CryptoGuiPanel::StartStrategy(std::string dataThrName, std::string strategy
 
   //
   paintGraphics = true;
-
 }
 
 void CryptoGuiPanel::KillThreads(std::vector<std::string> threadsToKill, wxButton *stop_btn)
@@ -543,7 +532,7 @@ void CryptoGuiPanel::setStrategyHandle(std::shared_ptr<Strategy> strategy)
   // std::cout << "\n\n STRATEGY in Strategy is: " << _strategyPtr->getBase() << std::endl;
 }
 
-void CryptoGuiPanel::setPosition() //for test
+void CryptoGuiPanel::setPosition() // for test
 {
   position_bool->SetLabel(wxString::Format(wxT("%s"), "TEST"));
 }

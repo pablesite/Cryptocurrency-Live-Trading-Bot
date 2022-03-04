@@ -68,6 +68,15 @@ private:
     std::string _strategy;
     double _investment;
 
+    // data from binance
+    double _commission = 0.00075;
+
+    // input strategy data //To do: get from CryptoGuiPanel in Menu: "Configure Strategy"
+    double _entry = 1 * _commission; // to make robust my positions
+    double _bottom_break = -2 * _commission;
+    double _recession = -3 * _commission;
+    double _top_break = 6 * _commission; // para asegurar beneficios, esto debería actualizarse el doble de cuando voy a vender... pensar mejor y hacer pruebas
+    double _lookbackperiod = 15;
 
     
 };

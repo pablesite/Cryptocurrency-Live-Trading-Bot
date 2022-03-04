@@ -100,7 +100,7 @@ public:
   void OnPaint(wxPaintEvent & event);
 
 private:
-  void OnHello(wxCommandEvent &event);
+  void OnConfigureStrategy(wxCommandEvent &event);
   void OnExit(wxCommandEvent &event);
   void OnAbout(wxCommandEvent &event);
 

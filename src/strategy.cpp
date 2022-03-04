@@ -88,14 +88,7 @@ void Strategy::setInvestment(double investment)
 void Strategy::cryptoBot()
 {
 
-    std::cout << "CryptoBot working " <<  std::endl;
-
-    // this while is for avoid the rest of the strategy, because in there, there is some problem with core dump
-    //  while (true)
-    //  {
-    //      std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    //      std::cout << "Crypto working " << std::endl;
-    //  }
+    std::cout << "CryptoBot working " << std::endl;
 
     // set strategy handle
     _cryptoGuiPanel->setStrategyHandle(shared_from_this());
@@ -107,149 +100,87 @@ void Strategy::cryptoBot()
     _strategy = _cryptoGuiPanel->getStrategy();
     _investment = _cryptoGuiPanel->getInvestment();
 
-
-
-    // investment data
-    double invest_qty = 0.004;
-
-    // data from binance
-    double commission = 0.00075;
-
-    // input strategy data
-    double entry = 1 * commission; // to make robust my positions
-    double bottom_break = -2 * commission;
-
-    double recession = -3 * commission;
-    double top_break = 6 * commission; // para asegurar beneficios, esto debería actualizarse el doble de cuando voy a vender... pensar mejor y hacer pruebas
-
-    double lookbackperiod = 15;
-
-    // temporary strategy data
-    bool open_position = false;
-    // double base;
-    // double actual_value;
-
     // output strategy data
-    double order;
-    double benefit;
-    double benefits_acc = 0;
-    double invest;
-    double count = 0;
+    bool open_position = false; // to send
+    double investment_acc = 0;  // to send
+    double order;               // to send
+    double benefit;             // to send
+    double benefits_acc = 0;    // to send
+    double computedData = 0;
+    double nOrders = 0; // to send
 
-    // base price (2€/crypto)
-    // invest_qty ( 10 crypto)
-    // % commission (5 %)
-    // theoric value = invest_qty * base price
-    // theoric value = 10 * 2 = 20 €
-    // entry (value to buy)
-    // top_break
-    // recession
+    // set base value
+    _base = getData(_lookbackperiod);
 
-    // if % top_break (10 %) --> Buy position
-    // order = invest_qty * (1 + % commission) * base price * (1 + % top_break)
-    // order = 10 * (1 + 0.05) * 2 * (1.1) = 23.1€ //ME HA COSTADO 23.1€ invertir en 10 cryptos
-    // order = 10 * (1 + 0.05) * 2 * (1.05) = 22.05€ //ME HA COSTADO 23.1€ invertir en 10 cryptos
-    // order = 10 * (1 + 0.05) * 2 * (1.15) = 24.15€ //ME HA COSTADO 23.1€ invertir en 10 cryptos
-
-    // if % top_break UP 10 % --> .....
-    // ...
-    // benefits = (invest_qty * base price * (1 + top_break)exp2 * (1 - % commission)) - order
-    // benefits = (10 * 2 * (1 + 0.1)exp2 * 0.95) - 23.1 = -0.11
-    //  benefits = (10 * 2 * (1 + 0.05)exp2 * 0.95) - 22.05 = 1.105
-    //  benefits = (10 * 2 * (1 + 0.15)exp2 * 0.95) - 24.15 = 0.9775
-
-    // if % recession DOWN 10 % --> Sell
-    // benefits = (invest_qty * base price * (1 + top_break)* (1 - recession) * (1 - % commission)) - order
-    // benefits = (10 * 2 * (1 + 0.1) * (1 - 0.1) * 0.95) - 23.1 = - 4.29
-
-    // (1 + % commission)/(1 - % commission)  >  (1 + %top_break) //This is not too clear
-
-    // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-    _base = getData(lookbackperiod);
-
-
-
-    _cryptoGraphic->setStrategyData(commission, entry, top_break, recession); // to review. 
-    
-    
+    // set CryptoGraphic
+    _cryptoGraphic->setStrategyData(_commission, _entry, _top_break, _recession); // TO REVIEW
     _cryptoGraphic->setLimits();
-
-    invest = invest_qty * _base; // TO REVIEW...
 
     while (true)
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Para que las simulaciones vayan a tiempo real (1000).
+        std::this_thread::sleep_for(std::chrono::milliseconds(1)); // Para que las simulaciones vayan a tiempo real (1000).
         // Además, si paro el hilo de ejecución (botón stop) cuando no está esperando, peta el hilo y da error de core dump o cosas similares.
         //  Puede que esto tenga que ver por qué da error más veces lo de los datos reales. Pensar bien esto!!!
 
         // retrieve data
-        _value = getData(lookbackperiod);
+        _value = getData(_lookbackperiod);
         _cryptoGraphic->setActualValue(_value);
-        
 
-        count += 1;
+        computedData += 1;
 
         if (open_position == false)
         {
-            std::cout << std::setprecision(4) << std::fixed << "To buy " << _value << " => " << (1 - entry * 2) * _base << " < " << _base << " > " << (1 + entry) * _base << std::endl;
+            std::cout << std::setprecision(4) << std::fixed << "To buy " << _value << " => " << (1 - _entry * 2) * _base << " < " << _base << " > " << (1 + _entry) * _base << std::endl;
             // to update base if the trend is negative
-            if (getIndex() < bottom_break)
+            if (getIndex() < _bottom_break)
             {
-                // console log
+                // updateBase
                 std::cout << "Update the base: Descending " << _value << " " << std::endl;
-
                 updateBase();
             }
 
             // to make an order
-            if (getIndex() > entry)
+            if (getIndex() > _entry)
             {
                 // perform an order
-                order = invest_qty * _value * (1 + commission); // simulate the bought
-                // crypto_value = investment/(_value*(1 + commission))
-
-                // console log
-                std::cout << std::endl
-                          << "Buying my position " << invest_qty << " bitcoint. Actual value: " << _value << ". Order = " << order << " $. " << std::endl;
+                order = _investment / (_value * (1 + _commission));
+                investment_acc += _investment;
+                // order = invest_qty * _value * (1 + _commission); // simulate the bought
 
                 // manage position
                 open_position = true;
+                nOrders += 1;
 
+                // updateBase
+                std::cout << "\nBuying my position " << order << " bitcoint. Actual value: " << _value << "." << std::endl;
                 updateBase();
             }
         }
         else
         {
-            std::cout << std::setprecision(4) << std::fixed << "To sell " << _value << " => " << (1 + recession) * _base << " < " << _base << " > " << (1 + top_break) * _base << std::endl;
+            std::cout << std::setprecision(4) << std::fixed << "To sell " << _value << " => " << (1 + _recession) * _base << " < " << _base << " > " << (1 + _top_break) * _base << std::endl;
 
             // update base while the value is rissing
-            if (getIndex() > top_break)
+            if (getIndex() > _top_break)
             {
-                // console log
+                // updateBase
                 std::cout << "Update the base: Rising " << _value << std::endl;
-
                 updateBase();
             }
 
             // if last_entry > x or last_entry < x --> Sell
-            if (getIndex() < recession)
+            if (getIndex() < _recession)
             {
-
                 // sell the order
-                benefit = (invest_qty * _value * (1 - commission)) - order; // simulate the sell
+                benefit = (order * _value * (1 - _commission)) - _investment; // simulate the sell
                 benefits_acc += benefit;
-
-                // console log
-                std::cout << std::endl
-                          << "Selling my position: " << invest_qty << " bitcoint. Actual value: " << _value << ". Benefits = " << benefit << " $." << std::endl;
-                std::cout << std::endl
-                          << "TOTAL BENEFITS: " << benefits_acc << "$. " << benefits_acc / invest * 100 << "%. " << count << std::endl
-                          << std::endl;
 
                 // manage position
                 open_position = false;
 
+                // updateBase
+                std::cout << "\nSelling my position: " << order << " bitcoints. Actual value: " << _value << ". Benefits = " << benefit << " $." << std::endl;
+                std::cout << "\nTOTAL BENEFITS: " << benefits_acc << "$. " << benefits_acc / investment_acc * 100 << "%. " << computedData << std::endl;
                 updateBase();
             }
         }
@@ -259,11 +190,9 @@ void Strategy::cryptoBot()
 void Strategy::SetCryptoGraphicHandle(std::shared_ptr<CryptoGraphic> cryptoGraphic)
 {
     _cryptoGraphic = cryptoGraphic;
-    std::cout << "\n\nGraphics in Strategy is: " << _cryptoGraphic;
 }
 
 void Strategy::SetCryptoGuiPanelHandle(std::shared_ptr<CryptoGuiPanel> cryptoGuiPanel)
 {
-    // std::cout << "\n\nCRYPTOGUIPANEL in Strategy is: " << cryptoGuiPanel.get();
     _cryptoGuiPanel = cryptoGuiPanel;
 }
