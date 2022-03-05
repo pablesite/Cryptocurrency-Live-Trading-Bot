@@ -22,6 +22,7 @@ public:
     SimulateData();
     void fetchData() override;
     double retrieveData(double &lookbackperiod) override;
+    void unblockThread();
 
 protected:
     static std::mutex _mutexSD;

@@ -129,3 +129,9 @@ void Binance::fetchData()
 
     return;
 }
+
+void Binance::unblockThread()
+{
+    std::cout << "\n\nTEST UNBLOCK THREAD";
+    _mqData->MessageQueue::unblockThread();
+}

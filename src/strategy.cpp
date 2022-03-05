@@ -14,6 +14,9 @@
 using std::string;
 using std::vector;
 
+// #define handle_error_en(en, msg) \
+//                do { errno = en; perror(msg); exit(EXIT_FAILURE); } while (0)
+
 Strategy::Strategy(std::shared_ptr<Binance> data) : data_binance(move(data))
 {
     std::cout << "Constructor of Strategy with real data from Binance " << std::endl;
@@ -77,7 +80,7 @@ void Strategy::updateBase()
     _base = _value;
 
     // update limits in cryptoGraphic
-    _cryptoGraphic->setLimits(_open_position, _entry, _bottom_break, _recession, _top_break);
+    //_cryptoGraphic->setLimits(_open_position, _entry, _bottom_break, _recession, _top_break);
 }
 
 void Strategy::setInvestment(double investment)
@@ -89,6 +92,10 @@ void Strategy::cryptoBot()
 {
 
     std::cout << "CryptoBot working " << std::endl;
+
+    // int s = pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL);
+    //        if (s != 0)
+    //            handle_error_en(s, "pthread_setcancelstate");
 
     // set strategy handle
     _cryptoGuiPanel->setStrategyHandle(shared_from_this());
@@ -115,13 +122,16 @@ void Strategy::cryptoBot()
     
     while (true)
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(10)); // Para que las simulaciones vayan a tiempo real (1000). ¿no debería limitar el tiempo sólo en la obtención de datos?
+        
+        //std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // Para que las simulaciones vayan a tiempo real (1000). ¿no debería limitar el tiempo sólo en la obtención de datos? Efectivamente, esto hace que la cola de datos vaya aumentando porque no se consumen al tiempo que se generan
         // Además, si paro el hilo de ejecución (botón stop) cuando no está esperando, peta el hilo y da error de core dump o cosas similares.
         //  Puede que esto tenga que ver por qué da error más veces lo de los datos reales. Pensar bien esto!!!
 
+
         // retrieve data
-        _value = getData(_lookbackperiod);
-        _cryptoGraphic->setActualValue(_value);
+         _value = getData(_lookbackperiod);
+        //_value = 50000;
+        //_cryptoGraphic->setActualValue(_value);
 
         computedData += 1;
 
@@ -151,7 +161,7 @@ void Strategy::cryptoBot()
                 // updateBase
                 std::cout << "\nBuying my position " << order << " bitcoint. Actual value: " << _value << "." << std::endl;
                 updateBase();
-                _cryptoGuiPanel->setOutputDataStrategy(_open_position, order, benefit, nOrders, benefits_acc, investment_acc);
+                //_cryptoGuiPanel->setOutputDataStrategy(_open_position, order, benefit, nOrders, benefits_acc, investment_acc);
             }
         }
         else
@@ -180,7 +190,7 @@ void Strategy::cryptoBot()
                 std::cout << "\nSelling my position: " << order << " bitcoints. Actual value: " << _value << ". Benefits = " << benefit << " $." << std::endl;
                 std::cout << "\nTOTAL BENEFITS: " << benefits_acc << "$. " << benefits_acc / investment_acc * 100 << "%. " << computedData << std::endl;
                 updateBase();
-                _cryptoGuiPanel->setOutputDataStrategy(_open_position, order, benefit, nOrders, benefits_acc, investment_acc);
+                //_cryptoGuiPanel->setOutputDataStrategy(_open_position, order, benefit, nOrders, benefits_acc, investment_acc);
             }
         }
     }

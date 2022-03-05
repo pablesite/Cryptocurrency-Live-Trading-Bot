@@ -436,7 +436,7 @@ void CryptoGuiPanel::OnCreateHistoricalData(wxCommandEvent &event)
 void CryptoGuiPanel::OnStartSimulatedData(wxCommandEvent &event)
 {
   std::cout << "\nOn Start Simulated Data: " << std::endl;
-  StartStrategy<SimulateData>(dataSimulated, strategyDataSimulatedBot, stop_simulate_sim_data_btn);
+  _simulateDataPtr = StartStrategy<SimulateData>(dataSimulated, strategyDataSimulatedBot, stop_simulate_sim_data_btn);
 }
 
 void CryptoGuiPanel::OnStopSimulatedData(wxCommandEvent &event)
@@ -475,7 +475,7 @@ void CryptoGuiPanel::OnStopRealData(wxCommandEvent &event)
 }
 
 template <class T>
-void CryptoGuiPanel::StartStrategy(std::string dataThrName, std::string strategyThrName, wxButton *stop_btn)
+std::shared_ptr<T> CryptoGuiPanel::StartStrategy(std::string dataThrName, std::string strategyThrName, wxButton *stop_btn)
 {
 
   // Data thread
@@ -505,21 +505,45 @@ void CryptoGuiPanel::StartStrategy(std::string dataThrName, std::string strategy
 
   //
   paintGraphics = true;
+
+  return dataPtr;
 }
 
 void CryptoGuiPanel::KillThreads(std::vector<std::string> threadsToKill, wxButton *stop_btn)
 {
-
   ThreadMap::const_iterator it;
+
+  // for (std::string thrToKill : threadsToKill)
+  // {
+  //   it = thrMap.find(thrToKill);
+  //   if (it != thrMap.end())
+  //   {
+  //     _simulateDataPtr->unblockThread();
+  //     int s = pthread_cancel(it->second);
+  //     if (s != 0)
+  //     {
+  //       std::cout << "Thread " << thrToKill << " can't be killed." << std::endl;
+  //     }
+  //     else
+  //     {
+  //       thrMap.erase(thrToKill);
+  //       std::cout << "Thread " << thrToKill << " killed. S= " << s << std::endl;
+  //     }
+
+  //   }
 
   for (std::string thrToKill : threadsToKill)
   {
-    it = thrMap.find(thrToKill);
-    if (it != thrMap.end())
+    if (thrToKill != "strategyDataSimulatedBot" && thrToKill != "strategyHistoricBot" && thrToKill != "strategyBinanceBot")
     {
-      pthread_cancel(it->second);
-      thrMap.erase(thrToKill);
-      std::cout << "Thread " << thrToKill << " killed:" << std::endl;
+      std::cout << "THREAD: " << thrToKill << std::endl;
+      it = thrMap.find(thrToKill);
+      if (it != thrMap.end())
+      {
+        pthread_cancel(it->second);
+        thrMap.erase(thrToKill);
+        _simulateDataPtr->unblockThread();
+      }
     }
   }
 
@@ -550,14 +574,14 @@ void CryptoGuiPanel::setPosition() // for test
 
 void CryptoGuiPanel::setOutputDataStrategy(bool _open_position, double order, double benefit, int nOrders, double benefits_acc, double investment_acc)
 {
-   
-  position_bool->SetLabel(wxString::Format(wxT("%s"), _open_position ? "true" : "false" ));
+
+  position_bool->SetLabel(wxString::Format(wxT("%s"), _open_position ? "true" : "false"));
   last_order_value->SetLabel(wxString::Format(wxT("%f"), order));
   benefits_value->SetLabel(wxString::Format(wxT("%.2f"), benefit));
-  interest_value->SetLabel(wxString::Format(wxT("%.2f"), benefit/std::stod(_investment)*100));
+  interest_value->SetLabel(wxString::Format(wxT("%.2f"), benefit / std::stod(_investment) * 100));
   number_of_orders_value->SetLabel(wxString::Format(wxT("%d"), nOrders));
   benefits_acc_value->SetLabel(wxString::Format(wxT("%.2f"), benefits_acc));
-  interest_acc_value->SetLabel(wxString::Format(wxT("%.2f"), benefits_acc/investment_acc*100));
+  interest_acc_value->SetLabel(wxString::Format(wxT("%.2f"), benefits_acc / investment_acc * 100));
 }
 
 std::string CryptoGuiPanel::getExchange()
@@ -606,7 +630,6 @@ void CryptoGraphic::setActualValue(double value)
 
 void CryptoGraphic::setLimits(bool open_position, double _entry, double _bottom_break, double _recession, double _top_break)
 {
-
   _actual_base = _strategyPtr->getBase();
 
   if (!open_position)
@@ -626,24 +649,12 @@ void CryptoGraphic::setLimits(bool open_position, double _entry, double _bottom_
   {
     maxValue = (int)(2 * _limit_up - _actual_base);
     minValue = (int)(_actual_base - 2 * (_limit_up - _actual_base));
-    std::cout << "\nUP-> maxValue: " << maxValue << " minValue: " << minValue << std::endl;
-    std::cout << "\nUP-> diff: " << maxValue - _actual_base << " diff: " << _actual_base - minValue << std::endl;
   }
   else
   {
     maxValue = (int)(_actual_base + 2 * (_actual_base - _limit_down));
     minValue = (int)(2 * _limit_down - _actual_base);
-    std::cout << "\nDOWN-> maxValue: " << maxValue << " minValue: " << minValue << std::endl;
-    std::cout << "\nDOWN-> diff: " << maxValue - _actual_base << " diff: " << _actual_base - minValue << std::endl;
   }
-
-  // _limit_up = (int)((1 + _actual_entry * 2) * _actual_base);
-  // _limit_down = (int)((1 - _actual_entry * 2) * _actual_base);
-
-  // maxValue = (int)(_limit_up * 2 - _actual_base);
-  // minValue = (int)(_limit_down * 2 - _actual_base);
-
-  // std::cout << "\n\nBase is: " << _strategyPtr->getBase() << std::endl;
 }
 
 void CryptoGraphic::setStrategyData(double commission, double entry, double rupture, double recession)

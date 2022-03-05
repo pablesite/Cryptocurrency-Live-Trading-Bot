@@ -13,6 +13,8 @@
 #include <unordered_map>
 #include "strategy.h"
 
+// std::condition_variable _cdtMQ;
+// std::mutex _mtxMQ;
 
 class CryptoGraphic; // forward declaration
 class CryptoGuiPanel; // forward declaration
@@ -150,6 +152,8 @@ private:
   std::string _strategy;
   std::string _investment;
 
+  std::shared_ptr<SimulateData> _simulateDataPtr; 
+
 
   //DECLARE_EVENT_TABLE()
 
@@ -176,7 +180,7 @@ public:
   double getInvestment();
 
 
-  template <class T> void StartStrategy(std::string dataThrName, std::string strategyThrName, wxButton *stop_btn);
+  template <class T> std::shared_ptr<T> StartStrategy(std::string dataThrName, std::string strategyThrName, wxButton *stop_btn);
   void KillThreads(std::vector<std::string> threadsToKill, wxButton *stop_btn);
 
      

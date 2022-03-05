@@ -37,12 +37,13 @@ double SimulateData::retrieveData(double &lookbackperiod)
 
 void SimulateData::fetchData()
 {
-    //double data;
-    // Connect with Binance
+    // double data;
+    //  Connect with Binance
     //_bin.connect();
 
     // Fetch Data
     //_bin.fetch();
+
 
     std::cout << "Generating simulated data " << std::endl;
 
@@ -52,10 +53,10 @@ void SimulateData::fetchData()
 
     while (true)
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1)); //Check: Max velocity is every 15 msecs aprox.
+        std::this_thread::sleep_for(std::chrono::milliseconds(20)); // Check: Max velocity is every 15 msecs aprox.
         x = x * (1 + (rand() % 2000 - 990) / 10000000.0);
 
-        //std::cout << "meto un dato a la cola: " << x << " " << count << std::endl; //DEBUG
+        // std::cout << "meto un dato a la cola: " << x << " " << count << std::endl; //DEBUG
         _mqData->MessageQueue::send(std::move(x));
 
         count += 1;
@@ -63,4 +64,15 @@ void SimulateData::fetchData()
     }
 
     return;
+}
+
+void SimulateData::unblockThread()
+{
+    std::cout << "\n\nTEST UNBLOCK THREAD";
+    // _mqData->MessageQueue::unblockThread();
+
+    // _mqData->MessageQueue::send(std::move(0));
+    // _mqData->MessageQueue::send(std::move(0));
+    // _mqData->MessageQueue::unblockThread();
+    // _mqData->MessageQueue::unblockThread();
 }
