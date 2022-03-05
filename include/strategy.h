@@ -1,10 +1,15 @@
 #ifndef STRATEGY_H
 #define STRATEGY_H
 
+#include <iostream>
+#include <iomanip>
+#include <deque>
+
 #include "simulate_data.h"
 #include "historic_data.h"
 #include "binance.h"
 #include "crypto_gui.h"
+
 
 // forward declarations
 class CryptoGuiPanel;
@@ -34,7 +39,7 @@ public:
     void SetCryptoGuiPanelHandle(std::shared_ptr<CryptoGuiPanel> cryptoGuiPanel);
 
     // getters
-    double getData(double lookbackperiod);
+    double getData(double lookBackPeriod);
     double getBase();
 
     // main --> thread
@@ -46,9 +51,9 @@ private:
     void updateBase();
 
     // pointers for retrieve data
-    std::shared_ptr<Binance> data_binance;
-    std::shared_ptr<SimulateData> data_simulated;
-    std::shared_ptr<HistoricData> data_historic;
+    std::shared_ptr<Binance> _dataBinance;
+    std::shared_ptr<SimulateData> _dataSimulated;
+    std::shared_ptr<HistoricData> _dataHistoric;
 
     // mutex
     std::mutex _mtx;
@@ -67,15 +72,15 @@ private:
 
     // input data of strategy //FOR THE FUTURE: get from CryptoGuiPanel in Menu: "Configure Strategy"
     double _entry = 2 * _commission;
-    double _bottom_break = -1 * _commission;
+    double _bottomBreak = -1 * _commission;
     double _recession = -2 * _commission;
-    double _top_break = 1 * _commission;
-    double _lookbackperiod = 10;
+    double _topBreak = 1 * _commission;
+    double _lookBackPeriod = 10;
 
     // output data of strategy
     double _value = 0;
     double _base = 0;
-    double _open_position;
+    double _openPosition;
 };
 
 #endif

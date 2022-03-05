@@ -1,58 +1,55 @@
-#include <string>
-#include <vector>
-#include <iostream>
-// #include <chrono>
-// #include <future>
-#include <deque>
+
 
 #include "strategy.h"
-#include "simulate_data.h"
-#include "binance.h"
-#include "message_queue.h"
-#include <iomanip>
 
-using std::string;
-using std::vector;
-
-// #define handle_error_en(en, msg) \
-//                do { errno = en; perror(msg); exit(EXIT_FAILURE); } while (0)
-
-Strategy::Strategy(std::shared_ptr<Binance> data) : data_binance(move(data))
+// constructors
+Strategy::Strategy(std::shared_ptr<Binance> data) : _dataBinance(move(data))
 {
     std::cout << "Constructor of Strategy with real data from Binance " << std::endl;
-
     _type = TypesOfData::Binance;
 }
 
-Strategy::Strategy(std::shared_ptr<SimulateData> data) : data_simulated(move(data))
+Strategy::Strategy(std::shared_ptr<SimulateData> data) : _dataSimulated(move(data))
 {
     std::cout << "Constructor of Strategy with data simulated " << std::endl;
     _type = TypesOfData::SimulateData;
 }
 
-Strategy::Strategy(std::shared_ptr<HistoricData> data) : data_historic(move(data))
+Strategy::Strategy(std::shared_ptr<HistoricData> data) : _dataHistoric(move(data))
 {
     std::cout << "Constructor of Strategy with historic data " << std::endl;
     _type = TypesOfData::HistoricData;
 }
 
-double Strategy::getData(double lookbackperiod)
+// handlers
+void Strategy::SetCryptoGraphicHandle(std::shared_ptr<CryptoGraphic> cryptoGraphic)
+{
+    _cryptoGraphic = cryptoGraphic;
+}
+
+void Strategy::SetCryptoGuiPanelHandle(std::shared_ptr<CryptoGuiPanel> cryptoGuiPanel)
+{
+    _cryptoGuiPanel = cryptoGuiPanel;
+}
+
+// getters
+double Strategy::getData(double lookBackPeriod)
 {
     switch (_type)
     {
     case TypesOfData::Binance:
     {
-        return data_binance->retrieveData(lookbackperiod);
+        return _dataBinance->retrieveData(lookBackPeriod);
         break;
     }
     case TypesOfData::SimulateData:
     {
-        return data_simulated->retrieveData(lookbackperiod);
+        return _dataSimulated->retrieveData(lookBackPeriod);
         break;
     }
     case TypesOfData::HistoricData:
     {
-        return data_historic->retrieveData(lookbackperiod);
+        return _dataHistoric->retrieveData(lookBackPeriod);
         break;
     }
     default:
@@ -69,170 +66,157 @@ double Strategy::getBase()
     return _base;
 }
 
-double Strategy::getIndex()
+// helpers functions (private)
+ double Strategy::getIndex()
 {
     return _value / _base - 1;
 }
 
 void Strategy::updateBase()
 {
-    
+     std::unique_lock<std::mutex> lck(_mtx); //protect call to CryptoGraphic
     // update base value
     _base = _value;
-    std::cout << "Update the base " << _value << " " << std::endl;
+
     // update limits in cryptoGraphic
-    std::unique_lock<std::mutex> lck(_mtx);
-    _cryptoGraphic->setLimits(_open_position, _entry, _bottom_break, _recession, _top_break);
-    lck.unlock();
+   
+    _cryptoGraphic->setLimits(_openPosition, _entry, _bottomBreak, _recession, _topBreak);
+     lck.unlock();
 }
 
-
+// main --> thread
 void Strategy::cryptoBot()
 {
+    std::cout << "CryptoBot starting " << std::endl;
 
-    std::cout << "CryptoBot working " << std::endl;
-
-    // int s = pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL);
-    //        if (s != 0)
-    //            handle_error_en(s, "pthread_setcancelstate");
-
-    // set strategy handle
+    // set strategy handle to CryptoGuiPanel and CryptoGraphic
     _cryptoGuiPanel->setStrategyHandle(shared_from_this());
     _cryptoGraphic->setStrategyHandle(shared_from_this());
 
     // get config data
-    std::unique_lock<std::mutex> lck(_mtx);
+    std::unique_lock<std::mutex> lck(_mtx); //protect CryptoGuiPanel shrPtr
     _exchange = _cryptoGuiPanel->getExchange();
     _cryptoConcurrency = _cryptoGuiPanel->getCryptoConcurrency();
     _strategy = _cryptoGuiPanel->getStrategy();
     _investment = _cryptoGuiPanel->getInvestment();
     lck.unlock();
 
-    // output strategy data
-    _open_position = false;     // to send
-    double order = 0;          // to send
-    double benefit = 0;        // to send
-    int nOrders = 0;           // to send
-    double benefits_acc = 0;   // to send
-    double investment_acc = 0; // to send
+    // initialize output strategy data
+    _openPosition = false;
+    double order = 0;          
+    double benefit = 0;       
+    int nOrders = 0;           
+    double benefits_acc = 0;   
+    double investment_acc = 0;
     double computedData = 0;
 
-    // set base value
-     lck.lock();
-     _cryptoGuiPanel->setOutputDataStrategy(_open_position, order, benefit, nOrders, benefits_acc, investment_acc);
-    _base = getData(_lookbackperiod);
-    _cryptoGraphic->setLimits(_open_position, _entry, _bottom_break, _recession, _top_break);
+    // initialize CryptoGuiPanel, base value and CryptoGraphic
+    lck.lock(); //protect shared pointers and base variable
+    _cryptoGuiPanel->setOutputDataStrategy(_openPosition, order, benefit, nOrders, benefits_acc, investment_acc);
+    _base = getData(_lookBackPeriod);
+    _cryptoGraphic->setLimits(_openPosition, _entry, _bottomBreak, _recession, _topBreak);
     lck.unlock();
 
     while (true)
     {
-
-        // if (_cryptoGuiPanel->receiveTrue())
-        // {
-        // std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // Para que las simulaciones vayan a tiempo real (1000). ¿no debería limitar el tiempo sólo en la obtención de datos? Efectivamente, esto hace que la cola de datos vaya aumentando porque no se consumen al tiempo que se generan
-        //  Además, si paro el hilo de ejecución (botón stop) cuando no está esperando, peta el hilo y da error de core dump o cosas similares.
-        //   Puede que esto tenga que ver por qué da error más veces lo de los datos reales. Pensar bien esto!!!
-
         // retrieve data
+        _value = getData(_lookBackPeriod);
 
-        _value = getData(_lookbackperiod);
-
-        std::unique_lock<std::mutex> lck(_mtx);
+        // send data to CryptoGraphic
+        std::unique_lock<std::mutex> lck(_mtx); //protect CryptoGraphic shrPtr
         _cryptoGraphic->setActualValue(_value);
         lck.unlock();
 
+        //how many data has been processed
         computedData += 1;
 
-        if (_open_position == false)
+        if (_openPosition == false)
         {
-            
-            std::cout << std::setprecision(4) << std::fixed << "To buy " << _value << " => " << (1 + _bottom_break) * _base << " < " << _base << " > " << (1 + _entry) * _base << std::endl;
-            
+            // debug in console
+            std::unique_lock<std::mutex> lck(_mtx); 
+            std::cout << std::setprecision(4) << std::fixed << "To buy " << _value << " => " << (1 + _bottomBreak) * _base << " < " << _base << " > " << (1 + _entry) * _base << " N: " << computedData << std::endl;
+            lck.unlock();
 
             // to update base if the trend is negative
-            if (getIndex() < _bottom_break)
+            if (getIndex() < _bottomBreak)
             {
-                // updateBase
-               
+                // debug in console
+                std::unique_lock<std::mutex> lck(_mtx); 
                 std::cout << "Update the base: Descending " << _value << " " << std::endl;
-                
+                lck.unlock();
+
                 updateBase();
             }
 
-            // to make an order
+            // to make an order if the trend is positive
             if (getIndex() > _entry)
             {
-                
-                // perform an order
+                std::unique_lock<std::mutex> lck(_mtx);
+                // perform an order (simulation) FOR THE FUTURE: perform real orders using api from Binance
                 order = _investment / (_value * (1 + _commission));
                 investment_acc += _investment;
-                // order = invest_qty * _value * (1 + _commission); // simulate the bought
-
-                // manage position
-                _open_position = true;
             
-                // updateBase
-               
-                std::cout << "\nBuying my position " << order << " bitcoint. Actual value: " << _value << "." << std::endl;
+                // manage position
+                _openPosition = true;
                 
+                // debug in console
+                std::cout << "\nBuying my position " << order << " bitcoint. Actual value: " << _value << "." << std::endl;
+                lck.unlock();
+
+                // update base
                 updateBase();
 
-                std::unique_lock<std::mutex> lck(_mtx);
-                _cryptoGuiPanel->setOutputDataStrategy(_open_position, order, benefit, nOrders, benefits_acc, investment_acc);
+                // set output data strategy to CryptoGuiPanel
+                lck.lock(); // protect CryptoGuiPanel shrPtr
+                _cryptoGuiPanel->setOutputDataStrategy(_openPosition, order, benefit, nOrders, benefits_acc, investment_acc);
                 lck.unlock();
             }
         }
         else
         {
-            
-            std::cout << std::setprecision(4) << std::fixed << "To sell " << _value << " => " << (1 + _recession) * _base << " < " << _base << " > " << (1 + _top_break) * _base << std::endl;
-            
+            // debug in console
+            std::unique_lock<std::mutex> lck(_mtx); 
+            std::cout << std::setprecision(4) << std::fixed << "To sell " << _value << " => " << (1 + _recession) * _base << " < " << _base << " > " << (1 + _topBreak) * _base << " N: " << computedData << std::endl;
+            lck.unlock();
+
             // update base while the value is rissing
-            if (getIndex() > _top_break)
+            if (getIndex() > _topBreak)
             {
                 // updateBase
-               
+                std::unique_lock<std::mutex> lck(_mtx); 
                 std::cout << "Update the base: Rising " << _value << std::endl;
-               
+                lck.unlock();
+
+                // updateBase
                 updateBase();
             }
 
             // if last_entry > x or last_entry < x --> Sell
             if (getIndex() < _recession)
             {
-                
+                std::unique_lock<std::mutex> lck(_mtx);
                 // sell the order
                 benefit = (order * _value * (1 - _commission)) - _investment; // simulate the sell
                 benefits_acc += benefit;
 
                 // manage position
-                _open_position = false;
+                _openPosition = false;
                 nOrders += 1;
-
-                // updateBase
                 
+                // debug in console
                 std::cout << "\nSelling my position: " << order << " bitcoints. Actual value: " << _value << ". Benefits = " << benefit << " $." << std::endl;
                 std::cout << "\nTOTAL BENEFITS: " << benefits_acc << "$. " << benefits_acc / investment_acc * 100 << "%. " << computedData << std::endl;
+                lck.unlock();
                 
+                // updateBase
                 updateBase();
 
-                std::unique_lock<std::mutex> lck(_mtx);
-                _cryptoGuiPanel->setOutputDataStrategy(_open_position, order, benefit, nOrders, benefits_acc, investment_acc);
+                // set output data strategy to CryptoGuiPanel
+                lck.lock();
+                _cryptoGuiPanel->setOutputDataStrategy(_openPosition, order, benefit, nOrders, benefits_acc, investment_acc);
                 lck.unlock();
             }
         }
-        // } else {
-        //     std::cout << "RECEIVED TRUEEEEEEEEEEEEEE: " << _cryptoGuiPanel->receiveTrue() << std::endl;
-        // }
+
     }
-}
-
-void Strategy::SetCryptoGraphicHandle(std::shared_ptr<CryptoGraphic> cryptoGraphic)
-{
-    _cryptoGraphic = cryptoGraphic;
-}
-
-void Strategy::SetCryptoGuiPanelHandle(std::shared_ptr<CryptoGuiPanel> cryptoGuiPanel)
-{
-    _cryptoGuiPanel = cryptoGuiPanel;
 }

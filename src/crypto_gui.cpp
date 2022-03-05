@@ -599,7 +599,7 @@ void CryptoGuiPanel::setPosition() // for test
 
 void CryptoGuiPanel::setOutputDataStrategy(bool _open_position, double order, double benefit, int nOrders, double benefits_acc, double investment_acc)
 {
-
+  std::unique_lock<std::mutex> lck(_mtx);
   position_bool->SetLabel(wxString::Format(wxT("%s"), _open_position ? "true" : "false"));
   last_order_value->SetLabel(wxString::Format(wxT("%f"), order));
   benefits_value->SetLabel(wxString::Format(wxT("%.2f"), benefit));
@@ -607,6 +607,7 @@ void CryptoGuiPanel::setOutputDataStrategy(bool _open_position, double order, do
   number_of_orders_value->SetLabel(wxString::Format(wxT("%d"), nOrders));
   benefits_acc_value->SetLabel(wxString::Format(wxT("%.2f"), benefits_acc));
   interest_acc_value->SetLabel(wxString::Format(wxT("%.2f"), benefits_acc / investment_acc * 100));
+  lck.unlock();
 }
 
 std::string CryptoGuiPanel::getExchange()

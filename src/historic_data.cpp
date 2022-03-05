@@ -147,7 +147,7 @@ void HistoricData::fetchData()
             std::ifstream file_stream(file.path());
 
             // init watch
-            long long cycleDuration = 10; // With 1000, read data every second. Change that to improve speed in reading data
+            long long cycleDuration = 1; // With 1000, read data every second. Change that to improve speed in reading data (it should be up of 15 msec)
             std::chrono::time_point<std::chrono::system_clock> lastUpdate;
             lastUpdate = std::chrono::system_clock::now();
 
