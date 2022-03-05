@@ -1,23 +1,14 @@
 #ifndef STRATEGY_H
 #define STRATEGY_H
 
-//#include <string>
-//#include <deque>
-// #include <vector>
 #include "simulate_data.h"
-#include "binance.h"
 #include "historic_data.h"
-#include "message_queue.h"
-
+#include "binance.h"
 #include "crypto_gui.h"
 
 // forward declarations
 class CryptoGuiPanel;
 class CryptoGraphic;
-
-/*
-Basic class for Fetch Data of Cryptoconcurrency
-*/
 
 enum class TypesOfData
 {
@@ -26,62 +17,65 @@ enum class TypesOfData
     HistoricData
 };
 
-class Strategy : public std::enable_shared_from_this<Strategy> 
+/*
+Class for perform strategy of trading
+*/
+
+class Strategy : public std::enable_shared_from_this<Strategy>
 {
 public:
+    // constructors
     Strategy(std::shared_ptr<Binance> data);
     Strategy(std::shared_ptr<SimulateData> data);
     Strategy(std::shared_ptr<HistoricData> data);
+
+    // handlers
     void SetCryptoGraphicHandle(std::shared_ptr<CryptoGraphic> cryptoGraphic);
-    //void SetCryptoGraphicHandle(CryptoGraphic * cryptoGraphic);
-    //void SetCryptoGuiPanelHandle(CryptoGuiPanel *cryptoGuiPanel);
     void SetCryptoGuiPanelHandle(std::shared_ptr<CryptoGuiPanel> cryptoGuiPanel);
-    
+
+    // getters
     double getData(double lookbackperiod);
+    double getBase();
+
+    // main --> thread
     void cryptoBot();
 
-    double getBase();
-    void setInvestment(double investment);
-
 private:
-
+    // helpers functions
     double getIndex();
     void updateBase();
 
+    // pointers for retrieve data
     std::shared_ptr<Binance> data_binance;
     std::shared_ptr<SimulateData> data_simulated;
     std::shared_ptr<HistoricData> data_historic;
 
+    // mutex
+    std::mutex _mtx;
+
+    // auxiliary variable for select type of data
     TypesOfData _type;
-    //graphicsPanel...
 
-    // CryptoGraphic * _cryptoGraphic;
-    //std::shared_ptr<CryptoGuiPanel> _cryptoGuiPanel;
-    //  CryptoGuiPanel * _cryptoGuiPanel;
-
-    double _value = 0;
-    double _base = 0;
-    double _open_position;
-
-    // config data
+    // config data of strategy
     std::string _exchange;
     std::string _cryptoConcurrency;
     std::string _strategy;
     double _investment;
 
-    // data from binance
-    double _commission = 0.00075; //0.075%
+    // data from binance //FOR THE FUTURE: to obtain through api of binance
+    double _commission = 0.00075; // 0.075%
 
-    // input strategy data //To do: get from CryptoGuiPanel in Menu: "Configure Strategy"
-    double _entry = 2 * _commission; // to make robust my positions
+    // input data of strategy //FOR THE FUTURE: get from CryptoGuiPanel in Menu: "Configure Strategy"
+    double _entry = 2 * _commission;
     double _bottom_break = -1 * _commission;
     double _recession = -2 * _commission;
-    double _top_break = 1 * _commission; // para asegurar beneficios, esto debería actualizarse el doble de cuando voy a vender... pensar mejor y hacer pruebas
-    double _lookbackperiod = 30; 
+    double _top_break = 1 * _commission;
+    double _lookbackperiod = 10;
 
-    std::mutex _mtx;
-
-    
+    // output data of strategy
+    double _value = 0;
+    double _base = 0;
+    double _open_position;
 };
 
 #endif

@@ -86,10 +86,6 @@ void Strategy::updateBase()
     lck.unlock();
 }
 
-void Strategy::setInvestment(double investment)
-{
-    _investment = investment;
-}
 
 void Strategy::cryptoBot()
 {
