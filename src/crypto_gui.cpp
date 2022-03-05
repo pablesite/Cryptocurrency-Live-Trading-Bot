@@ -230,7 +230,7 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
   simulate_choice_strategy->SetSelection(0);
   _strategy = simulate_choice_strategy->GetString(simulate_choice_strategy->GetSelection());
 
-  const wxString simulation_investment_choices = wxT("100 $");
+  const wxString simulation_investment_choices = wxT("50 $");
   wxChoice *simulate_choice_investment = new wxChoice(parent, -1, wxDefaultPosition, wxDefaultSize, 1, &simulation_investment_choices, wxCB_SORT | wxCB_DROPDOWN, wxDefaultValidator);
   simulate_choice_investment->SetSelection(0);
   _investment = simulate_choice_investment->GetString(simulate_choice_investment->GetSelection());
@@ -469,7 +469,7 @@ void CryptoGuiPanel::OnStartRealData(wxCommandEvent &event)
 
 void CryptoGuiPanel::OnStopRealData(wxCommandEvent &event)
 {
-  std::cout << "\nStopping Real Data Threads" << std::endl;
+  // std::cout << "\nStopping Real Data Threads" << std::endl;
   std::vector<std::string> threadsToKill = {binanceData, strategyBinanceBot};
   KillThreads(threadsToKill, stop_simulate_real_data_btn);
 }
@@ -477,7 +477,7 @@ void CryptoGuiPanel::OnStopRealData(wxCommandEvent &event)
 template <class T>
 std::shared_ptr<T> CryptoGuiPanel::StartStrategy(std::string dataThrName, std::string strategyThrName, wxButton *stop_btn)
 {
-
+  // std::cout << "HOLA: " << _receive_true << std::endl;
   // Data thread
   std::shared_ptr<T> dataPtr = std::make_shared<T>();
   std::thread dataThr = std::thread(&T::fetchData, dataPtr);
@@ -505,12 +505,16 @@ std::shared_ptr<T> CryptoGuiPanel::StartStrategy(std::string dataThrName, std::s
 
   //
   paintGraphics = true;
+  _receive_true = true;
+  // std::cout << "RECEIVED TRUEONOFF: " << _receive_true << std::endl;
 
   return dataPtr;
 }
 
 void CryptoGuiPanel::KillThreads(std::vector<std::string> threadsToKill, wxButton *stop_btn)
 {
+
+  _receive_true = false;
   ThreadMap::const_iterator it;
 
   // for (std::string thrToKill : threadsToKill)
@@ -536,16 +540,31 @@ void CryptoGuiPanel::KillThreads(std::vector<std::string> threadsToKill, wxButto
   {
     if (thrToKill != "strategyDataSimulatedBot" && thrToKill != "strategyHistoricBot" && thrToKill != "strategyBinanceBot")
     {
-      std::cout << "THREAD: " << thrToKill << std::endl;
+      // std::cout << "THREAD: " << thrToKill << std::endl;
       it = thrMap.find(thrToKill);
       if (it != thrMap.end())
       {
         pthread_cancel(it->second);
         thrMap.erase(thrToKill);
-        _simulateDataPtr->unblockThread();
+        //_simulateDataPtr->unblockThread();
       }
     }
   }
+
+  // for (std::string thrToKill : threadsToKill)
+  // {
+  //   if (thrToKill == "strategyDataSimulatedBot" || thrToKill == "strategyHistoricBot" || thrToKill == "strategyBinanceBot")
+  //   {
+  //     std::cout << "THREADSECOND: " << thrToKill << std::endl;
+  //     it = thrMap.find(thrToKill);
+  //     if (it != thrMap.end())
+  //     {
+  //       pthread_cancel(it->second);
+  //       std::cout << "aDIOS: " << thrToKill << std::endl;
+  //       thrMap.erase(thrToKill);
+  //     }
+  //   }
+  // }
 
   // Manage buttons
   simulate_btn->Enable(true);
@@ -559,7 +578,7 @@ void CryptoGuiPanel::KillThreads(std::vector<std::string> threadsToKill, wxButto
   y_val.clear();
   secs = 0;
 
-  std::cout << std::endl;
+  // std::cout << std::endl;
 }
 
 void CryptoGuiPanel::setStrategyHandle(std::shared_ptr<Strategy> strategy)
@@ -604,6 +623,12 @@ double CryptoGuiPanel::getInvestment()
   return std::stod(simple_tokenizer(_investment));
 }
 
+bool CryptoGuiPanel::receiveTrue()
+{
+  //  std::cout << "RECEIVED TRUEON: " << _receive_true << std::endl;
+  return _receive_true;
+}
+
 BEGIN_EVENT_TABLE(CryptoGraphic, wxPanel)
 // EVT_PAINT(CryptoGraphic::paintEvent) // catch paint events
 END_EVENT_TABLE()
@@ -622,14 +647,18 @@ CryptoGraphic::~CryptoGraphic()
 
 void CryptoGraphic::setActualValue(double value)
 {
+  // std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  std::unique_lock<std::mutex> lck(_mtx);
   _actual_value = value;
   secs++;
+  lck.unlock();
 
   Refresh();
 }
 
 void CryptoGraphic::setLimits(bool open_position, double _entry, double _bottom_break, double _recession, double _top_break)
 {
+  std::unique_lock<std::mutex> lck(_mtx);
   _actual_base = _strategyPtr->getBase();
 
   if (!open_position)
@@ -655,6 +684,7 @@ void CryptoGraphic::setLimits(bool open_position, double _entry, double _bottom_
     maxValue = (int)(_actual_base + 2 * (_actual_base - _limit_down));
     minValue = (int)(2 * _limit_down - _actual_base);
   }
+  lck.unlock();
 }
 
 void CryptoGraphic::setStrategyData(double commission, double entry, double rupture, double recession)
@@ -894,9 +924,11 @@ void CryptoGraphic::render(wxDC &dc)
 
 void CryptoGraphic::OnPaint(wxPaintEvent &event)
 {
+  std::unique_lock<std::mutex> lck(_mtx);
   wxPaintDC dc(this);
   if (paintGraphics)
   {
     render(dc);
   }
+  lck.unlock();
 }

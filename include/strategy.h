@@ -79,6 +79,8 @@ private:
     double _top_break = 2 * _commission; // para asegurar beneficios, esto debería actualizarse el doble de cuando voy a vender... pensar mejor y hacer pruebas
     double _lookbackperiod = 1; // ESTO ESTÁ GUAY PERO SI PONGO 15 PEJEMPLO EL REAL TIME NO OBTIENE DATOS (_value = getData(_lookbackperiod))
 
+    std::mutex _mtx;
+
     
 };
 

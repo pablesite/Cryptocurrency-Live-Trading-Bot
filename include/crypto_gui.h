@@ -57,6 +57,8 @@ private:
 
   int _limit_up=0, _limit_down=0;
 
+  std::mutex _mtx;
+
   // std::shared_ptr<Strategy> _strategy;
 
 public:
@@ -154,6 +156,8 @@ private:
 
   std::shared_ptr<SimulateData> _simulateDataPtr; 
 
+  bool _receive_true = true;
+
 
   //DECLARE_EVENT_TABLE()
 
@@ -178,6 +182,8 @@ public:
   std::string getCryptoConcurrency();
   std::string getStrategy();
   double getInvestment();
+
+  bool receiveTrue();
 
 
   template <class T> std::shared_ptr<T> StartStrategy(std::string dataThrName, std::string strategyThrName, wxButton *stop_btn);

@@ -53,7 +53,7 @@ void SimulateData::fetchData()
 
     while (true)
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(20)); // Check: Max velocity is every 15 msecs aprox.
+        std::this_thread::sleep_for(std::chrono::milliseconds(10)); // Check: Max velocity is every 15 msecs aprox.
         x = x * (1 + (rand() % 2000 - 990) / 10000000.0);
 
         // std::cout << "meto un dato a la cola: " << x << " " << count << std::endl; //DEBUG
@@ -69,7 +69,7 @@ void SimulateData::fetchData()
 void SimulateData::unblockThread()
 {
     std::cout << "\n\nTEST UNBLOCK THREAD";
-    // _mqData->MessageQueue::unblockThread();
+     _mqData->MessageQueue::unblockThread();
 
     // _mqData->MessageQueue::send(std::move(0));
     // _mqData->MessageQueue::send(std::move(0));

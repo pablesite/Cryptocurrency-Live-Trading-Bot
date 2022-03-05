@@ -76,11 +76,14 @@ double Strategy::getIndex()
 
 void Strategy::updateBase()
 {
+    
     // update base value
     _base = _value;
 
     // update limits in cryptoGraphic
-    //_cryptoGraphic->setLimits(_open_position, _entry, _bottom_break, _recession, _top_break);
+    std::unique_lock<std::mutex> lck(_mtx);
+    _cryptoGraphic->setLimits(_open_position, _entry, _bottom_break, _recession, _top_break);
+    lck.unlock();
 }
 
 void Strategy::setInvestment(double investment)
@@ -102,53 +105,68 @@ void Strategy::cryptoBot()
     _cryptoGraphic->setStrategyHandle(shared_from_this());
 
     // get config data
+    std::unique_lock<std::mutex> lck(_mtx);
     _exchange = _cryptoGuiPanel->getExchange();
     _cryptoConcurrency = _cryptoGuiPanel->getCryptoConcurrency();
     _strategy = _cryptoGuiPanel->getStrategy();
     _investment = _cryptoGuiPanel->getInvestment();
+    lck.unlock();
 
     // output strategy data
     // _open_position = false;     // to send
-    double order = 0;           // to send
-    double benefit = 0;         // to send
-    int nOrders = 0;             // to send
-    double benefits_acc = 0;    // to send
-    double investment_acc = 0;  // to send
+    double order = 0;          // to send
+    double benefit = 0;        // to send
+    int nOrders = 0;           // to send
+    double benefits_acc = 0;   // to send
+    double investment_acc = 0; // to send
     double computedData = 0;
 
     // set base value
+     lck.lock();
     _base = getData(_lookbackperiod);
+    lck.unlock();
+
     updateBase();
-    
+
     while (true)
     {
-        
-        //std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // Para que las simulaciones vayan a tiempo real (1000). ¿no debería limitar el tiempo sólo en la obtención de datos? Efectivamente, esto hace que la cola de datos vaya aumentando porque no se consumen al tiempo que se generan
-        // Además, si paro el hilo de ejecución (botón stop) cuando no está esperando, peta el hilo y da error de core dump o cosas similares.
-        //  Puede que esto tenga que ver por qué da error más veces lo de los datos reales. Pensar bien esto!!!
 
+        // if (_cryptoGuiPanel->receiveTrue())
+        // {
+        // std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // Para que las simulaciones vayan a tiempo real (1000). ¿no debería limitar el tiempo sólo en la obtención de datos? Efectivamente, esto hace que la cola de datos vaya aumentando porque no se consumen al tiempo que se generan
+        //  Además, si paro el hilo de ejecución (botón stop) cuando no está esperando, peta el hilo y da error de core dump o cosas similares.
+        //   Puede que esto tenga que ver por qué da error más veces lo de los datos reales. Pensar bien esto!!!
 
         // retrieve data
-         _value = getData(_lookbackperiod);
-        //_value = 50000;
-        //_cryptoGraphic->setActualValue(_value);
+
+        _value = getData(_lookbackperiod);
+
+        std::unique_lock<std::mutex> lck(_mtx);
+        _cryptoGraphic->setActualValue(_value);
+        lck.unlock();
 
         computedData += 1;
 
         if (_open_position == false)
         {
+            std::unique_lock<std::mutex> lck(_mtx);
             std::cout << std::setprecision(4) << std::fixed << "To buy " << _value << " => " << (1 + _bottom_break) * _base << " < " << _base << " > " << (1 + _entry) * _base << std::endl;
+            lck.unlock();
+
             // to update base if the trend is negative
             if (getIndex() < _bottom_break)
             {
                 // updateBase
+                std::unique_lock<std::mutex> lck(_mtx);
                 std::cout << "Update the base: Descending " << _value << " " << std::endl;
+                lck.unlock();
                 updateBase();
             }
 
             // to make an order
             if (getIndex() > _entry)
             {
+                
                 // perform an order
                 order = _investment / (_value * (1 + _commission));
                 investment_acc += _investment;
@@ -159,26 +177,35 @@ void Strategy::cryptoBot()
                 nOrders += 1;
 
                 // updateBase
+                std::unique_lock<std::mutex> lck(_mtx);
                 std::cout << "\nBuying my position " << order << " bitcoint. Actual value: " << _value << "." << std::endl;
+                lck.unlock();
                 updateBase();
+
+                //std::unique_lock<std::mutex> lck(_mtx);
                 //_cryptoGuiPanel->setOutputDataStrategy(_open_position, order, benefit, nOrders, benefits_acc, investment_acc);
+                //lck.unlock();
             }
         }
         else
         {
+            std::unique_lock<std::mutex> lck(_mtx);
             std::cout << std::setprecision(4) << std::fixed << "To sell " << _value << " => " << (1 + _recession) * _base << " < " << _base << " > " << (1 + _top_break) * _base << std::endl;
-
+            lck.unlock();
             // update base while the value is rissing
             if (getIndex() > _top_break)
             {
                 // updateBase
+                std::unique_lock<std::mutex> lck(_mtx);
                 std::cout << "Update the base: Rising " << _value << std::endl;
+                lck.unlock();
                 updateBase();
             }
 
             // if last_entry > x or last_entry < x --> Sell
             if (getIndex() < _recession)
             {
+                
                 // sell the order
                 benefit = (order * _value * (1 - _commission)) - _investment; // simulate the sell
                 benefits_acc += benefit;
@@ -187,12 +214,20 @@ void Strategy::cryptoBot()
                 _open_position = false;
 
                 // updateBase
+                std::unique_lock<std::mutex> lck(_mtx);
                 std::cout << "\nSelling my position: " << order << " bitcoints. Actual value: " << _value << ". Benefits = " << benefit << " $." << std::endl;
                 std::cout << "\nTOTAL BENEFITS: " << benefits_acc << "$. " << benefits_acc / investment_acc * 100 << "%. " << computedData << std::endl;
+                lck.unlock();
                 updateBase();
+
+                //std::unique_lock<std::mutex> lck(_mtx);
                 //_cryptoGuiPanel->setOutputDataStrategy(_open_position, order, benefit, nOrders, benefits_acc, investment_acc);
+                //lck.unlock();
             }
         }
+        // } else {
+        //     std::cout << "RECEIVED TRUEEEEEEEEEEEEEE: " << _cryptoGuiPanel->receiveTrue() << std::endl;
+        // }
     }
 }
 
