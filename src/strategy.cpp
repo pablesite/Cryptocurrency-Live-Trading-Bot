@@ -79,7 +79,7 @@ void Strategy::updateBase()
     
     // update base value
     _base = _value;
-
+    std::cout << "Update the base " << _value << " " << std::endl;
     // update limits in cryptoGraphic
     std::unique_lock<std::mutex> lck(_mtx);
     _cryptoGraphic->setLimits(_open_position, _entry, _bottom_break, _recession, _top_break);
@@ -113,7 +113,7 @@ void Strategy::cryptoBot()
     lck.unlock();
 
     // output strategy data
-    // _open_position = false;     // to send
+    _open_position = false;     // to send
     double order = 0;          // to send
     double benefit = 0;        // to send
     int nOrders = 0;           // to send
@@ -123,10 +123,10 @@ void Strategy::cryptoBot()
 
     // set base value
      lck.lock();
+     _cryptoGuiPanel->setOutputDataStrategy(_open_position, order, benefit, nOrders, benefits_acc, investment_acc);
     _base = getData(_lookbackperiod);
+    _cryptoGraphic->setLimits(_open_position, _entry, _bottom_break, _recession, _top_break);
     lck.unlock();
-
-    updateBase();
 
     while (true)
     {
@@ -174,8 +174,7 @@ void Strategy::cryptoBot()
 
                 // manage position
                 _open_position = true;
-                nOrders += 1;
-
+            
                 // updateBase
                
                 std::cout << "\nBuying my position " << order << " bitcoint. Actual value: " << _value << "." << std::endl;
@@ -212,6 +211,7 @@ void Strategy::cryptoBot()
 
                 // manage position
                 _open_position = false;
+                nOrders += 1;
 
                 // updateBase
                 

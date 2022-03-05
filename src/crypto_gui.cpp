@@ -9,6 +9,8 @@
 // std::string dataPath = "../";
 // std::string imgBasePath = dataPath + "images/";
 
+std::mutex _mtx;
+
 std::string dataSimulated = "dataSimulated";
 std::string strategyDataSimulatedBot = "strategyDataSimulatedBot";
 std::string historicData = "historicData";
@@ -505,7 +507,9 @@ std::shared_ptr<T> CryptoGuiPanel::StartStrategy(std::string dataThrName, std::s
 
   //
   paintGraphics = true;
+  std::unique_lock<std::mutex> lck(_mtx);
   _receive_true = true;
+  lck.unlock();
   // std::cout << "RECEIVED TRUEONOFF: " << _receive_true << std::endl;
 
   return dataPtr;
@@ -514,7 +518,9 @@ std::shared_ptr<T> CryptoGuiPanel::StartStrategy(std::string dataThrName, std::s
 void CryptoGuiPanel::KillThreads(std::vector<std::string> threadsToKill, wxButton *stop_btn)
 {
 
+  std::unique_lock<std::mutex> lck(_mtx);
   _receive_true = false;
+  lck.unlock();
   ThreadMap::const_iterator it;
 
   // for (std::string thrToKill : threadsToKill)
@@ -889,12 +895,8 @@ void CryptoGraphic::render(wxDC &dc)
   if (oldSecs != secs)
   {
     updateTicks();
+    updateVectorValues();
     oldSecs = secs;
-    updateGraphics = true;
-  }
-  else
-  {
-    updateGraphics = false;
   }
 
   // Draw axis
@@ -914,12 +916,6 @@ void CryptoGraphic::render(wxDC &dc)
   wxPen pen3(wxT("GREEN"), 3, wxPENSTYLE_DOT_DASH);
   dc.SetPen(pen3);
   drawGraphic(dc, size);
-
-  // Update line of values
-  if (updateGraphics)
-  {
-    updateVectorValues();
-  }
 }
 
 void CryptoGraphic::OnPaint(wxPaintEvent &event)

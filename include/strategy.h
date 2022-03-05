@@ -61,7 +61,7 @@ private:
 
     double _value = 0;
     double _base = 0;
-    double _open_position = false;
+    double _open_position;
 
     // config data
     std::string _exchange;
@@ -73,11 +73,11 @@ private:
     double _commission = 0.00075; //0.075%
 
     // input strategy data //To do: get from CryptoGuiPanel in Menu: "Configure Strategy"
-    double _entry = 4 * _commission; // to make robust my positions
-    double _bottom_break = -2 * _commission;
-    double _recession = -4 * _commission;
-    double _top_break = 2 * _commission; // para asegurar beneficios, esto debería actualizarse el doble de cuando voy a vender... pensar mejor y hacer pruebas
-    double _lookbackperiod = 1; // ESTO ESTÁ GUAY PERO SI PONGO 15 PEJEMPLO EL REAL TIME NO OBTIENE DATOS (_value = getData(_lookbackperiod))
+    double _entry = 2 * _commission; // to make robust my positions
+    double _bottom_break = -1 * _commission;
+    double _recession = -2 * _commission;
+    double _top_break = 1 * _commission; // para asegurar beneficios, esto debería actualizarse el doble de cuando voy a vender... pensar mejor y hacer pruebas
+    double _lookbackperiod = 30; 
 
     std::mutex _mtx;
 

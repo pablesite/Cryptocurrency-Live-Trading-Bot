@@ -66,12 +66,12 @@ void Binance::configureAPI(const char *URL)
     }
     //curl_easy_cleanup(_curl);
 
-    std::cout << "End Configuring API " << std::endl;
+    // std::cout << "End Configuring API " << std::endl;
 }
 
 void Binance::fetchData()
 {
-    std::cout << "Generating data " << std::endl;
+    // std::cout << "Generating data " << std::endl;
     // while (true)
     // {
     //     std::this_thread::sleep_for(std::chrono::milliseconds(500));  

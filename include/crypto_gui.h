@@ -57,7 +57,7 @@ private:
 
   int _limit_up=0, _limit_down=0;
 
-  std::mutex _mtx;
+  
 
   // std::shared_ptr<Strategy> _strategy;
 
