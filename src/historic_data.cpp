@@ -147,7 +147,7 @@ void HistoricData::fetchData()
             std::ifstream file_stream(file.path());
 
             // init watch
-            long long cycleDuration = 1; // With 1000, read data every second. Change that to improve speed in reading data (it should be up of 15 msec)
+            long long cycleDuration = 30; // Limit down: 9 uSecs (at least in my pc and processing 103000 data and with 10 data in lookbackperiod)
             std::chrono::time_point<std::chrono::system_clock> lastUpdate;
             lastUpdate = std::chrono::system_clock::now();
 
@@ -155,10 +155,10 @@ void HistoricData::fetchData()
             { // always check whether the file is open
                 while (file_stream)
                 {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                    // std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
                     // compute time difference to stop watch
-                    auto timeSinceLastUpdate = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lastUpdate).count();
+                    auto timeSinceLastUpdate = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - lastUpdate).count();
                     if (timeSinceLastUpdate >= cycleDuration)
                     {
                         // get line

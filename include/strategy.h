@@ -55,9 +55,6 @@ private:
     std::shared_ptr<SimulateData> _dataSimulated;
     std::shared_ptr<HistoricData> _dataHistoric;
 
-    // mutex
-    // std::mutex _mtx;
-
     // auxiliary variable for select type of data
     TypesOfData _type;
 
@@ -71,11 +68,11 @@ private:
     double _commission = 0.00075; // 0.075%
 
     // input data of strategy //FOR THE FUTURE: get from CryptoGuiPanel in Menu: "Configure Strategy"
-    double _entry = 2 * _commission;
-    double _bottomBreak = -1 * _commission;
-    double _recession = -2 * _commission;
-    double _topBreak = 1 * _commission;
-    double _lookBackPeriod = 10;
+    double _entry = 2.0 * _commission;
+    double _bottomBreak = -1.25 * _commission;
+    double _recession = -1.25 * _commission;
+    double _topBreak = 1.0 * _commission;
+    double _lookBackPeriod = 150;
 
     // output data of strategy
     double _value = 0;

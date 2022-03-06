@@ -1,0 +1,50 @@
+With historicData (2021_11_30 and 2021_12_01):
+
+9 usec -> lBP = 10 || entry = 2.5 * _comm || _bottomB = -1 * _comm || _rec = -2 * _comm || _topB = 1 * _comm --> orders = 85  || benef = 3.23 || % = 6.46
+1 msec -> lBP = 10 || entry = 2.0 * _comm || _bottomB = -1 * _comm || _rec = -2 * _comm || _topB = 1 * _comm --> orders = 95  || benef = 3.46 || % = 6.92
+9 usec -> lBP = 10 || entry = 1.5 * _comm || _bottomB = -1 * _comm || _rec = -2 * _comm || _topB = 1 * _comm --> orders = 111 || benef = 2.44 || % = 4.87
+1 msec -> lBP = 10 || entry = 1.0 * _comm || _bottomB = -1 * _comm || _rec = -2 * _comm || _topB = 1 * _comm --> orders = 126 || benef = 2.07 || % = 4.14
+9 usec -> lBP = 10 || entry = 0.5 * _comm || _bottomB = -1 * _comm || _rec = -2 * _comm || _topB = 1 * _comm --> orders = 148 || benef = 0.52 || % = 1.04
+
+9 msec -> lBP = 1  || entry = 2.0 * _comm || _bottomB = -1 * _comm || _rec = -2 * _comm || _topB = 1 * _comm --> orders = 127 || benef = -11.50 || % = -23.00
+9  msec -> lBP = 5  || entry = 2.0 * _comm || _bottomB = -1 * _comm || _rec = -2 * _comm || _topB = 1 * _comm --> orders = 114 || benef = 0.27 || % = 0.53
+9  msec -> lBP = 10 || entry = 2.0 * _comm || _bottomB = -1 * _comm || _rec = -2 * _comm || _topB = 1 * _comm --> orders = 95  || benef = 3.46 || % = 6.92
+9  msec -> lBP = 20 || entry = 2.0 * _comm || _bottomB = -1 * _comm || _rec = -2 * _comm || _topB = 1 * _comm --> orders = 80  || benef = 4.43 || % = 8.86
+9  msec -> lBP = 30 || entry = 2.0 * _comm || _bottomB = -1 * _comm || _rec = -2 * _comm || _topB = 1 * _comm --> orders = 70  || benef = 5.32 || % = 10.65
+20 msec -> lBP = 40 || entry = 2.0 * _comm || _bottomB = -1 * _comm || _rec = -2 * _comm || _topB = 1 * _comm --> orders = 64  || benef = 5.75 || % = 11.50
+20 msec -> lBP = 50 || entry = 2.0 * _comm || _bottomB = -1 * _comm || _rec = -2 * _comm || _topB = 1 * _comm --> orders = 58  || benef = 6.21 || % = 12.42
+20 msec -> lBP = 60 || entry = 2.0 * _comm || _bottomB = -1 * _comm || _rec = -2 * _comm || _topB = 1 * _comm --> orders = 54  || benef = 6.44 || % = 12.88
+20 msec -> lBP = 70 || entry = 2.0 * _comm || _bottomB = -1 * _comm || _rec = -2 * _comm || _topB = 1 * _comm --> orders = 52  || benef = 6.55 || % = 13.10
+20 msec -> lBP = 80 || entry = 2.0 * _comm || _bottomB = -1 * _comm || _rec = -2 * _comm || _topB = 1 * _comm --> orders = 55  || benef = 5.76 || % = 11.51
+20 msec -> lBP = 90 || entry = 2.0 * _comm || _bottomB = -1 * _comm || _rec = -2 * _comm || _topB = 1 * _comm --> orders = 52  || benef = 6.06 || % = 12.11
+20 msec -> lBP = 100 || entry = 2.0 * _comm || _bottomB = -1 * _comm || _rec = -2 * _comm || _topB = 1 * _comm --> orders = 47  || benef = 6.68 || % = 13.36
+20 msec -> lBP = 110 || entry = 2.0 * _comm || _bottomB = -1 * _comm || _rec = -2 * _comm || _topB = 1 * _comm --> orders = 42  || benef = 7.25 || % = 14.29
+25 msec -> lBP = 150 || entry = 2.0 * _comm || _bottomB = -1 * _comm || _rec = -2 * _comm || _topB = 1 * _comm --> orders = 35  || benef = 7.86 || % = 15.72
+30 msec -> lBP = 200 || entry = 2.0 * _comm || _bottomB = -1 * _comm || _rec = -2 * _comm || _topB = 1 * _comm --> orders = 34  || benef = 7.44 || % = 14.87
+30 msec -> lBP = 300 || entry = 2.0 * _comm || _bottomB = -1 * _comm || _rec = -2 * _comm || _topB = 1 * _comm --> orders = 30  || benef = 7.15 || % = 14.29
+
+30 msec -> lBP = 150 || entry = 2.0 * _comm || _bottomB = -0.5 * _comm || _rec = -2 * _comm || _topB = 1 * _comm --> orders = 37  || benef = 7.82 || % = 15.64
+25 msec -> lBP = 150 || entry = 2.0 * _comm || _bottomB = -1.0 * _comm || _rec = -2 * _comm || _topB = 1 * _comm --> orders = 35  || benef = 7.86 || % = 15.72
+30 msec -> lBP = 150 || entry = 2.0 * _comm || _bottomB = -1.25 * _comm || _rec = -2 * _comm || _topB = 1 * _comm --> orders = 36  || benef = 7.33 || % = 14.66
+30 msec -> lBP = 150 || entry = 2.0 * _comm || _bottomB = -1.5 * _comm || _rec = -2 * _comm || _topB = 1 * _comm --> orders = 34  || benef = 7.92 || % = 15.84
+30 msec -> lBP = 150 || entry = 2.0 * _comm || _bottomB = -1.75 * _comm || _rec = -2 * _comm || _topB = 1 * _comm --> orders = 33  || benef = 7.87 || % = 15.73
+25 msec -> lBP = 150 || entry = 2.0 * _comm || _bottomB = -2.0 * _comm || _rec = -2 * _comm || _topB = 1 * _comm --> orders = 35  || benef = 7.16 || % = 14.32
+
+30 msec -> lBP = 150 || entry = 2.0 * _comm || _bottomB = -1.5 * _comm || _rec = -0.5 * _comm || _topB = 1 * _comm --> orders = 48  || benef = 7.51 || % = 15.02
+30 msec -> lBP = 150 || entry = 2.0 * _comm || _bottomB = -1.5 * _comm || _rec = -1 * _comm || _topB = 1 * _comm --> orders = 44  || benef = 7.62 || % = 15.25
+30 msec -> lBP = 150 || entry = 2.0 * _comm || _bottomB = -1.5 * _comm || _rec = -1.25 * _comm || _topB = 1 * _comm --> orders = 39  || benef = 8.04 || % = 16.07
+30 msec -> lBP = 150 || entry = 2.0 * _comm || _bottomB = -1.5 * _comm || _rec = -1.5 * _comm || _topB = 1 * _comm --> orders = 37  || benef = 8.04 || % = 16.08
+30 msec -> lBP = 150 || entry = 2.0 * _comm || _bottomB = -1.5 * _comm || _rec = -1.75 * _comm || _topB = 1 * _comm --> orders = 36  || benef = 8.01 || % = 16.01
+30 msec -> lBP = 150 || entry = 2.0 * _comm || _bottomB = -1.5 * _comm || _rec = -2 * _comm || _topB = 1 * _comm --> orders = 34  || benef = 7.92 || % = 15.84
+30 msec -> lBP = 150 || entry = 2.0 * _comm || _bottomB = -1.5 * _comm || _rec = -2.25 * _comm || _topB = 1 * _comm --> orders = 33  || benef = 7.72 || % = 15.44
+30 msec -> lBP = 150 || entry = 2.0 * _comm || _bottomB = -1.5 * _comm || _rec = -2.5 * _comm || _topB = 1 * _comm --> orders = 33  || benef = 7.44 || % = 14.88
+30 msec -> lBP = 150 || entry = 2.0 * _comm || _bottomB = -1.5 * _comm || _rec = -3 * _comm || _topB = 1 * _comm --> orders = 32  || benef = 7.19 || % = 14.38
+
+30 msec -> lBP = 150 || entry = 2.0 * _comm || _bottomB = -1.5 * _comm || _rec = -1.25 * _comm || _topB = 0.5 * _comm --> orders = 43  || benef = 7.77 || % = 15.53
+30 msec -> lBP = 150 || entry = 2.0 * _comm || _bottomB = -1.5 * _comm || _rec = -1.25 * _comm || _topB = 1.0 * _comm --> orders = 39  || benef = 8.04 || % = 16.07
+30 msec -> lBP = 150 || entry = 2.0 * _comm || _bottomB = -1.5 * _comm || _rec = -1.25 * _comm || _topB = 1.5 * _comm --> orders = 37  || benef = 7.95 || % = 15.90
+30 msec -> lBP = 150 || entry = 2.0 * _comm || _bottomB = -1.5 * _comm || _rec = -1.25 * _comm || _topB = 2.0 * _comm --> orders = 37  || benef = 7.90 || % = 15.79
+30 msec -> lBP = 150 || entry = 2.0 * _comm || _bottomB = -1.5 * _comm || _rec = -1.25 * _comm || _topB = 3.0 * _comm --> orders = 39  || benef = 6.94 || % = 13.88
+
+
+30 msec -> lBP = 150 || entry = 2.0 * _comm || _bottomB = -1.5 * _comm || _rec = -1.25 * _comm || _topB = 1.0 * _comm --> orders = 39  || benef = 8.04 || % = 16.07

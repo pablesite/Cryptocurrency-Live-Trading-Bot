@@ -46,8 +46,8 @@ void SimulateData::fetchData()
 
     while (true)
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1)); // It is needed to pause a little bit the execution
-        x = x * (1 + (rand() % 2000 - 990) / 10000000.0);
+        std::this_thread::sleep_for(std::chrono::microseconds(30)); // It is needed to pause a little bit the execution. el límite por abajo está cercano a los 10 usecs
+        x = x * (1 + (rand() % 2000 - 999) / 10000000.0); //999 -> ligera tendencia al alza
 
         // std::cout << "meto un dato a la cola: " << x << " " << count << std::endl; //DEBUG
         _mqData->MessageQueue::send(std::move(x));

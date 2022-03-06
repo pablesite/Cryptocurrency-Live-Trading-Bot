@@ -141,9 +141,9 @@ void Strategy::cryptoBot()
         if (_openPosition == false)
         {
             // debug in console
-            std::unique_lock<std::mutex> lck(_mtx); 
-            std::cout << std::setprecision(4) << std::fixed << "To buy " << _value << " => " << (1 + _bottomBreak) * _base << " < " << _base << " > " << (1 + _entry) * _base << " N: " << computedData << std::endl;
-            lck.unlock();
+            // std::unique_lock<std::mutex> lck(_mtx); 
+            // std::cout << std::setprecision(4) << std::fixed << "To buy " << _value << " => " << (1 + _bottomBreak) * _base << " < " << _base << " > " << (1 + _entry) * _base << " N: " << computedData << std::endl;
+            // lck.unlock();
 
             // to update base if the trend is negative
             if (getIndex() < _bottomBreak)
@@ -168,7 +168,7 @@ void Strategy::cryptoBot()
                 _openPosition = true;
                 
                 // debug in console
-                std::cout << "\nBuying my position " << order << " bitcoint. Actual value: " << _value << "." << std::endl;
+                std::cout << "Buying my position " << order << " bitcoint. Actual value: " << _value << "." << std::endl;
                 lck.unlock();
 
                 // update base
@@ -176,7 +176,6 @@ void Strategy::cryptoBot()
 
                 // set output data strategy to CryptoGuiPanel
                 lck.lock(); // protect CryptoGuiPanel shrPtr
-                 std::cout << "\nBefore setOutputDataStrategy (BUY)\n";
                 _cryptoGuiPanel->setOutputDataStrategy(_openPosition, order, benefit, nOrders, benefitsAcc, investmentAcc);
                 lck.unlock();
             }
@@ -184,9 +183,9 @@ void Strategy::cryptoBot()
         else
         {
             // debug in console
-            std::unique_lock<std::mutex> lck(_mtx); 
-            std::cout << std::setprecision(4) << std::fixed << "To sell " << _value << " => " << (1 + _recession) * _base << " < " << _base << " > " << (1 + _topBreak) * _base << " N: " << computedData << std::endl;
-            lck.unlock();
+            // std::unique_lock<std::mutex> lck(_mtx); 
+            // std::cout << std::setprecision(4) << std::fixed << "To sell " << _value << " => " << (1 + _recession) * _base << " < " << _base << " > " << (1 + _topBreak) * _base << " N: " << computedData << std::endl;
+            // lck.unlock();
 
             // update base while the value is rissing
             if (getIndex() > _topBreak)
@@ -213,8 +212,8 @@ void Strategy::cryptoBot()
                 nOrders += 1;
                 
                 // debug in console
-                std::cout << "\nSelling my position: " << order << " bitcoints. Actual value: " << _value << ". Benefits = " << benefit << " $." << std::endl;
-                std::cout << "\nTOTAL BENEFITS: " << benefitsAcc << "$. " << benefitsAcc / investmentAcc * 100 << "%. " << computedData << std::endl;
+                std::cout << "Selling my position: " << order << " bitcoints. Actual value: " << _value << ". Benefits = " << benefit << " $." << std::endl;
+                std::cout << "Total Benefits: " << benefitsAcc << "$. " << benefitsAcc / _investment * 100 << "%. " << computedData << std::endl << std::endl << std::endl;
                 lck.unlock();
                 
                 // updateBase
@@ -222,7 +221,6 @@ void Strategy::cryptoBot()
 
                 // set output data strategy to CryptoGuiPanel
                 lck.lock();
-                std::cout << "\nBefore setOutputDataStrategy (SELL)\n";
                 _cryptoGuiPanel->setOutputDataStrategy(_openPosition, order, benefit, nOrders, benefitsAcc, investmentAcc);
                 lck.unlock();
             }
