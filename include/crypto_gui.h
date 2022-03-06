@@ -20,11 +20,13 @@ class CryptoGraphic; // forward declaration
 class CryptoGuiPanel; // forward declaration
 class Strategy; // forward declaration
 
-//static CryptoGraphic * _cryptoGraphic;
+
 static std::shared_ptr<CryptoGraphic> _cryptoGraphic;
-//static CryptoGuiPanel * _cryptoGuiPanel; 
 static std::shared_ptr<CryptoGuiPanel> _cryptoGuiPanel;
 static std::shared_ptr<Strategy> _strategyPtr;
+static std::mutex _mtx;
+static std::condition_variable _cdtGraphic;
+static bool updateGraphics = true;
 
 class CryptoBot : public wxApp
 {
@@ -69,10 +71,13 @@ public:
   // getter / setter
   void setActualValue(double value);
   //void setLimits();
-  void setLimits(bool open_position, double _entry, double _bottom_break, double _recession, double _top_break);
-  void setStrategyHandle(std::shared_ptr<Strategy> strategy);
+  void setLimits(double _base, bool open_position, double entry, double bottom_break, double recession, double top_break);
+
   void setStrategyData(double commission, double entry, double rupture, double recession);
   int valueToPixel(int value, int sizey);
+
+  double getUpdateGraphics();
+  void setUpdateGraphics(bool updGraphics);
 
   // events
   void OnPaint(wxPaintEvent &evt);
@@ -84,6 +89,8 @@ public:
   void updateVectorValues();
   void createTicks();
   void updateTicks();
+
+
 
 
   // proprietary functions
@@ -102,7 +109,7 @@ class CryptoGui : public wxFrame
 {
 public:
   CryptoGui(const wxString &title, const wxPoint &pos, const wxSize &size);
-  void OnPaint(wxPaintEvent & event);
+  // void OnPaint(wxPaintEvent & event);
 
 private:
   void OnConfigureStrategy(wxCommandEvent &event);
@@ -154,9 +161,16 @@ private:
   std::string _strategy;
   std::string _investment;
 
+  bool _openPosition = false;
+  double _order = 0;
+  double _benefit = 0;
+  int _nOrders = 0;
+  double _benefitsAcc = 0;
+  double _investmentAcc = 0;
+
   std::shared_ptr<SimulateData> _simulateDataPtr; 
 
-  bool _receive_true = true;
+
 
 
   //DECLARE_EVENT_TABLE()
@@ -178,6 +192,8 @@ public:
   void setPosition();
   void setOutputDataStrategy(bool _open_position, double order, double benefit, int nOrders, double benefits_acc, double investment_acc);
 
+  void updateOutputData();
+
   std::string getExchange();
   std::string getCryptoConcurrency();
   std::string getStrategy();
@@ -186,7 +202,7 @@ public:
   bool receiveTrue();
 
 
-  template <class T> std::shared_ptr<T> StartStrategy(std::string dataThrName, std::string strategyThrName, wxButton *stop_btn);
+  template <class T> void StartStrategy(std::string dataThrName, std::string strategyThrName, wxButton *stop_btn);
   void KillThreads(std::vector<std::string> threadsToKill, wxButton *stop_btn);
 
      

@@ -80,7 +80,7 @@ void Strategy::updateBase()
 
     // update limits in cryptoGraphic
    
-    _cryptoGraphic->setLimits(_openPosition, _entry, _bottomBreak, _recession, _topBreak);
+     _cryptoGraphic->setLimits(_base, _openPosition, _entry, _bottomBreak, _recession, _topBreak);
      lck.unlock();
 }
 
@@ -88,10 +88,10 @@ void Strategy::updateBase()
 void Strategy::cryptoBot()
 {
     std::cout << "CryptoBot starting " << std::endl;
-
+    
     // set strategy handle to CryptoGuiPanel and CryptoGraphic
     _cryptoGuiPanel->setStrategyHandle(shared_from_this());
-    _cryptoGraphic->setStrategyHandle(shared_from_this());
+    //_cryptoGraphic->setStrategyHandle(shared_from_this()); //Esto sólo vale para llamar métodos de strategy desde cryptographic.
 
     // get config data
     std::unique_lock<std::mutex> lck(_mtx); //protect CryptoGuiPanel shrPtr
@@ -106,26 +106,34 @@ void Strategy::cryptoBot()
     double order = 0;          
     double benefit = 0;       
     int nOrders = 0;           
-    double benefits_acc = 0;   
-    double investment_acc = 0;
+    double benefitsAcc = 0;   
+    double investmentAcc = 0;
     double computedData = 0;
 
     // initialize CryptoGuiPanel, base value and CryptoGraphic
     lck.lock(); //protect shared pointers and base variable
-    _cryptoGuiPanel->setOutputDataStrategy(_openPosition, order, benefit, nOrders, benefits_acc, investment_acc);
+    _cryptoGuiPanel->setOutputDataStrategy(_openPosition, order, benefit, nOrders, benefitsAcc, investmentAcc);
     _base = getData(_lookBackPeriod);
-    _cryptoGraphic->setLimits(_openPosition, _entry, _bottomBreak, _recession, _topBreak);
+    _cryptoGraphic->setLimits(_base, _openPosition, _entry, _bottomBreak, _recession, _topBreak);
     lck.unlock();
 
     while (true)
     {
+        // std::this_thread::sleep_for(std::chrono::milliseconds(14));
         // retrieve data
         _value = getData(_lookBackPeriod);
 
         // send data to CryptoGraphic
-        std::unique_lock<std::mutex> lck(_mtx); //protect CryptoGraphic shrPtr
+        // std::unique_lock<std::mutex> lck(_mtx); //protect CryptoGraphic shrPtr
+        // // // updateGraphics = _cryptoGraphic->getUpdateGraphics();
+        // // // std::cout << "UPDATE GRAPHICS IN STRATEGY: " << updateGraphics << std::endl;
+
+        // // // _cdtGraphic.wait(lck, [] { return updateGraphics; });
+        // // // updateGraphics = false;
+        // // // _cryptoGraphic->setUpdateGraphics(updateGraphics);
         _cryptoGraphic->setActualValue(_value);
-        lck.unlock();
+        // aquí debería poner un wait a la gráfica para que enviara un nuevo dato sólo una vez esta haya termiando el refresh!
+        // lck.unlock();
 
         //how many data has been processed
         computedData += 1;
@@ -154,7 +162,7 @@ void Strategy::cryptoBot()
                 std::unique_lock<std::mutex> lck(_mtx);
                 // perform an order (simulation) FOR THE FUTURE: perform real orders using api from Binance
                 order = _investment / (_value * (1 + _commission));
-                investment_acc += _investment;
+                investmentAcc += _investment;
             
                 // manage position
                 _openPosition = true;
@@ -168,7 +176,8 @@ void Strategy::cryptoBot()
 
                 // set output data strategy to CryptoGuiPanel
                 lck.lock(); // protect CryptoGuiPanel shrPtr
-                _cryptoGuiPanel->setOutputDataStrategy(_openPosition, order, benefit, nOrders, benefits_acc, investment_acc);
+                 std::cout << "\nBefore setOutputDataStrategy (BUY)\n";
+                _cryptoGuiPanel->setOutputDataStrategy(_openPosition, order, benefit, nOrders, benefitsAcc, investmentAcc);
                 lck.unlock();
             }
         }
@@ -197,7 +206,7 @@ void Strategy::cryptoBot()
                 std::unique_lock<std::mutex> lck(_mtx);
                 // sell the order
                 benefit = (order * _value * (1 - _commission)) - _investment; // simulate the sell
-                benefits_acc += benefit;
+                benefitsAcc += benefit;
 
                 // manage position
                 _openPosition = false;
@@ -205,7 +214,7 @@ void Strategy::cryptoBot()
                 
                 // debug in console
                 std::cout << "\nSelling my position: " << order << " bitcoints. Actual value: " << _value << ". Benefits = " << benefit << " $." << std::endl;
-                std::cout << "\nTOTAL BENEFITS: " << benefits_acc << "$. " << benefits_acc / investment_acc * 100 << "%. " << computedData << std::endl;
+                std::cout << "\nTOTAL BENEFITS: " << benefitsAcc << "$. " << benefitsAcc / investmentAcc * 100 << "%. " << computedData << std::endl;
                 lck.unlock();
                 
                 // updateBase
@@ -213,7 +222,8 @@ void Strategy::cryptoBot()
 
                 // set output data strategy to CryptoGuiPanel
                 lck.lock();
-                _cryptoGuiPanel->setOutputDataStrategy(_openPosition, order, benefit, nOrders, benefits_acc, investment_acc);
+                std::cout << "\nBefore setOutputDataStrategy (SELL)\n";
+                _cryptoGuiPanel->setOutputDataStrategy(_openPosition, order, benefit, nOrders, benefitsAcc, investmentAcc);
                 lck.unlock();
             }
         }

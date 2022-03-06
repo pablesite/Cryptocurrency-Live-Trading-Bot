@@ -44,7 +44,7 @@ std::deque<T> MessageQueue<T>::receive(double &lookbackperiod)
 
     // std::cout << ", 3";
 
-    // std::cout << ", 4 (Size of queue: " << _queue.size() << ")";
+    // std::cout << "Size of queue: " << _queue.size() << "\n";
 
     // if (!_stop)
     // {

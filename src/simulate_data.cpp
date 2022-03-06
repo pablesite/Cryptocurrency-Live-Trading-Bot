@@ -37,16 +37,9 @@ double SimulateData::retrieveData(double &lookbackperiod)
 
 void SimulateData::fetchData()
 {
-    // double data;
-    //  Connect with Binance
-    //_bin.connect();
-
-    // Fetch Data
-    //_bin.fetch();
-
 
     std::cout << "Generating simulated data " << std::endl;
-
+    
     double myCoinBase = 50000;
     double x = myCoinBase;
     double count = 0;

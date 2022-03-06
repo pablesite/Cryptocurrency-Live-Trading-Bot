@@ -56,7 +56,7 @@ private:
     std::shared_ptr<HistoricData> _dataHistoric;
 
     // mutex
-    std::mutex _mtx;
+    // std::mutex _mtx;
 
     // auxiliary variable for select type of data
     TypesOfData _type;

@@ -9,8 +9,6 @@
 // std::string dataPath = "../";
 // std::string imgBasePath = dataPath + "images/";
 
-std::mutex _mtx;
-
 std::string dataSimulated = "dataSimulated";
 std::string strategyDataSimulatedBot = "strategyDataSimulatedBot";
 std::string historicData = "historicData";
@@ -30,9 +28,8 @@ ThreadMap thrMap;
 
 // Graphics globals
 bool paintGraphics = false;
-bool updateGraphics = true;
 wxSize oldSize;
-double oldValue;
+// double oldValue;
 double oldBase;
 int oldSecs = -1;
 
@@ -143,12 +140,14 @@ void CryptoGui::OnConfigureStrategy(wxCommandEvent &event)
   wxLogMessage("To do: wxPanel to configure input data of strategy");
 }
 
-void CryptoGui::OnPaint(wxPaintEvent &event) // It is not used
-{
-}
+// void CryptoGui::OnPaint(wxPaintEvent &event) // It is not used
+// {
+
+// }
 
 std::string simple_tokenizer(std::string s)
 {
+  std::unique_lock<std::mutex> lck(_mtx);
   std::stringstream ss(s);
   std::string word;
   if (ss >> word)
@@ -159,6 +158,7 @@ std::string simple_tokenizer(std::string s)
   {
     return s;
   }
+  lck.unlock();
 }
 
 CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
@@ -438,7 +438,7 @@ void CryptoGuiPanel::OnCreateHistoricalData(wxCommandEvent &event)
 void CryptoGuiPanel::OnStartSimulatedData(wxCommandEvent &event)
 {
   std::cout << "\nOn Start Simulated Data: " << std::endl;
-  _simulateDataPtr = StartStrategy<SimulateData>(dataSimulated, strategyDataSimulatedBot, stop_simulate_sim_data_btn);
+  StartStrategy<SimulateData>(dataSimulated, strategyDataSimulatedBot, stop_simulate_sim_data_btn);
 }
 
 void CryptoGuiPanel::OnStopSimulatedData(wxCommandEvent &event)
@@ -477,9 +477,8 @@ void CryptoGuiPanel::OnStopRealData(wxCommandEvent &event)
 }
 
 template <class T>
-std::shared_ptr<T> CryptoGuiPanel::StartStrategy(std::string dataThrName, std::string strategyThrName, wxButton *stop_btn)
+void CryptoGuiPanel::StartStrategy(std::string dataThrName, std::string strategyThrName, wxButton *stop_btn)
 {
-  // std::cout << "HOLA: " << _receive_true << std::endl;
   // Data thread
   std::shared_ptr<T> dataPtr = std::make_shared<T>();
   std::thread dataThr = std::thread(&T::fetchData, dataPtr);
@@ -506,21 +505,15 @@ std::shared_ptr<T> CryptoGuiPanel::StartStrategy(std::string dataThrName, std::s
   strategyThr.detach();
 
   //
-  paintGraphics = true;
   std::unique_lock<std::mutex> lck(_mtx);
-  _receive_true = true;
+  paintGraphics = true;
+  updateGraphics = true;
   lck.unlock();
-  // std::cout << "RECEIVED TRUEONOFF: " << _receive_true << std::endl;
-
-  return dataPtr;
 }
 
 void CryptoGuiPanel::KillThreads(std::vector<std::string> threadsToKill, wxButton *stop_btn)
 {
 
-  std::unique_lock<std::mutex> lck(_mtx);
-  _receive_true = false;
-  lck.unlock();
   ThreadMap::const_iterator it;
 
   // for (std::string thrToKill : threadsToKill)
@@ -579,11 +572,12 @@ void CryptoGuiPanel::KillThreads(std::vector<std::string> threadsToKill, wxButto
   stop_btn->Enable(false);
 
   //
+  std::unique_lock<std::mutex> lck(_mtx);
   paintGraphics = false;
 
   y_val.clear();
   secs = 0;
-
+  lck.unlock();
   // std::cout << std::endl;
 }
 
@@ -597,17 +591,32 @@ void CryptoGuiPanel::setPosition() // for test
   position_bool->SetLabel(wxString::Format(wxT("%s"), "TEST"));
 }
 
-void CryptoGuiPanel::setOutputDataStrategy(bool _open_position, double order, double benefit, int nOrders, double benefits_acc, double investment_acc)
+void CryptoGuiPanel::setOutputDataStrategy(bool openPosition, double order, double benefit, int nOrders, double benefitsAcc, double investmentAcc)
 {
   std::unique_lock<std::mutex> lck(_mtx);
-  position_bool->SetLabel(wxString::Format(wxT("%s"), _open_position ? "true" : "false"));
-  last_order_value->SetLabel(wxString::Format(wxT("%f"), order));
-  benefits_value->SetLabel(wxString::Format(wxT("%.2f"), benefit));
-  interest_value->SetLabel(wxString::Format(wxT("%.2f"), benefit / std::stod(_investment) * 100));
-  number_of_orders_value->SetLabel(wxString::Format(wxT("%d"), nOrders));
-  benefits_acc_value->SetLabel(wxString::Format(wxT("%.2f"), benefits_acc));
-  interest_acc_value->SetLabel(wxString::Format(wxT("%.2f"), benefits_acc / investment_acc * 100));
+  std::cout << "\nsettingOutputDataStrategy\n";
+  _openPosition = openPosition;
+  _order = order;
+  _benefit = benefit;
+  _nOrders = nOrders;
+  _benefitsAcc = benefitsAcc;
+  _investmentAcc = investmentAcc;
+
   lck.unlock();
+}
+
+void CryptoGuiPanel::updateOutputData()
+{
+
+  // std::unique_lock<std::mutex> lck(_mtx);
+  position_bool->SetLabel(wxString::Format(wxT("%s"), _openPosition ? "true" : "false"));
+  last_order_value->SetLabel(wxString::Format(wxT("%f"), _order));
+  benefits_value->SetLabel(wxString::Format(wxT("%.2f"), _benefit));
+  interest_value->SetLabel(wxString::Format(wxT("%.2f"), _benefit / std::stod(_investment) * 100));
+  number_of_orders_value->SetLabel(wxString::Format(wxT("%d"), _nOrders));
+  benefits_acc_value->SetLabel(wxString::Format(wxT("%.2f"), _benefitsAcc));
+  interest_acc_value->SetLabel(wxString::Format(wxT("%.2f"), _benefitsAcc / _investmentAcc * 100));
+  // lck.unlock();
 }
 
 std::string CryptoGuiPanel::getExchange()
@@ -630,12 +639,6 @@ double CryptoGuiPanel::getInvestment()
   return std::stod(simple_tokenizer(_investment));
 }
 
-bool CryptoGuiPanel::receiveTrue()
-{
-  //  std::cout << "RECEIVED TRUEON: " << _receive_true << std::endl;
-  return _receive_true;
-}
-
 BEGIN_EVENT_TABLE(CryptoGraphic, wxPanel)
 // EVT_PAINT(CryptoGraphic::paintEvent) // catch paint events
 END_EVENT_TABLE()
@@ -655,30 +658,43 @@ CryptoGraphic::~CryptoGraphic()
 void CryptoGraphic::setActualValue(double value)
 {
   // std::this_thread::sleep_for(std::chrono::milliseconds(100));
-  std::unique_lock<std::mutex> lck(_mtx);
-  _actual_value = value;
-  secs++;
-  lck.unlock();
+  // // // std::unique_lock<std::mutex> lck(_mtx);
+  // // // _actual_value = value;
+  // // // secs++;
 
-  Refresh();
+  // // // lck.unlock();
+
+  // // // Refresh();
+  std::unique_lock<std::mutex> lck(_mtx);
+  secs++;
+
+  if (updateGraphics)
+  {
+    _actual_value = value;
+    updateGraphics = false;
+    Refresh();
+  }
+
+  lck.unlock();
 }
 
-void CryptoGraphic::setLimits(bool open_position, double _entry, double _bottom_break, double _recession, double _top_break)
+void CryptoGraphic::setLimits(double base, bool open_position, double entry, double bottom_break, double recession, double top_break)
 {
   std::unique_lock<std::mutex> lck(_mtx);
-  _actual_base = _strategyPtr->getBase();
+  // _actual_base = _strategyPtr->getBase();
+  _actual_base = base;
 
   if (!open_position)
   {
     // limits to buy
-    _limit_up = (int)((1 + _entry) * _actual_base);
-    _limit_down = (int)((1 + _bottom_break) * _actual_base);
+    _limit_up = (int)((1 + entry) * _actual_base);
+    _limit_down = (int)((1 + bottom_break) * _actual_base);
   }
   else
   {
     // limits to sell
-    _limit_up = (int)((1 + _top_break) * _actual_base);
-    _limit_down = (int)((1 + _recession) * _actual_base);
+    _limit_up = (int)((1 + top_break) * _actual_base);
+    _limit_down = (int)((1 + recession) * _actual_base);
   }
 
   if ((_limit_up - _actual_base) > (_actual_base - _limit_down))
@@ -702,13 +718,9 @@ void CryptoGraphic::setStrategyData(double commission, double entry, double rupt
   _actual_recession = recession;
 }
 
-void CryptoGraphic::setStrategyHandle(std::shared_ptr<Strategy> strategy)
-{
-  _strategyPtr = strategy;
-}
-
 void CryptoGraphic::drawAxis(wxDC &dc, wxSize size)
 {
+  // std::unique_lock<std::mutex> lck(_mtx);
   wxCoord xOrig = xBorderLeft;
   wxCoord yOrig = size.y - yBorderUp;
   wxCoord xYmax = xBorderLeft;
@@ -717,11 +729,14 @@ void CryptoGraphic::drawAxis(wxDC &dc, wxSize size)
   wxCoord yXmax = size.y - yBorderUp;
   dc.DrawLine(xOrig, yOrig, xYmax, yYmax);
   dc.DrawLine(xOrig, yOrig, xXmax, yXmax);
+  // lck.unlock();
 }
 
 void CryptoGraphic::drawTics(wxDC &dc, wxSize size)
 {
+  // std::unique_lock<std::mutex> lck(_mtx);
   // Revisar variables estáticas
+
   wxCoord xOrig = xBorderLeft;
 
   wxCoord y_tick_0 = (size.y - yBorderDown - yBorderUp) * 4 / 4 + yBorderDown;
@@ -759,14 +774,14 @@ void CryptoGraphic::drawTics(wxDC &dc, wxSize size)
   x_tick_label2->SetPosition(wxPoint(x_tick_2 - 5, size.y - 20));
   x_tick_label3->SetPosition(wxPoint(x_tick_3 - 5, size.y - 20));
   x_tick_label4->SetPosition(wxPoint(x_tick_4 - 5, size.y - 20));
+  // lck.unlock();
 }
 
 void CryptoGraphic::drawQuartiles(wxDC &dc, wxSize size)
 {
+  // std::unique_lock<std::mutex> lck(_mtx);
   wxCoord y_tick_1 = valueToPixel(_limit_down, size.y);
   wxCoord y_tick_3 = valueToPixel(_limit_up, size.y);
-  // std::cout << " TESTTTTTTTTTTTTTT " << y_tick_1 << std::endl;
-  // std::cout << " TESTTTTTTTTTTTTTT " <<  << std::endl;
 
   wxCoord xUp1 = xBorderLeft;
   wxCoord yUp1 = y_tick_1;
@@ -778,10 +793,12 @@ void CryptoGraphic::drawQuartiles(wxDC &dc, wxSize size)
   wxCoord yDown2 = y_tick_3;
   dc.DrawLine(xUp1, yUp1, xUp2, yUp2);
   dc.DrawLine(xDown1, yDown, xDown2, yDown2);
+  // lck.unlock();
 }
 
 void CryptoGraphic::drawGraphic(wxDC &dc, wxSize size)
 {
+  // std::unique_lock<std::mutex> lck(_mtx);
   std::deque<wxCoord> x_val{};
   for (size_t z = 0; z <= xTime; ++z)
   {
@@ -795,16 +812,20 @@ void CryptoGraphic::drawGraphic(wxDC &dc, wxSize size)
       dc.DrawLine(x_val[i - 1], valueToPixel(y_val[i - 1], size.y), x_val[i], valueToPixel(y_val[i], size.y));
     }
   }
+  // lck.unlock();
 }
 
 void CryptoGraphic::updateVectorValues()
 {
+  // std::unique_lock<std::mutex> lck(_mtx);
   y_val.emplace_back(_actual_value);
   if (y_val.size() > xTime + 1)
   {
     y_val.pop_front();
   }
-  oldValue = _actual_value;
+  // oldValue = _actual_value;
+
+  // lck.unlock();
 }
 
 void CryptoGraphic::createTicks()
@@ -825,8 +846,8 @@ void CryptoGraphic::createTicks()
 void CryptoGraphic::updateTicks()
 {
 
+  // std::unique_lock<std::mutex> lck(_mtx);
   // Revisar qué pasa cuando se pone a vender... se lian los tiempos.
-
   y_tick_label0->SetLabel(wxString::Format(wxT("%d"), minValue));
   y_tick_label1->SetLabel(wxString::Format(wxT("%d"), _limit_down));
   y_tick_label2->SetLabel(wxString::Format(wxT("%d"), (int)_actual_base));
@@ -877,51 +898,87 @@ void CryptoGraphic::updateTicks()
   {
     x_tick_label4->SetLabel(wxString::Format(wxT("%d"), (int)(secs - 2 - xTime)));
   }
+  // std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+
+  // lck.unlock();
 }
 
 int CryptoGraphic::valueToPixel(int value, int sizey)
 {
+
   // Revisar que maxValue y minValue no sean cero!!
   return (sizey - yBorderUp - yBorderDown) * (maxValue - value) / (maxValue - minValue) + yBorderDown;
+}
+
+double CryptoGraphic::getUpdateGraphics()
+{
+  return updateGraphics;
+}
+
+void CryptoGraphic::setUpdateGraphics(bool updGraphics)
+{
+  updateGraphics = updGraphics;
 }
 
 void CryptoGraphic::render(wxDC &dc)
 {
 
+  //  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  // std::unique_lock<std::mutex> lck(_mtx);
   wxSize size = this->GetSize();
-
-  // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
   // Logics of update graphic
   if (oldSecs != secs)
   {
     updateTicks();
     updateVectorValues();
+    _cryptoGuiPanel->updateOutputData();
+    // lck.lock();
     oldSecs = secs;
+    // lck.unlock();
+    // Aquí debería lanzar la signal para que siguiera la estrategia mandándome datos
+    // // // updateGraphics = true;
+    // // // std::cout << "UPDATE GRAPHICS IN GUI: " << updateGraphics << std::endl;
+    // // // _cdtGraphic.notify_one();
+    updateGraphics = true;
   }
+  // else
+  // {
+  //   updateGraphics = false;
+  // }
 
   // Draw axis
+  //  lck.lock();
   wxPen pen1(wxT("BLACK"), 2, wxPENSTYLE_SOLID);
   dc.SetPen(pen1);
+  // lck.unlock();
   drawAxis(dc, size);
 
   // Draw ticks
   drawTics(dc, size);
 
   // Draw Quartiles
+  // lck.lock();
   wxPen pen2(wxT("RED"), 2, wxPENSTYLE_DOT_DASH);
   dc.SetPen(pen2);
+  // lck.unlock();
   drawQuartiles(dc, size);
 
   // Draw line of value
+  // lck.lock();
   wxPen pen3(wxT("GREEN"), 3, wxPENSTYLE_DOT_DASH);
   dc.SetPen(pen3);
+  // lck.unlock();
   drawGraphic(dc, size);
+
+  // lck.unlock();
 }
 
 void CryptoGraphic::OnPaint(wxPaintEvent &event)
 {
   std::unique_lock<std::mutex> lck(_mtx);
+  // std::cout << "OnPaint\n";
+
   wxPaintDC dc(this);
   if (paintGraphics)
   {
