@@ -147,7 +147,7 @@ void CryptoGui::OnConfigureStrategy(wxCommandEvent &event)
 
 std::string simple_tokenizer(std::string s)
 {
-  std::unique_lock<std::mutex> lck(_mtx);
+  // std::unique_lock<std::mutex> lck(_mtx);
   std::stringstream ss(s);
   std::string word;
   if (ss >> word)
@@ -158,7 +158,7 @@ std::string simple_tokenizer(std::string s)
   {
     return s;
   }
-  lck.unlock();
+  // lck.unlock();
 }
 
 CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
@@ -505,10 +505,10 @@ void CryptoGuiPanel::StartStrategy(std::string dataThrName, std::string strategy
   strategyThr.detach();
 
   //
-  std::unique_lock<std::mutex> lck(_mtx);
+  // std::unique_lock<std::mutex> lck(_mtx);
   paintGraphics = true;
   updateGraphics = true;
-  lck.unlock();
+  // lck.unlock();
 }
 
 void CryptoGuiPanel::KillThreads(std::vector<std::string> threadsToKill, wxButton *stop_btn)
@@ -572,12 +572,12 @@ void CryptoGuiPanel::KillThreads(std::vector<std::string> threadsToKill, wxButto
   stop_btn->Enable(false);
 
   //
-  std::unique_lock<std::mutex> lck(_mtx);
+  // std::unique_lock<std::mutex> lck(_mtx);
   paintGraphics = false;
 
   y_val.clear();
   secs = 0;
-  lck.unlock();
+  // lck.unlock();
   // std::cout << std::endl;
 }
 
@@ -655,14 +655,6 @@ CryptoGraphic::~CryptoGraphic()
 
 void CryptoGraphic::setActualValue(double value)
 {
-  // std::this_thread::sleep_for(std::chrono::milliseconds(100));
-  // // // std::unique_lock<std::mutex> lck(_mtx);
-  // // // _actual_value = value;
-  // // // secs++;
-
-  // // // lck.unlock();
-
-  // // // Refresh();
   std::unique_lock<std::mutex> lck(_mtx);
   secs++;
 
@@ -672,38 +664,37 @@ void CryptoGraphic::setActualValue(double value)
     updateGraphics = false;
     Refresh();
   }
-
   lck.unlock();
 }
 
-void CryptoGraphic::setLimits(double base, bool open_position, double entry, double bottom_break, double recession, double top_break)
+
+void CryptoGraphic::setLimits(double base, bool openPosition, double entry, double bottomBreak, double recession, double topBreak)
 {
   std::unique_lock<std::mutex> lck(_mtx);
-  // _actual_base = _strategyPtr->getBase();
-  _actual_base = base;
+  _actualBase = base;
 
-  if (!open_position)
+  if (!openPosition)
   {
     // limits to buy
-    _limit_up = (int)((1 + entry) * _actual_base);
-    _limit_down = (int)((1 + bottom_break) * _actual_base);
+    _limit_up = (int)((1 + entry) * _actualBase);
+    _limit_down = (int)((1 + bottomBreak) * _actualBase);
   }
   else
   {
     // limits to sell
-    _limit_up = (int)((1 + top_break) * _actual_base);
-    _limit_down = (int)((1 + recession) * _actual_base);
+    _limit_up = (int)((1 + topBreak) * _actualBase);
+    _limit_down = (int)((1 + recession) * _actualBase);
   }
 
-  if ((_limit_up - _actual_base) > (_actual_base - _limit_down))
+  if ((_limit_up - _actualBase) > (_actualBase - _limit_down))
   {
-    maxValue = (int)(2 * _limit_up - _actual_base);
-    minValue = (int)(_actual_base - 2 * (_limit_up - _actual_base));
+    maxValue = (int)(2 * _limit_up - _actualBase);
+    minValue = (int)(_actualBase - 2 * (_limit_up - _actualBase));
   }
   else
   {
-    maxValue = (int)(_actual_base + 2 * (_actual_base - _limit_down));
-    minValue = (int)(2 * _limit_down - _actual_base);
+    maxValue = (int)(_actualBase + 2 * (_actualBase - _limit_down));
+    minValue = (int)(2 * _limit_down - _actualBase);
   }
   lck.unlock();
 }
@@ -848,7 +839,7 @@ void CryptoGraphic::updateTicks()
   // Revisar qué pasa cuando se pone a vender... se lian los tiempos.
   y_tick_label0->SetLabel(wxString::Format(wxT("%d"), minValue));
   y_tick_label1->SetLabel(wxString::Format(wxT("%d"), _limit_down));
-  y_tick_label2->SetLabel(wxString::Format(wxT("%d"), (int)_actual_base));
+  y_tick_label2->SetLabel(wxString::Format(wxT("%d"), (int)_actualBase));
   y_tick_label3->SetLabel(wxString::Format(wxT("%d"), _limit_up));
   y_tick_label4->SetLabel(wxString::Format(wxT("%d"), maxValue));
 
@@ -975,7 +966,6 @@ void CryptoGraphic::render(wxDC &dc)
 void CryptoGraphic::OnPaint(wxPaintEvent &event)
 {
   std::unique_lock<std::mutex> lck(_mtx);
-  // std::cout << "OnPaint\n";
 
   wxPaintDC dc(this);
   if (paintGraphics)

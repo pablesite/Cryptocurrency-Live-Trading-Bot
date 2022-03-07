@@ -50,7 +50,7 @@ private:
 
 
   double _actual_value;
-  double _actual_base;
+  double _actualBase;
 
   double _actual_commission = 0;
   double _actual_entry = 0;

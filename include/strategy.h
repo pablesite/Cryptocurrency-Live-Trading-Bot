@@ -40,7 +40,7 @@ public:
 
     // getters
     double getData(double lookBackPeriod);
-    double getBase();
+
 
     // main --> thread
     void cryptoBot();
@@ -48,7 +48,8 @@ public:
 private:
     // helpers functions
     double getIndex();
-    void updateBase();
+    void updateLimits();
+    void updateOutputDataStrategy();
 
     // pointers for retrieve data
     std::shared_ptr<Binance> _dataBinance;
@@ -69,15 +70,21 @@ private:
 
     // input data of strategy //FOR THE FUTURE: get from CryptoGuiPanel in Menu: "Configure Strategy"
     double _entry = 2.0 * _commission;
-    double _bottomBreak = -1.25 * _commission;
+    double _bottomBreak = -1.5 * _commission;
     double _recession = -1.25 * _commission;
     double _topBreak = 1.0 * _commission;
     double _lookBackPeriod = 150;
 
     // output data of strategy
-    double _value = 0;
-    double _base = 0;
+    double _value;
+    double _base;
     double _openPosition;
+    double _order;
+    double _benefit;
+    int _nOrders;
+    double _benefitsAcc;
+    double _investmentAcc;
+    double _computedData;
 };
 
 #endif

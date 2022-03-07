@@ -136,7 +136,7 @@ void HistoricData::fetchData()
     namespace fs = std::filesystem;
     char *working_directory = "../historicData/";
 
-    // go into every files in working directory
+    // go into every files in working directory. FOR THE FUTURE: Replace directory_iterator because the iteration order is unspecified.
     for (const auto &file_date : fs::directory_iterator(working_directory))
         for (const auto &file : fs::directory_iterator(file_date))
         {
