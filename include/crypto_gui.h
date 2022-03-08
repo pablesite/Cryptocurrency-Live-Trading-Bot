@@ -7,62 +7,144 @@
 #include <wx/statline.h>
 #endif
 
-#include <future>
-#include <optional>
-#include "simulate_data.h"
+#include <string>
 #include <unordered_map>
+#include <future>
+
+#include "simulate_data.h"
 #include "strategy.h"
 
-// std::condition_variable _cdtMQ;
-// std::mutex _mtxMQ;
+// forward declaration
+class CryptoGraphic;
+class CryptoGuiPanel;
+class Strategy;
 
-class CryptoGraphic; // forward declaration
-class CryptoGuiPanel; // forward declaration
-class Strategy; // forward declaration
-
-
+// globals shared pointers
 static std::shared_ptr<CryptoGraphic> _cryptoGraphic;
 static std::shared_ptr<CryptoGuiPanel> _cryptoGuiPanel;
 static std::shared_ptr<Strategy> _strategyPtr;
+
+// globals protection variables
 static std::mutex _mtx;
 static std::condition_variable _cdtGraphic;
-static bool updateGraphics = true;
 
+// globals graphics variables
+static bool paintGraphics = false;
+static bool _updateGraphics = true;
+static std::deque<wxCoord> y_val{};
+static int secs = 0;
+
+enum
+{
+  ID_CONFIGURE_STRATEGY = wxID_HIGHEST + 1,
+  ID_CREATE_HISTORICAL_DATA,
+  ID_SIMULATE_DATA,
+  ID_SIMULATE_DATA_STOP,
+  ID_HISTORICAL_DATA,
+  ID_HISTORICAL_DATA_STOP,
+  ID_REAL_DATA,
+  ID_REAL_DATA_STOP
+};
+
+/*
+Main class for CryptoBot
+*/
 class CryptoBot : public wxApp
 {
 public:
   virtual bool OnInit();
-
 };
 
-
-
-
-
-// graphics for real time data
-class CryptoGraphic : public wxPanel 
+/*
+Class for main Gui
+*/
+class CryptoGui : public wxFrame
 {
+public:
+  // constructor
+  CryptoGui(const wxString &title, const wxPoint &pos, const wxSize &size);
+
 private:
-  // control elements
-  //wxPanel * _cryptoGraphicPanel;
-  // wxBoxSizer *_dialogSizer;
-  // wxBitmap _image;
+  // menu options
+  void OnConfigureStrategy(wxCommandEvent &event);
+  void OnExit(wxCommandEvent &event);
+  void OnAbout(wxCommandEvent &event);
 
+  wxDECLARE_EVENT_TABLE();
+};
 
-  double _actual_value;
-  double _actualBase;
+/*
+Class for main Gui
+*/
+class CryptoGuiPanel : public wxPanel
+{
+public:
+  // constructor / destructor
+  CryptoGuiPanel(wxPanel *parent, bool isFromUser);
+  ~CryptoGuiPanel();
 
-  double _actual_commission = 0;
-  double _actual_entry = 0;
-  double _actual_rupture = 0;
-  double _actual_recession = 0;
+  // events
+  void OnCreateHistoricalData(wxCommandEvent &event);
+  void OnStartSimulatedData(wxCommandEvent &event);
+  void OnStopSimulatedData(wxCommandEvent &event);
+  void OnStartHistoricalData(wxCommandEvent &event);
+  void OnStopHistoricalData(wxCommandEvent &event);
+  void OnStartRealData(wxCommandEvent &event);
+  void OnStopRealData(wxCommandEvent &event);
 
-  int _limit_up=0, _limit_down=0;
+  // start and stop retrieve of data and the strategy of automatic trading
+  template <class T>
+  void StartStrategy(std::string dataThrName, std::string strategyThrName, wxButton *stop_btn);
+  void KillThreads(std::vector<std::string> threadsToKill, wxButton *stop_btn);
 
-  
+  // handler function
+  void setStrategyHandle(std::shared_ptr<Strategy> strategy);
 
-  // std::shared_ptr<Strategy> _strategy;
+  // propietary functions
+  void setOutputDataStrategy(bool _open_position, double order, double benefit, int nOrders, double benefits_acc, double investment_acc);
+  void updateOutputData();
 
+  // getter / setter
+  std::string getExchange();
+  std::string getCryptoConcurrency();
+  std::string getStrategy();
+  double getInvestment();
+
+private:
+  // strategy values
+  bool _openPosition = false;
+  double _order = 0;
+  double _benefit = 0;
+  int _nOrders = 0;
+  double _benefitsAcc = 0;
+  double _investmentAcc = 0;
+
+  // info variables
+  wxStaticText *strategy_type;
+  wxStaticText *exchange;
+  wxStaticText *commission_value;
+  wxStaticText *cryptocurrency_type;
+  wxStaticText *investment_value;
+
+  wxStaticText *openPositionValue;
+  wxStaticText *lastOrderValue;
+  wxStaticText *benefitsValue;
+  wxStaticText *interestValue;
+  wxStaticText *numberOfOrdersValue;
+  wxStaticText *benefitsAccValue;
+  wxStaticText *interestAccValue;
+
+  std::string _exchange;
+  std::string _cryptoConcurrency;
+  std::string _strategy;
+  std::string _investment;
+};
+
+/*
+Class to draw graphics
+*/
+class CryptoGraphic : public wxPanel
+{
 public:
   // constructor / destructor
   CryptoGraphic(wxWindow *parent, wxWindowID id);
@@ -70,17 +152,12 @@ public:
 
   // getter / setter
   void setActualValue(double value);
-  //void setLimits();
   void setLimits(double _base, bool open_position, double entry, double bottom_break, double recession, double top_break);
-
-  void setStrategyData(double commission, double entry, double rupture, double recession);
-  int valueToPixel(int value, int sizey);
-
-  double getUpdateGraphics();
-  void setUpdateGraphics(bool updGraphics);
 
   // events
   void OnPaint(wxPaintEvent &evt);
+
+  // draw functions
   void render(wxDC &dc);
   void drawAxis(wxDC &dc, wxSize size);
   void drawTics(wxDC &dc, wxSize size);
@@ -90,124 +167,40 @@ public:
   void createTicks();
   void updateTicks();
 
-
-
-
-  // proprietary functions
-  // void AddDialogItem(wxString text, bool isFromUser = true);
-  // void PrintChatbotResponse(std::string response);
+  // helper functions
+  int valueToPixel(int value, int sizey);
 
   DECLARE_EVENT_TABLE()
-};
-
-
-
-
-
-
-class CryptoGui : public wxFrame
-{
-public:
-  CryptoGui(const wxString &title, const wxPoint &pos, const wxSize &size);
-  // void OnPaint(wxPaintEvent & event);
 
 private:
-  void OnConfigureStrategy(wxCommandEvent &event);
-  void OnExit(wxCommandEvent &event);
-  void OnAbout(wxCommandEvent &event);
+  // graphics variables
+  double _value;
+  double _base;
+  int _limitUp = 0;
+  int _limitDown = 0;
+  int maxValue = 65000;
+  int minValue = 0;
+  int oldSecs = -1;
+  int xTime = 60; // 1 min of representation
 
-  // std::shared_ptr<SimulateData> _dataSimulatedPtr;
+  // margins in graphic
+  int xBorderLeft = 50;
+  int xBorderRight = 30;
+  int yBorderUp = 30;
+  int yBorderDown = 10;
 
-  
+  // labels for ticks
+  wxStaticText *y_tick_label0;
+  wxStaticText *y_tick_label1;
+  wxStaticText *y_tick_label2;
+  wxStaticText *y_tick_label3;
+  wxStaticText *y_tick_label4;
 
-  
-  wxDECLARE_EVENT_TABLE();
-
+  wxStaticText *x_tick_label0;
+  wxStaticText *x_tick_label1;
+  wxStaticText *x_tick_label2;
+  wxStaticText *x_tick_label3;
+  wxStaticText *x_tick_label4;
 };
-
-
-
-
-
-
-
-
-
-class CryptoGuiPanel : public wxPanel 
-{
-private:
-  // control elements
-  //wxStaticBitmap *_chatBotImg;
-
-  wxStaticText *strategy_type;
-  wxStaticText *exchange;
-  wxStaticText *commission_value;
-  wxStaticText *cryptocurrency_type;
-  wxStaticText *investment_value;
-
-  wxStaticText *position_bool;
-  wxStaticText *last_order_value;
-  wxStaticText *benefits_value;
-  wxStaticText *interest_value;
-  wxStaticText *number_of_orders_value;
-  wxStaticText *benefits_acc_value;
-  wxStaticText *interest_acc_value;
-
-  wxPanel *graphics_results;
-
-  // config data
-  std::string _exchange;
-  std::string _cryptoConcurrency;
-  std::string _strategy;
-  std::string _investment;
-
-  bool _openPosition = false;
-  double _order = 0;
-  double _benefit = 0;
-  int _nOrders = 0;
-  double _benefitsAcc = 0;
-  double _investmentAcc = 0;
-
-  std::shared_ptr<SimulateData> _simulateDataPtr; 
-
-
-
-
-  //DECLARE_EVENT_TABLE()
-
-public:
-  // constructor / destructor
-  CryptoGuiPanel(wxPanel *parent, bool isFromUser);
-  // ~CryptoGuiPanel();
-
-  void OnCreateHistoricalData(wxCommandEvent &event);
-  void OnStartSimulatedData(wxCommandEvent& event);
-  void OnStopSimulatedData(wxCommandEvent& event);
-  void OnStartHistoricalData(wxCommandEvent& event);
-  void OnStopHistoricalData(wxCommandEvent& event);
-  void OnStartRealData(wxCommandEvent& event);
-  void OnStopRealData(wxCommandEvent& event);
-  void setStrategyHandle(std::shared_ptr<Strategy> strategy);
-
-  void setPosition();
-  void setOutputDataStrategy(bool _open_position, double order, double benefit, int nOrders, double benefits_acc, double investment_acc);
-
-  void updateOutputData();
-
-  std::string getExchange();
-  std::string getCryptoConcurrency();
-  std::string getStrategy();
-  double getInvestment();
-
-  bool receiveTrue();
-
-
-  template <class T> void StartStrategy(std::string dataThrName, std::string strategyThrName, wxButton *stop_btn);
-  void KillThreads(std::vector<std::string> threadsToKill, wxButton *stop_btn);
-
-     
-};
-
-
 
 #endif

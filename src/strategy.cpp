@@ -107,7 +107,7 @@ void Strategy::cryptoBot()
     // initialize CryptoGuiPanel, base value and CryptoGraphic
     _base = getData(_lookBackPeriod);
     updateOutputDataStrategy();
-    _cryptoGraphic->setLimits(_base, _openPosition, _entry, _bottomBreak, _recession, _topBreak);
+    updateLimits();
 
     while (true)
     {

@@ -23,7 +23,7 @@ enum class TypesOfData
 };
 
 /*
-Class for perform strategy of trading
+Class for performing strategy of trading
 */
 
 class Strategy : public std::enable_shared_from_this<Strategy>
@@ -40,7 +40,6 @@ public:
 
     // getters
     double getData(double lookBackPeriod);
-
 
     // main --> thread
     void cryptoBot();

@@ -1,20 +1,9 @@
-#include <string>
+
 
 #include "crypto_gui.h"
-#include "simulate_data.h"
-#include "strategy.h"
-#include <unordered_map>
-#include <sstream>
 
-// std::string dataPath = "../";
-// std::string imgBasePath = dataPath + "images/";
-
-std::string dataSimulated = "dataSimulated";
-std::string strategyDataSimulatedBot = "strategyDataSimulatedBot";
-std::string historicData = "historicData";
-std::string strategyHistoricBot = "strategyHistoricBot";
-std::string binanceData = "binanceData";
-std::string strategyBinanceBot = "strategyBinanceBot";
+typedef std::unordered_map<std::string, pthread_t> ThreadMap;
+ThreadMap thrMap;
 
 wxButton *simulate_btn;
 wxButton *stop_simulate_sim_data_btn;
@@ -23,50 +12,12 @@ wxButton *stop_simulate_hist_data_btn;
 wxButton *realdata_btn;
 wxButton *stop_simulate_real_data_btn;
 
-typedef std::unordered_map<std::string, pthread_t> ThreadMap;
-ThreadMap thrMap;
-
-// Graphics globals
-bool paintGraphics = false;
-wxSize oldSize;
-// double oldValue;
-double oldBase;
-int oldSecs = -1;
-
-wxStaticText *y_tick_label0;
-wxStaticText *y_tick_label1;
-wxStaticText *y_tick_label2;
-wxStaticText *y_tick_label3;
-wxStaticText *y_tick_label4;
-
-wxStaticText *x_tick_label0;
-wxStaticText *x_tick_label1;
-wxStaticText *x_tick_label2;
-wxStaticText *x_tick_label3;
-wxStaticText *x_tick_label4;
-
-std::deque<wxCoord> y_val{};
-
-int maxValue = 65000;
-int minValue = 0;
-int xBorderLeft = 50;
-int xBorderRight = 30;
-int yBorderUp = 30;
-int yBorderDown = 10;
-int xTime = 300;
-int secs = 0;
-
-enum
-{
-  ID_CONFIGURE_STRATEGY = wxID_HIGHEST + 1,
-  ID_CREATE_HISTORICAL_DATA,
-  ID_SIMULATE_DATA,
-  ID_SIMULATE_DATA_STOP,
-  ID_HISTORICAL_DATA,
-  ID_HISTORICAL_DATA_STOP,
-  ID_REAL_DATA,
-  ID_REAL_DATA_STOP
-};
+std::string dataSimulated = "dataSimulated";
+std::string strategyDataSimulatedBot = "strategyDataSimulatedBot";
+std::string historicData = "historicData";
+std::string strategyHistoricBot = "strategyHistoricBot";
+std::string binanceData = "binanceData";
+std::string strategyBinanceBot = "strategyBinanceBot";
 
 wxBEGIN_EVENT_TABLE(CryptoGui, wxFrame)
 
@@ -281,13 +232,13 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
   wxStaticText *interest_acc = new wxStaticText(parent, -1, wxT("Interest accumulated (%): "));
 
   // Set text variables (TO DO) //
-  position_bool = new wxStaticText(parent, -1, wxT("False"));
-  last_order_value = new wxStaticText(parent, -1, wxT("0"));
-  benefits_value = new wxStaticText(parent, -1, wxT("0"));
-  interest_value = new wxStaticText(parent, -1, wxT("0"));
-  number_of_orders_value = new wxStaticText(parent, -1, wxT("0"));
-  benefits_acc_value = new wxStaticText(parent, -1, wxT("0"));
-  interest_acc_value = new wxStaticText(parent, -1, wxT("0"));
+  openPositionValue = new wxStaticText(parent, -1, wxT("False"));
+  lastOrderValue = new wxStaticText(parent, -1, wxT("0"));
+  benefitsValue = new wxStaticText(parent, -1, wxT("0"));
+  interestValue = new wxStaticText(parent, -1, wxT("0"));
+  numberOfOrdersValue = new wxStaticText(parent, -1, wxT("0"));
+  benefitsAccValue = new wxStaticText(parent, -1, wxT("0"));
+  interestAccValue = new wxStaticText(parent, -1, wxT("0"));
 
   // Separator horizontal line
   wxStaticLine *line_hor_4 = new wxStaticLine(parent, -1);
@@ -384,24 +335,23 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
 
   // inside vrighttbox2
   position_box->Add(position, 1, wxALIGN_LEFT | wxLEFT, 20);
-  position_box->Add(position_bool, 1, wxALIGN_LEFT);
+  position_box->Add(openPositionValue, 1, wxALIGN_LEFT);
   last_order_box->Add(last_order, 1, wxALIGN_LEFT | wxLEFT, 20);
-  last_order_box->Add(last_order_value, 1, wxALIGN_LEFT);
+  last_order_box->Add(lastOrderValue, 1, wxALIGN_LEFT);
   benefits_box->Add(benefits, 1, wxALIGN_LEFT | wxLEFT, 20);
-  benefits_box->Add(benefits_value, 1, wxALIGN_LEFT);
+  benefits_box->Add(benefitsValue, 1, wxALIGN_LEFT);
   interest_box->Add(interest, 1, wxALIGN_LEFT | wxLEFT, 20);
-  interest_box->Add(interest_value, 1, wxALIGN_LEFT);
+  interest_box->Add(interestValue, 1, wxALIGN_LEFT);
   number_of_orders_box->Add(number_of_orders, 1, wxALIGN_LEFT | wxLEFT, 20);
-  number_of_orders_box->Add(number_of_orders_value, 1, wxALIGN_LEFT);
+  number_of_orders_box->Add(numberOfOrdersValue, 1, wxALIGN_LEFT);
   benefits_acc_box->Add(benefits_acc, 1, wxALIGN_LEFT | wxLEFT, 20);
-  benefits_acc_box->Add(benefits_acc_value, 1, wxALIGN_LEFT);
+  benefits_acc_box->Add(benefitsAccValue, 1, wxALIGN_LEFT);
   interest_acc_box->Add(interest_acc, 1, wxALIGN_LEFT | wxLEFT, 20);
-  interest_acc_box->Add(interest_acc_value, 1, wxALIGN_LEFT);
+  interest_acc_box->Add(interestAccValue, 1, wxALIGN_LEFT);
 
-  // Graphics
-  // graphics_results = new wxPanel(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, wxPanelNameStr);
-  // hrighttbox2->Add(graphics_results, 1, wxEXPAND | wxTOP | wxDOWN | wxLEFT | wxRIGHT, 20);
-  // graphics_results->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGui::OnPaint));
+
+
+
 
   _cryptoGraphic = std::make_shared<CryptoGraphic>(parent, wxID_ANY);
   //_cryptoGraphic = new CryptoGraphic(parent, wxID_ANY);
@@ -415,8 +365,8 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
   // this->SetBackgroundColour((isFromUser == true ? wxT("YELLOW") : wxT("BLUE")));
 }
 
-// CryptoGuiPanel::~CryptoGuiPanel()
-// {}
+CryptoGuiPanel::~CryptoGuiPanel()
+{}
 
 void CryptoGuiPanel::OnCreateHistoricalData(wxCommandEvent &event)
 {
@@ -507,7 +457,7 @@ void CryptoGuiPanel::StartStrategy(std::string dataThrName, std::string strategy
   //
   // std::unique_lock<std::mutex> lck(_mtx);
   paintGraphics = true;
-  updateGraphics = true;
+  _updateGraphics = true;
   // lck.unlock();
 }
 
@@ -586,10 +536,6 @@ void CryptoGuiPanel::setStrategyHandle(std::shared_ptr<Strategy> strategy)
   _strategyPtr = strategy;
 }
 
-void CryptoGuiPanel::setPosition() // for test
-{
-  position_bool->SetLabel(wxString::Format(wxT("%s"), "TEST"));
-}
 
 void CryptoGuiPanel::setOutputDataStrategy(bool openPosition, double order, double benefit, int nOrders, double benefitsAcc, double investmentAcc)
 {
@@ -607,13 +553,13 @@ void CryptoGuiPanel::updateOutputData()
 {
 
   // std::unique_lock<std::mutex> lck(_mtx);
-  position_bool->SetLabel(wxString::Format(wxT("%s"), _openPosition ? "true" : "false"));
-  last_order_value->SetLabel(wxString::Format(wxT("%f"), _order));
-  benefits_value->SetLabel(wxString::Format(wxT("%.2f"), _benefit));
-  interest_value->SetLabel(wxString::Format(wxT("%.2f"), _benefit / std::stod(_investment) * 100));
-  number_of_orders_value->SetLabel(wxString::Format(wxT("%d"), _nOrders));
-  benefits_acc_value->SetLabel(wxString::Format(wxT("%.2f"), _benefitsAcc));
-  interest_acc_value->SetLabel(wxString::Format(wxT("%.2f"), _benefitsAcc / std::stod(_investment) * 100));
+  openPositionValue->SetLabel(wxString::Format(wxT("%s"), _openPosition ? "true" : "false"));
+  lastOrderValue->SetLabel(wxString::Format(wxT("%f"), _order));
+  benefitsValue->SetLabel(wxString::Format(wxT("%.2f"), _benefit));
+  interestValue->SetLabel(wxString::Format(wxT("%.2f"), _benefit / std::stod(_investment) * 100));
+  numberOfOrdersValue->SetLabel(wxString::Format(wxT("%d"), _nOrders));
+  benefitsAccValue->SetLabel(wxString::Format(wxT("%.2f"), _benefitsAcc));
+  interestAccValue->SetLabel(wxString::Format(wxT("%.2f"), _benefitsAcc / std::stod(_investment) * 100));
   // lck.unlock();
 }
 
@@ -658,54 +604,46 @@ void CryptoGraphic::setActualValue(double value)
   std::unique_lock<std::mutex> lck(_mtx);
   secs++;
 
-  if (updateGraphics)
+  if (_updateGraphics)
   {
-    _actual_value = value;
-    updateGraphics = false;
+    _value = value;
+    _updateGraphics = false;
     Refresh();
   }
   lck.unlock();
 }
 
-
 void CryptoGraphic::setLimits(double base, bool openPosition, double entry, double bottomBreak, double recession, double topBreak)
 {
   std::unique_lock<std::mutex> lck(_mtx);
-  _actualBase = base;
+  _base = base;
 
   if (!openPosition)
   {
     // limits to buy
-    _limit_up = (int)((1 + entry) * _actualBase);
-    _limit_down = (int)((1 + bottomBreak) * _actualBase);
+    _limitUp = (int)((1 + entry) * _base);
+    _limitDown = (int)((1 + bottomBreak) * _base);
   }
   else
   {
     // limits to sell
-    _limit_up = (int)((1 + topBreak) * _actualBase);
-    _limit_down = (int)((1 + recession) * _actualBase);
+    _limitUp = (int)((1 + topBreak) * _base);
+    _limitDown = (int)((1 + recession) * _base);
   }
 
-  if ((_limit_up - _actualBase) > (_actualBase - _limit_down))
+  if ((_limitUp - _base) > (_base - _limitDown))
   {
-    maxValue = (int)(2 * _limit_up - _actualBase);
-    minValue = (int)(_actualBase - 2 * (_limit_up - _actualBase));
+    maxValue = (int)(2 * _limitUp - _base);
+    minValue = (int)(_base - 2 * (_limitUp - _base));
   }
   else
   {
-    maxValue = (int)(_actualBase + 2 * (_actualBase - _limit_down));
-    minValue = (int)(2 * _limit_down - _actualBase);
+    maxValue = (int)(_base + 2 * (_base - _limitDown));
+    minValue = (int)(2 * _limitDown - _base);
   }
   lck.unlock();
 }
 
-void CryptoGraphic::setStrategyData(double commission, double entry, double rupture, double recession)
-{
-  _actual_commission = commission;
-  _actual_entry = entry;
-  _actual_rupture = rupture;
-  _actual_recession = recession;
-}
 
 void CryptoGraphic::drawAxis(wxDC &dc, wxSize size)
 {
@@ -729,9 +667,9 @@ void CryptoGraphic::drawTics(wxDC &dc, wxSize size)
   wxCoord xOrig = xBorderLeft;
 
   wxCoord y_tick_0 = (size.y - yBorderDown - yBorderUp) * 4 / 4 + yBorderDown;
-  wxCoord y_tick_1 = valueToPixel(_limit_down, size.y);
+  wxCoord y_tick_1 = valueToPixel(_limitDown, size.y);
   wxCoord y_tick_2 = (size.y - yBorderDown - yBorderUp) * 2 / 4 + yBorderDown;
-  wxCoord y_tick_3 = valueToPixel(_limit_up, size.y);
+  wxCoord y_tick_3 = valueToPixel(_limitUp, size.y);
   wxCoord y_tick_4 = yBorderDown;
 
   dc.DrawLine(45, y_tick_0, xOrig, y_tick_0);
@@ -769,8 +707,8 @@ void CryptoGraphic::drawTics(wxDC &dc, wxSize size)
 void CryptoGraphic::drawQuartiles(wxDC &dc, wxSize size)
 {
   // std::unique_lock<std::mutex> lck(_mtx);
-  wxCoord y_tick_1 = valueToPixel(_limit_down, size.y);
-  wxCoord y_tick_3 = valueToPixel(_limit_up, size.y);
+  wxCoord y_tick_1 = valueToPixel(_limitDown, size.y);
+  wxCoord y_tick_3 = valueToPixel(_limitUp, size.y);
 
   wxCoord xUp1 = xBorderLeft;
   wxCoord yUp1 = y_tick_1;
@@ -806,15 +744,12 @@ void CryptoGraphic::drawGraphic(wxDC &dc, wxSize size)
 
 void CryptoGraphic::updateVectorValues()
 {
-  // std::unique_lock<std::mutex> lck(_mtx);
-  y_val.emplace_back(_actual_value);
+  y_val.emplace_back(_value);
   if (y_val.size() > xTime + 1)
   {
     y_val.pop_front();
   }
-  // oldValue = _actual_value;
 
-  // lck.unlock();
 }
 
 void CryptoGraphic::createTicks()
@@ -834,13 +769,10 @@ void CryptoGraphic::createTicks()
 
 void CryptoGraphic::updateTicks()
 {
-
-  // std::unique_lock<std::mutex> lck(_mtx);
-  // Revisar qué pasa cuando se pone a vender... se lian los tiempos.
   y_tick_label0->SetLabel(wxString::Format(wxT("%d"), minValue));
-  y_tick_label1->SetLabel(wxString::Format(wxT("%d"), _limit_down));
-  y_tick_label2->SetLabel(wxString::Format(wxT("%d"), (int)_actualBase));
-  y_tick_label3->SetLabel(wxString::Format(wxT("%d"), _limit_up));
+  y_tick_label1->SetLabel(wxString::Format(wxT("%d"), _limitDown));
+  y_tick_label2->SetLabel(wxString::Format(wxT("%d"), (int)_base));
+  y_tick_label3->SetLabel(wxString::Format(wxT("%d"), _limitUp));
   y_tick_label4->SetLabel(wxString::Format(wxT("%d"), maxValue));
 
   if (secs - 2 < 1)
@@ -899,15 +831,9 @@ int CryptoGraphic::valueToPixel(int value, int sizey)
   return (sizey - yBorderUp - yBorderDown) * (maxValue - value) / (maxValue - minValue) + yBorderDown;
 }
 
-double CryptoGraphic::getUpdateGraphics()
-{
-  return updateGraphics;
-}
 
-void CryptoGraphic::setUpdateGraphics(bool updGraphics)
-{
-  updateGraphics = updGraphics;
-}
+
+
 
 void CryptoGraphic::render(wxDC &dc)
 {
@@ -929,7 +855,7 @@ void CryptoGraphic::render(wxDC &dc)
     // // // updateGraphics = true;
     // // // std::cout << "UPDATE GRAPHICS IN GUI: " << updateGraphics << std::endl;
     // // // _cdtGraphic.notify_one();
-    updateGraphics = true;
+    _updateGraphics = true;
   }
   // else
   // {
