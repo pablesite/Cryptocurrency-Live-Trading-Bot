@@ -28,7 +28,7 @@ static std::mutex _mtx;
 static std::condition_variable _cdtGraphic;
 
 // globals graphics variables
-static bool paintGraphics = false;
+static bool _paintGraphics = false;
 static bool _updateGraphics = true;
 static std::deque<wxCoord> y_val{};
 static int secs = 0;
@@ -66,8 +66,8 @@ public:
 private:
   // menu options
   void OnConfigureStrategy(wxCommandEvent &event);
-  void OnExit(wxCommandEvent &event);
   void OnAbout(wxCommandEvent &event);
+  void OnExit(wxCommandEvent &event);
 
   wxDECLARE_EVENT_TABLE();
 };
@@ -79,9 +79,8 @@ class CryptoGuiPanel : public wxPanel
 {
 public:
   // constructor / destructor
-  CryptoGuiPanel(wxPanel *parent, bool isFromUser);
-  ~CryptoGuiPanel();
-
+  CryptoGuiPanel(wxPanel *parent);
+ 
   // events
   void OnCreateHistoricalData(wxCommandEvent &event);
   void OnStartSimulatedData(wxCommandEvent &event);
@@ -108,6 +107,10 @@ public:
   std::string getCryptoConcurrency();
   std::string getStrategy();
   double getInvestment();
+
+  // helper function
+  std::string getFirstValue(std::string s);
+
 
 private:
   // strategy values
@@ -147,9 +150,8 @@ class CryptoGraphic : public wxPanel
 public:
   // constructor / destructor
   CryptoGraphic(wxWindow *parent, wxWindowID id);
-  ~CryptoGraphic();
 
-  // getter / setter
+  // setter
   void setActualValue(double value);
   void setLimits(double _base, bool openPosition, double entry, double bottomBreak, double recession, double topBreak);
 
@@ -157,19 +159,17 @@ public:
   void OnPaint(wxPaintEvent &evt);
 
   // draw functions
-  void render(wxDC &dc);
   void drawAxis(wxDC &dc, wxSize size);
   void drawTics(wxDC &dc, wxSize size);
-  void drawQuartiles(wxDC &dc, wxSize size);
+  void drawLimits(wxDC &dc, wxSize size);
   void drawGraphic(wxDC &dc, wxSize size);
   void updateVectorValues();
   void createTicks();
   void updateTicks();
+  void render(wxDC &dc);
 
   // helper functions
   int valueToPixel(int value, int sizey);
-
-  DECLARE_EVENT_TABLE()
 
 private:
   // graphics variables
