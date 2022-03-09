@@ -59,13 +59,3 @@ void SimulateData::fetchData()
     return;
 }
 
-void SimulateData::unblockThread()
-{
-    std::cout << "\n\nTEST UNBLOCK THREAD";
-     _mqData->MessageQueue::unblockThread();
-
-    // _mqData->MessageQueue::send(std::move(0));
-    // _mqData->MessageQueue::send(std::move(0));
-    // _mqData->MessageQueue::unblockThread();
-    // _mqData->MessageQueue::unblockThread();
-}

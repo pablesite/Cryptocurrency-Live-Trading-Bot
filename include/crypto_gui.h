@@ -10,7 +10,6 @@
 #include <string>
 #include <unordered_map>
 #include <future>
-
 #include "simulate_data.h"
 #include "strategy.h"
 
@@ -94,14 +93,14 @@ public:
 
   // start and stop retrieve of data and the strategy of automatic trading
   template <class T>
-  void StartStrategy(std::string dataThrName, std::string strategyThrName, wxButton *stop_btn);
-  void KillThreads(std::vector<std::string> threadsToKill, wxButton *stop_btn);
+  void StartStrategy(std::string dataThrName, std::string strategyThrName, wxButton *stopBtn);
+  void KillThreads(std::vector<std::string> threadsToKill, wxButton *stopBtn);
 
   // handler function
   void setStrategyHandle(std::shared_ptr<Strategy> strategy);
 
   // propietary functions
-  void setOutputDataStrategy(bool _open_position, double order, double benefit, int nOrders, double benefits_acc, double investment_acc);
+  void setOutputDataStrategy(bool _openPosition, double order, double benefit, int nOrders, double benefitsAcc, double investmentAcc);
   void updateOutputData();
 
   // getter / setter
@@ -120,19 +119,19 @@ private:
   double _investmentAcc = 0;
 
   // info variables
-  wxStaticText *strategy_type;
-  wxStaticText *exchange;
-  wxStaticText *commission_value;
-  wxStaticText *cryptocurrency_type;
-  wxStaticText *investment_value;
+  wxStaticText *_strategyType;
+  wxStaticText *_exchangeTxt;
+  wxStaticText *_commissionValue;
+  wxStaticText *_cryptocurrencyType;
+  wxStaticText *_investmentValue;
 
-  wxStaticText *openPositionValue;
-  wxStaticText *lastOrderValue;
-  wxStaticText *benefitsValue;
-  wxStaticText *interestValue;
-  wxStaticText *numberOfOrdersValue;
-  wxStaticText *benefitsAccValue;
-  wxStaticText *interestAccValue;
+  wxStaticText *_openPositionValue;
+  wxStaticText *_lastOrderValue;
+  wxStaticText *_benefitsValue;
+  wxStaticText *_interestValue;
+  wxStaticText *_numberOfOrdersValue;
+  wxStaticText *_benefitsAccValue;
+  wxStaticText *_interestAccValue;
 
   std::string _exchange;
   std::string _cryptoConcurrency;
@@ -152,7 +151,7 @@ public:
 
   // getter / setter
   void setActualValue(double value);
-  void setLimits(double _base, bool open_position, double entry, double bottom_break, double recession, double top_break);
+  void setLimits(double _base, bool openPosition, double entry, double bottomBreak, double recession, double topBreak);
 
   // events
   void OnPaint(wxPaintEvent &evt);
@@ -190,17 +189,17 @@ private:
   int yBorderDown = 10;
 
   // labels for ticks
-  wxStaticText *y_tick_label0;
-  wxStaticText *y_tick_label1;
-  wxStaticText *y_tick_label2;
-  wxStaticText *y_tick_label3;
-  wxStaticText *y_tick_label4;
+  wxStaticText *_yTickLabel0;
+  wxStaticText *_yTickLabel1;
+  wxStaticText *_yTickLabel2;
+  wxStaticText *_yTickLabel3;
+  wxStaticText *_yTickLabel4;
 
-  wxStaticText *x_tick_label0;
-  wxStaticText *x_tick_label1;
-  wxStaticText *x_tick_label2;
-  wxStaticText *x_tick_label3;
-  wxStaticText *x_tick_label4;
+  wxStaticText *_xTickLabel0;
+  wxStaticText *_xTickLabel1;
+  wxStaticText *_xTickLabel2;
+  wxStaticText *_xTickLabel3;
+  wxStaticText *_xTickLabel4;
 };
 
 #endif

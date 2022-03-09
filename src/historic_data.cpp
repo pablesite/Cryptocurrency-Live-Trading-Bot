@@ -181,9 +181,3 @@ void HistoricData::fetchData()
 
     return;
 }
-
-void HistoricData::unblockThread()
-{
-    std::cout << "\n\nTEST UNBLOCK THREAD";
-    _mqData->MessageQueue::unblockThread();
-}

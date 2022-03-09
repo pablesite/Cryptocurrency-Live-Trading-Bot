@@ -20,7 +20,6 @@ public:
     Binance();
     void fetchData() override;
     double retrieveData(double &lookbackperiod) override;
-    void unblockThread();
     void configureAPI(const char * URL);
 
 protected:

@@ -213,11 +213,11 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
   wxStaticText *strategy = new wxStaticText(parent, -1, wxT("Strategy: "));
 
   // Set text variables
-  exchange = new wxStaticText(parent, -1, _exchange);
-  commission_value = new wxStaticText(parent, -1, wxT("0.075 %"));
-  cryptocurrency_type = new wxStaticText(parent, -1, _cryptoConcurrency);
-  investment_value = new wxStaticText(parent, -1, _investment);
-  strategy_type = new wxStaticText(parent, -1, _strategy);
+  _exchangeTxt = new wxStaticText(parent, -1, _exchange);
+  _commissionValue = new wxStaticText(parent, -1, wxT("0.075 %"));
+  _cryptocurrencyType = new wxStaticText(parent, -1, _cryptoConcurrency);
+  _investmentValue = new wxStaticText(parent, -1, _investment);
+  _strategyType = new wxStaticText(parent, -1, _strategy);
 
   // Separator vertical line
   wxStaticLine *line_ver_2 = new wxStaticLine(parent, -1);
@@ -232,13 +232,13 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
   wxStaticText *interest_acc = new wxStaticText(parent, -1, wxT("Interest accumulated (%): "));
 
   // Set text variables (TO DO) //
-  openPositionValue = new wxStaticText(parent, -1, wxT("False"));
-  lastOrderValue = new wxStaticText(parent, -1, wxT("0"));
-  benefitsValue = new wxStaticText(parent, -1, wxT("0"));
-  interestValue = new wxStaticText(parent, -1, wxT("0"));
-  numberOfOrdersValue = new wxStaticText(parent, -1, wxT("0"));
-  benefitsAccValue = new wxStaticText(parent, -1, wxT("0"));
-  interestAccValue = new wxStaticText(parent, -1, wxT("0"));
+  _openPositionValue = new wxStaticText(parent, -1, wxT("False"));
+  _lastOrderValue = new wxStaticText(parent, -1, wxT("0"));
+  _benefitsValue = new wxStaticText(parent, -1, wxT("0"));
+  _interestValue = new wxStaticText(parent, -1, wxT("0"));
+  _numberOfOrdersValue = new wxStaticText(parent, -1, wxT("0"));
+  _benefitsAccValue = new wxStaticText(parent, -1, wxT("0"));
+  _interestAccValue = new wxStaticText(parent, -1, wxT("0"));
 
   // Separator horizontal line
   wxStaticLine *line_hor_4 = new wxStaticLine(parent, -1);
@@ -321,33 +321,33 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent, bool isFromUser)
 
   // inside vrighttbox1
   strategy_box->Add(strategy, 1, wxALIGN_LEFT | wxLEFT, 20);
-  strategy_box->Add(strategy_type, 1, wxALIGN_LEFT);
+  strategy_box->Add(_strategyType, 1, wxALIGN_LEFT);
   // strategy->SetBackgroundColour(wxT("BLUE"));
-  // strategy_type->SetBackgroundColour(wxT("RED"));
+  // _strategyType->SetBackgroundColour(wxT("RED"));
   exchange_box->Add(data_from, 1, wxALIGN_LEFT | wxLEFT, 20);
-  exchange_box->Add(exchange, 1, wxALIGN_LEFT);
+  exchange_box->Add(_exchangeTxt, 1, wxALIGN_LEFT);
   commission_box->Add(commission, 1, wxALIGN_LEFT | wxLEFT, 20);
-  commission_box->Add(commission_value, 1, wxALIGN_LEFT);
+  commission_box->Add(_commissionValue, 1, wxALIGN_LEFT);
   cryptocurrency_box->Add(cryptocurrency, 1, wxALIGN_LEFT | wxLEFT, 20);
-  cryptocurrency_box->Add(cryptocurrency_type, 1, wxALIGN_LEFT);
+  cryptocurrency_box->Add(_cryptocurrencyType, 1, wxALIGN_LEFT);
   investment_box->Add(investment, 1, wxALIGN_LEFT | wxLEFT, 20);
-  investment_box->Add(investment_value, 1, wxALIGN_LEFT);
+  investment_box->Add(_investmentValue, 1, wxALIGN_LEFT);
 
   // inside vrighttbox2
   position_box->Add(position, 1, wxALIGN_LEFT | wxLEFT, 20);
-  position_box->Add(openPositionValue, 1, wxALIGN_LEFT);
+  position_box->Add(_openPositionValue, 1, wxALIGN_LEFT);
   last_order_box->Add(last_order, 1, wxALIGN_LEFT | wxLEFT, 20);
-  last_order_box->Add(lastOrderValue, 1, wxALIGN_LEFT);
+  last_order_box->Add(_lastOrderValue, 1, wxALIGN_LEFT);
   benefits_box->Add(benefits, 1, wxALIGN_LEFT | wxLEFT, 20);
-  benefits_box->Add(benefitsValue, 1, wxALIGN_LEFT);
+  benefits_box->Add(_benefitsValue, 1, wxALIGN_LEFT);
   interest_box->Add(interest, 1, wxALIGN_LEFT | wxLEFT, 20);
-  interest_box->Add(interestValue, 1, wxALIGN_LEFT);
+  interest_box->Add(_interestValue, 1, wxALIGN_LEFT);
   number_of_orders_box->Add(number_of_orders, 1, wxALIGN_LEFT | wxLEFT, 20);
-  number_of_orders_box->Add(numberOfOrdersValue, 1, wxALIGN_LEFT);
+  number_of_orders_box->Add(_numberOfOrdersValue, 1, wxALIGN_LEFT);
   benefits_acc_box->Add(benefits_acc, 1, wxALIGN_LEFT | wxLEFT, 20);
-  benefits_acc_box->Add(benefitsAccValue, 1, wxALIGN_LEFT);
+  benefits_acc_box->Add(_benefitsAccValue, 1, wxALIGN_LEFT);
   interest_acc_box->Add(interest_acc, 1, wxALIGN_LEFT | wxLEFT, 20);
-  interest_acc_box->Add(interestAccValue, 1, wxALIGN_LEFT);
+  interest_acc_box->Add(_interestAccValue, 1, wxALIGN_LEFT);
 
 
 
@@ -414,7 +414,7 @@ void CryptoGuiPanel::OnStopHistoricalData(wxCommandEvent &event)
 void CryptoGuiPanel::OnStartRealData(wxCommandEvent &event)
 {
   std::cout << "\nOn Start Real Data: " << std::endl;
-  // commission_value->SetLabel(wxString::Format(wxT("%d"), 5));
+  // _commissionValue->SetLabel(wxString::Format(wxT("%d"), 5));
 
   StartStrategy<Binance>(binanceData, strategyBinanceBot, stop_simulate_real_data_btn); // TEST PARA VER SI AQUÍ ESTARÏA GUAY...
 }
@@ -427,7 +427,7 @@ void CryptoGuiPanel::OnStopRealData(wxCommandEvent &event)
 }
 
 template <class T>
-void CryptoGuiPanel::StartStrategy(std::string dataThrName, std::string strategyThrName, wxButton *stop_btn)
+void CryptoGuiPanel::StartStrategy(std::string dataThrName, std::string strategyThrName, wxButton *stopBtn)
 {
   // Data thread
   std::shared_ptr<T> dataPtr = std::make_shared<T>();
@@ -448,7 +448,7 @@ void CryptoGuiPanel::StartStrategy(std::string dataThrName, std::string strategy
   simulate_btn->Enable(false);
   historic_btn->Enable(false);
   realdata_btn->Enable(false);
-  stop_btn->Enable(true);
+  stopBtn->Enable(true);
 
   // Detach threads
   dataThr.detach();
@@ -461,7 +461,7 @@ void CryptoGuiPanel::StartStrategy(std::string dataThrName, std::string strategy
   // lck.unlock();
 }
 
-void CryptoGuiPanel::KillThreads(std::vector<std::string> threadsToKill, wxButton *stop_btn)
+void CryptoGuiPanel::KillThreads(std::vector<std::string> threadsToKill, wxButton *stopBtn)
 {
 
   ThreadMap::const_iterator it;
@@ -519,7 +519,7 @@ void CryptoGuiPanel::KillThreads(std::vector<std::string> threadsToKill, wxButto
   simulate_btn->Enable(true);
   historic_btn->Enable(true);
   realdata_btn->Enable(true);
-  stop_btn->Enable(false);
+  stopBtn->Enable(false);
 
   //
   // std::unique_lock<std::mutex> lck(_mtx);
@@ -553,13 +553,13 @@ void CryptoGuiPanel::updateOutputData()
 {
 
   // std::unique_lock<std::mutex> lck(_mtx);
-  openPositionValue->SetLabel(wxString::Format(wxT("%s"), _openPosition ? "true" : "false"));
-  lastOrderValue->SetLabel(wxString::Format(wxT("%f"), _order));
-  benefitsValue->SetLabel(wxString::Format(wxT("%.2f"), _benefit));
-  interestValue->SetLabel(wxString::Format(wxT("%.2f"), _benefit / std::stod(_investment) * 100));
-  numberOfOrdersValue->SetLabel(wxString::Format(wxT("%d"), _nOrders));
-  benefitsAccValue->SetLabel(wxString::Format(wxT("%.2f"), _benefitsAcc));
-  interestAccValue->SetLabel(wxString::Format(wxT("%.2f"), _benefitsAcc / std::stod(_investment) * 100));
+  _openPositionValue->SetLabel(wxString::Format(wxT("%s"), _openPosition ? "true" : "false"));
+  _lastOrderValue->SetLabel(wxString::Format(wxT("%f"), _order));
+  _benefitsValue->SetLabel(wxString::Format(wxT("%.2f"), _benefit));
+  _interestValue->SetLabel(wxString::Format(wxT("%.2f"), _benefit / std::stod(_investment) * 100));
+  _numberOfOrdersValue->SetLabel(wxString::Format(wxT("%d"), _nOrders));
+  _benefitsAccValue->SetLabel(wxString::Format(wxT("%.2f"), _benefitsAcc));
+  _interestAccValue->SetLabel(wxString::Format(wxT("%.2f"), _benefitsAcc / std::stod(_investment) * 100));
   // lck.unlock();
 }
 
@@ -678,11 +678,11 @@ void CryptoGraphic::drawTics(wxDC &dc, wxSize size)
   dc.DrawLine(45, y_tick_3, xOrig, y_tick_3);
   dc.DrawLine(45, y_tick_4, xOrig, y_tick_4);
 
-  y_tick_label0->SetPosition(wxPoint(0, y_tick_0 - 9));
-  y_tick_label1->SetPosition(wxPoint(0, y_tick_1 - 9));
-  y_tick_label2->SetPosition(wxPoint(0, y_tick_2 - 9));
-  y_tick_label3->SetPosition(wxPoint(0, y_tick_3 - 9));
-  y_tick_label4->SetPosition(wxPoint(0, y_tick_4 - 9));
+  _yTickLabel0->SetPosition(wxPoint(0, y_tick_0 - 9));
+  _yTickLabel1->SetPosition(wxPoint(0, y_tick_1 - 9));
+  _yTickLabel2->SetPosition(wxPoint(0, y_tick_2 - 9));
+  _yTickLabel3->SetPosition(wxPoint(0, y_tick_3 - 9));
+  _yTickLabel4->SetPosition(wxPoint(0, y_tick_4 - 9));
 
   wxCoord x_tick_0 = xBorderLeft;
   wxCoord x_tick_1 = xBorderLeft + (size.x - xBorderLeft - xBorderRight) * 1 / 4;
@@ -696,11 +696,11 @@ void CryptoGraphic::drawTics(wxDC &dc, wxSize size)
   dc.DrawLine(x_tick_3, size.y - 30, x_tick_3, size.y - 25);
   dc.DrawLine(x_tick_4, size.y - 30, x_tick_4, size.y - 25);
 
-  x_tick_label0->SetPosition(wxPoint(x_tick_0 - 5, size.y - 20));
-  x_tick_label1->SetPosition(wxPoint(x_tick_1 - 5, size.y - 20));
-  x_tick_label2->SetPosition(wxPoint(x_tick_2 - 5, size.y - 20));
-  x_tick_label3->SetPosition(wxPoint(x_tick_3 - 5, size.y - 20));
-  x_tick_label4->SetPosition(wxPoint(x_tick_4 - 5, size.y - 20));
+  _xTickLabel0->SetPosition(wxPoint(x_tick_0 - 5, size.y - 20));
+  _xTickLabel1->SetPosition(wxPoint(x_tick_1 - 5, size.y - 20));
+  _xTickLabel2->SetPosition(wxPoint(x_tick_2 - 5, size.y - 20));
+  _xTickLabel3->SetPosition(wxPoint(x_tick_3 - 5, size.y - 20));
+  _xTickLabel4->SetPosition(wxPoint(x_tick_4 - 5, size.y - 20));
   // lck.unlock();
 }
 
@@ -754,70 +754,70 @@ void CryptoGraphic::updateVectorValues()
 
 void CryptoGraphic::createTicks()
 {
-  y_tick_label0 = new wxStaticText(this, -1, wxT(""));
-  y_tick_label1 = new wxStaticText(this, -1, wxT(""));
-  y_tick_label2 = new wxStaticText(this, -1, wxT(""));
-  y_tick_label3 = new wxStaticText(this, -1, wxT(""));
-  y_tick_label4 = new wxStaticText(this, -1, wxT(""));
+  _yTickLabel0 = new wxStaticText(this, -1, wxT(""));
+  _yTickLabel1 = new wxStaticText(this, -1, wxT(""));
+  _yTickLabel2 = new wxStaticText(this, -1, wxT(""));
+  _yTickLabel3 = new wxStaticText(this, -1, wxT(""));
+  _yTickLabel4 = new wxStaticText(this, -1, wxT(""));
 
-  x_tick_label0 = new wxStaticText(this, -1, wxT(""));
-  x_tick_label1 = new wxStaticText(this, -1, wxT(""));
-  x_tick_label2 = new wxStaticText(this, -1, wxT(""));
-  x_tick_label3 = new wxStaticText(this, -1, wxT(""));
-  x_tick_label4 = new wxStaticText(this, -1, wxT(""));
+  _xTickLabel0 = new wxStaticText(this, -1, wxT(""));
+  _xTickLabel1 = new wxStaticText(this, -1, wxT(""));
+  _xTickLabel2 = new wxStaticText(this, -1, wxT(""));
+  _xTickLabel3 = new wxStaticText(this, -1, wxT(""));
+  _xTickLabel4 = new wxStaticText(this, -1, wxT(""));
 }
 
 void CryptoGraphic::updateTicks()
 {
-  y_tick_label0->SetLabel(wxString::Format(wxT("%d"), minValue));
-  y_tick_label1->SetLabel(wxString::Format(wxT("%d"), _limitDown));
-  y_tick_label2->SetLabel(wxString::Format(wxT("%d"), (int)_base));
-  y_tick_label3->SetLabel(wxString::Format(wxT("%d"), _limitUp));
-  y_tick_label4->SetLabel(wxString::Format(wxT("%d"), maxValue));
+  _yTickLabel0->SetLabel(wxString::Format(wxT("%d"), minValue));
+  _yTickLabel1->SetLabel(wxString::Format(wxT("%d"), _limitDown));
+  _yTickLabel2->SetLabel(wxString::Format(wxT("%d"), (int)_base));
+  _yTickLabel3->SetLabel(wxString::Format(wxT("%d"), _limitUp));
+  _yTickLabel4->SetLabel(wxString::Format(wxT("%d"), maxValue));
 
   if (secs - 2 < 1)
   {
-    x_tick_label0->SetLabel(wxString::Format(wxT("%s"), " "));
+    _xTickLabel0->SetLabel(wxString::Format(wxT("%s"), " "));
   }
   if (secs > 1 && secs <= xTime + 2)
   {
-    x_tick_label0->SetLabel(wxString::Format(wxT("%d"), secs - 2));
+    _xTickLabel0->SetLabel(wxString::Format(wxT("%d"), secs - 2));
   }
 
   if (secs - 2 - xTime * 1 / 4 <= 0)
   {
-    x_tick_label1->SetLabel(wxString::Format(wxT("%s"), " "));
+    _xTickLabel1->SetLabel(wxString::Format(wxT("%s"), " "));
   }
   if (secs - 2 - xTime * 1 / 4 >= 0 && secs <= xTime + 2)
   {
-    x_tick_label1->SetLabel(wxString::Format(wxT("%d"), (int)(secs - 2 - xTime * 1 / 4)));
+    _xTickLabel1->SetLabel(wxString::Format(wxT("%d"), (int)(secs - 2 - xTime * 1 / 4)));
   }
 
   if (secs - 2 - xTime * 2 / 4 <= 0)
   {
-    x_tick_label2->SetLabel(wxString::Format(wxT("%s"), " "));
+    _xTickLabel2->SetLabel(wxString::Format(wxT("%s"), " "));
   }
   if (secs - 2 - xTime * 2 / 4 >= 0 && secs <= xTime + 2)
   {
-    x_tick_label2->SetLabel(wxString::Format(wxT("%d"), (int)(secs - 2 - xTime * 2 / 4)));
+    _xTickLabel2->SetLabel(wxString::Format(wxT("%d"), (int)(secs - 2 - xTime * 2 / 4)));
   }
 
   if (secs - 2 - xTime * 3 / 4 <= 0)
   {
-    x_tick_label3->SetLabel(wxString::Format(wxT("%s"), " "));
+    _xTickLabel3->SetLabel(wxString::Format(wxT("%s"), " "));
   }
   if (secs - 2 - xTime * 3 / 4 >= 0 && secs <= xTime + 2)
   {
-    x_tick_label3->SetLabel(wxString::Format(wxT("%d"), (int)(secs - 2 - xTime * 3 / 4)));
+    _xTickLabel3->SetLabel(wxString::Format(wxT("%d"), (int)(secs - 2 - xTime * 3 / 4)));
   }
 
   if (secs - 2 - xTime <= 0)
   {
-    x_tick_label4->SetLabel(wxString::Format(wxT("%s"), " "));
+    _xTickLabel4->SetLabel(wxString::Format(wxT("%s"), " "));
   }
   if (secs - 2 - xTime >= 0 && secs <= xTime + 2)
   {
-    x_tick_label4->SetLabel(wxString::Format(wxT("%d"), (int)(secs - 2 - xTime)));
+    _xTickLabel4->SetLabel(wxString::Format(wxT("%d"), (int)(secs - 2 - xTime)));
   }
   // std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 
