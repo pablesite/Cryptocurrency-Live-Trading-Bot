@@ -1,29 +1,12 @@
-#include <string>
-#include <vector>
-#include <iostream>
-#include <chrono>
-#include <ctime>
-#include <future>
-#include <deque>
-#include <fstream>
-#include <filesystem>
-#include <sstream>
-
 #include "historic_data.h"
-#include "message_queue.h"
 
-using std::string;
-using std::vector;
-
-std::mutex HistoricData::_mutexSD;
-
+// constructor
 HistoricData::HistoricData()
 {
     _mqData = std::make_shared<MessageQueue<double>>();
-    std::cout << "Constructor of HistoricData " << std::endl;
 }
 
-// Esta función es igual en todas las clases. Implementarla en fetch_data class (clase padre)
+// retrieve Data from message queue. Median of data with a size of lookbackperiod
 double HistoricData::retrieveData(double &lookbackperiod)
 {
     double value = 0;
@@ -37,33 +20,71 @@ double HistoricData::retrieveData(double &lookbackperiod)
     return value / lookbackperiod;
 }
 
-std::string HistoricData::OutputFormat(int unit_time)
+// fetch data from historical data
+void HistoricData::fetchData()
 {
-    if (unit_time < 10)
-    {
-        return "0" + std::to_string(unit_time);
-    }
-    else
-    {
-        return std::to_string(unit_time);
-    }
+    // configure working directory
+    namespace fs = std::filesystem;
+    char *working_directory = "../historicData/";
+
+    // go into every files in working directory. FOR THE FUTURE: Replace directory_iterator because the iteration order is unspecified.
+    for (const auto &file_date : fs::directory_iterator(working_directory))
+        for (const auto &file : fs::directory_iterator(file_date))
+        {
+            // declare some necessary strings
+            std::string line, date, value;
+
+            // open file
+            std::ifstream file_stream(file.path());
+
+            // init watch
+            long long cycleDuration = 30; // Limit down: 9 uSecs (at least in my pc and processing 103000 data and with 10 data in lookbackperiod)
+            std::chrono::time_point<std::chrono::system_clock> lastUpdate;
+            lastUpdate = std::chrono::system_clock::now();
+
+            if (file_stream.is_open())
+            {   // always check whether the file is open
+                while (file_stream)
+                {
+                    // compute time difference to stop watch
+                    auto timeSinceLastUpdate = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - lastUpdate).count();
+                    if (timeSinceLastUpdate >= cycleDuration)
+                    {
+                        // get line
+                        std::getline(file_stream, line);
+                        std::istringstream linestream(line);
+                        // obtain date and value of each line
+                        while (linestream >> date >> value)
+                        {
+                            // std::cout << date << " " << value << '\n'; //DEBUG
+                            _mqData->MessageQueue::send(std::move(std::stod(value)));
+                        }
+                        // update lastUpdate for next cycle
+                        lastUpdate = std::chrono::system_clock::now();
+                    }
+                }
+            }
+            else
+                std::cout << "Unable to open file";
+        }
 }
 
+// creation of files with historical data
 void HistoricData::createHistoricData(std::shared_ptr<Binance> data)
 {
-    // This will be always 1 in this method in order to retrieve raw data from Binance.
+    // this will be always 1 in this method in order to retrieve raw data from Binance.
     double lookbackperiod = 1;
 
     // data to be saved in file
     std::string ref_time;
     double actual_value;
 
-    //create working directory if this doesn't exist.
+    // create working directory if this doesn't exist.
     namespace fs = std::filesystem;
     char *working_directory = "../historicData/";
     fs::create_directories(working_directory);
 
-    //get actual time
+    //g et actual time
     std::time_t now = std::time(0);
     std::tm *now_tm = std::localtime(&now);
 
@@ -128,56 +149,16 @@ void HistoricData::createHistoricData(std::shared_ptr<Binance> data)
     return;
 }
 
-void HistoricData::fetchData()
+
+// helper function
+std::string HistoricData::OutputFormat(int unit_time)
 {
-    std::cout << "\n\nReading data from historic Data directory " << std::endl;
-
-    // configure working directory
-    namespace fs = std::filesystem;
-    char *working_directory = "../historicData/";
-
-    // go into every files in working directory. FOR THE FUTURE: Replace directory_iterator because the iteration order is unspecified.
-    for (const auto &file_date : fs::directory_iterator(working_directory))
-        for (const auto &file : fs::directory_iterator(file_date))
-        {
-            // declare some necessary strings
-            std::string line, date, value;
-
-            // open file
-            std::ifstream file_stream(file.path());
-
-            // init watch
-            long long cycleDuration = 30; // Limit down: 9 uSecs (at least in my pc and processing 103000 data and with 10 data in lookbackperiod)
-            std::chrono::time_point<std::chrono::system_clock> lastUpdate;
-            lastUpdate = std::chrono::system_clock::now();
-
-            if (file_stream.is_open())
-            { // always check whether the file is open
-                while (file_stream)
-                {
-                    // std::this_thread::sleep_for(std::chrono::milliseconds(1));
-
-                    // compute time difference to stop watch
-                    auto timeSinceLastUpdate = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - lastUpdate).count();
-                    if (timeSinceLastUpdate >= cycleDuration)
-                    {
-                        // get line
-                        std::getline(file_stream, line);
-                        std::istringstream linestream(line);
-                        // obtain date and value of each line
-                        while (linestream >> date >> value)
-                        {
-                            // std::cout << date << " " << value << '\n'; //DEBUG
-                            _mqData->MessageQueue::send(std::move(std::stod(value)));
-                        }
-                        // update lastUpdate for next cycle
-                        lastUpdate = std::chrono::system_clock::now();
-                    }
-                }
-            }
-            else
-                std::cout << "Unable to open file";
-        }
-
-    return;
+    if (unit_time < 10)
+    {
+        return "0" + std::to_string(unit_time);
+    }
+    else
+    {
+        return std::to_string(unit_time);
+    }
 }

@@ -47,6 +47,7 @@ void Binance::configureAPI(const char *URL)
     }
 }
 
+// fetch data from binance
 void Binance::fetchData()
 {
     // how many data is fetched?

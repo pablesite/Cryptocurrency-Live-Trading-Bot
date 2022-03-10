@@ -3,6 +3,9 @@
 
 #include <string>
 #include <vector>
+#include <fstream>
+#include <filesystem>
+#include <sstream>
 #include <mutex>
 #include <deque>
 #include <condition_variable>
@@ -12,32 +15,28 @@
 #include "binance.h"
 
 
-namespace locations {
 
-/***** PATHS *****/
-// const std::string kProcDirectory{"/proc/"};
-// const std::string kOSPath{"/etc/os-release"};
-
-
-}
 /*
-Basic class for Fetch Data of Cryptoconcurrency
+Basic class for Historical Data
 */
 class HistoricData : public FetchData
 {
 public:
+    // constructor
     HistoricData();
-    void fetchData() override;
+
+    // fetch and from Historical Data and retrieve data from messageQueue
     double retrieveData(double &lookbackperiod);
-    std::string OutputFormat(int unit_time);
+    void fetchData() override;
+
+    // create Historical Data
     void createHistoricData(std::shared_ptr<Binance> data);
 
-protected:
-    static std::mutex _mutexSD;
+    // helper function
+    std::string OutputFormat(int unit_time);
 
 private:
-    //Binance _bin;
-    double _currentData;
+    // mq Data Shared Pointer
     std::shared_ptr<MessageQueue<double>> _mqData;
 };
 
