@@ -39,13 +39,13 @@ void SimulateData::fetchData()
         // compute time difference to stop watch
         auto timeSinceLastUpdate = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lastUpdate).count();
 
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
         if (timeSinceLastUpdate >= cycleDuration)
         {
             // with 999 there is a slight positive trend 
             x = x * (1 + (rand() % 2000 - 999) / 10000000.0);
 
             // send value to message queue
-            std::cout << x << std::endl;
             _mqData->MessageQueue::send(std::move(x));
             count += 1;
 

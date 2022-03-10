@@ -46,6 +46,7 @@ void HistoricData::fetchData()
             {   // always check whether the file is open
                 while (file_stream)
                 {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
                     // compute time difference to stop watch
                     auto timeSinceLastUpdate = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - lastUpdate).count();
                     if (timeSinceLastUpdate >= cycleDuration)
@@ -56,7 +57,6 @@ void HistoricData::fetchData()
                         // obtain date and value of each line
                         while (linestream >> date >> value)
                         {
-                            //  std::cout << date << " " << value << '\n'; //DEBUG
                             _mqData->MessageQueue::send(std::move(std::stod(value)));
                         }
                         // update lastUpdate for next cycle
