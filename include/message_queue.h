@@ -1,6 +1,7 @@
 #ifndef MESSAGE_QUEUE_H
 #define MESSAGE_QUEUE_H
 
+#include <iostream>
 #include <deque>
 #include <mutex>
 #include <condition_variable>
