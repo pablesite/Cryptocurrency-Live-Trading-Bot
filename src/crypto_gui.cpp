@@ -1,5 +1,3 @@
-
-
 #include "crypto_gui.h"
 
 // shared variables in CryptoGuiPanel and CryptoGraphic
@@ -100,7 +98,6 @@ void CryptoGui::OnExit(wxCommandEvent &event)
 // CryptoGuiPanel constructor. Definition and position of all the elements un tue Gui
 CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent)
 {
-
   // create Box Sizers
   wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
   wxBoxSizer *vbox1 = new wxBoxSizer(wxVERTICAL);
@@ -389,7 +386,7 @@ void CryptoGuiPanel::OnStopHistoricalData(wxCommandEvent &event)
 void CryptoGuiPanel::OnStartRealData(wxCommandEvent &event)
 {
   std::cout << "\nOn Start Real Data: " << std::endl;
-  StartStrategy<Binance>(binanceData, strategyBinanceBot, stopSimulateRealDataBtn); // TEST PARA VER SI AQUÍ ESTARÏA GUAY...
+  StartStrategy<Binance>(binanceData, strategyBinanceBot, stopSimulateRealDataBtn);
 }
 
 // on stop real data
@@ -411,7 +408,7 @@ void CryptoGuiPanel::StartStrategy(std::string dataThrName, std::string strategy
   // strategy thread
   std::shared_ptr<Strategy> strategyPtr = std::make_shared<Strategy>(dataPtr);
   strategyPtr->SetCryptoGraphicHandle(_cryptoGraphic);
-  strategyPtr->SetCryptoGuiPanelHandle(_cryptoGuiPanel); // no sé si será necesario. Sólo para el caso en que en strategy tenga que meter cosas hacia criptoGuiPanel. Si las puedo leer desde criptoGuiPanel no hace falta
+  strategyPtr->SetCryptoGuiPanelHandle(_cryptoGuiPanel); 
   std::thread strategyThr = std::thread(&Strategy::cryptoBot, strategyPtr);
 
   // save reference for threads. Necessary to kill later

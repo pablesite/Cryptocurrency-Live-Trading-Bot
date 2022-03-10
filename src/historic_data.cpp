@@ -38,7 +38,7 @@ void HistoricData::fetchData()
             std::ifstream file_stream(file.path());
 
             // init watch
-            long long cycleDuration = 30; // Limit down: 9 uSecs (at least in my pc and processing 103000 data and with 10 data in lookbackperiod)
+            long long cycleDuration = 500000; //0.5 secs.
             std::chrono::time_point<std::chrono::system_clock> lastUpdate;
             lastUpdate = std::chrono::system_clock::now();
 
@@ -56,7 +56,7 @@ void HistoricData::fetchData()
                         // obtain date and value of each line
                         while (linestream >> date >> value)
                         {
-                            // std::cout << date << " " << value << '\n'; //DEBUG
+                            //  std::cout << date << " " << value << '\n'; //DEBUG
                             _mqData->MessageQueue::send(std::move(std::stod(value)));
                         }
                         // update lastUpdate for next cycle

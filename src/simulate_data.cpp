@@ -1,27 +1,12 @@
-#include <string>
-#include <vector>
-#include <iostream>
-#include <chrono>
-#include <future>
-#include <deque>
-
 #include "simulate_data.h"
-#include "message_queue.h"
 
-using std::string;
-using std::vector;
-
-std::mutex SimulateData::_mutexSD;
-
+// constructor
 SimulateData::SimulateData()
 {
     _mqData = std::make_shared<MessageQueue<double>>();
-
-    std::cout << "Constructor of FetchData " << std::endl;
-    // Constructor of Binance
-    //_bin (Binance);
 }
 
+// retrieve Data from message queue. Median of data with a size of lookbackperiod
 double SimulateData::retrieveData(double &lookbackperiod)
 {
     double value = 0;
@@ -35,27 +20,39 @@ double SimulateData::retrieveData(double &lookbackperiod)
     return value / lookbackperiod;
 }
 
+// fetch data from data simulated
 void SimulateData::fetchData()
 {
-
-    std::cout << "Generating simulated data " << std::endl;
-    
-    double myCoinBase = 50000;
-    double x = myCoinBase;
+    // how many data is fetched?
     double count = 0;
+
+    double myCoinBase = 50000; 
+    double x = myCoinBase;
+    
+    // init watch
+    long long cycleDuration = 50; //0.5 secs
+    std::chrono::time_point<std::chrono::system_clock> lastUpdate;
+    lastUpdate = std::chrono::system_clock::now();
 
     while (true)
     {
-        std::this_thread::sleep_for(std::chrono::microseconds(30)); // It is needed to pause a little bit the execution. el límite por abajo está cercano a los 10 usecs
-        x = x * (1 + (rand() % 2000 - 999) / 10000000.0); //999 -> ligera tendencia al alza
+        // compute time difference to stop watch
+        auto timeSinceLastUpdate = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lastUpdate).count();
 
-        // std::cout << "meto un dato a la cola: " << x << " " << count << std::endl; //DEBUG
-        _mqData->MessageQueue::send(std::move(x));
+        if (timeSinceLastUpdate >= cycleDuration)
+        {
+            // with 999 there is a slight positive trend 
+            x = x * (1 + (rand() % 2000 - 999) / 10000000.0);
 
-        count += 1;
-        // _data.emplace_back(std::move(x));
+            // send value to message queue
+            std::cout << x << std::endl;
+            _mqData->MessageQueue::send(std::move(x));
+            count += 1;
+
+            // update lastUpdate for next cycle
+            lastUpdate = std::chrono::system_clock::now();
+        }
     }
 
     return;
 }
-

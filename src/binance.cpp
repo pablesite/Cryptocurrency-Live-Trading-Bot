@@ -67,7 +67,7 @@ void Binance::fetchData()
 
     while (true)
     {
-        // Compute time difference to stop watch
+        // compute time difference to stop watch
         auto timeSinceLastUpdate = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lastUpdate).count();
 
         if (timeSinceLastUpdate >= cycleDuration)
