@@ -39,7 +39,7 @@ public:
     void SetCryptoGuiPanelHandle(std::shared_ptr<CryptoGuiPanel> cryptoGuiPanel);
 
     // getters
-    double getData(double lookBackPeriod);
+    double getData(int lookBackPeriod);
 
     // main --> thread
     void cryptoBot();
@@ -72,7 +72,7 @@ private:
     double _bottomBreak = -1.5 * _commission;
     double _recession = -1.25 * _commission;
     double _topBreak = 1.0 * _commission;
-    double _lookBackPeriod = 5;
+    int _lookBackPeriod = 5;
 
     // output data of strategy
     double _value;

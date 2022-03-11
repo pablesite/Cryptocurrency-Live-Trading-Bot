@@ -10,7 +10,7 @@ class FetchData
 public:
   // pure virtual functions
   virtual void fetchData() = 0;
-  virtual double retrieveData(double &lookbackperiod) = 0;
+  virtual double retrieveData(int &lookbackperiod) = 0;
 };
 
 #endif

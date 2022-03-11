@@ -24,7 +24,7 @@ public:
 
     // fetch and from data simulated and retrieve data from messageQueue 
     void fetchData() override;
-    double retrieveData(double &lookbackperiod) override;
+    double retrieveData(int &lookbackperiod) override;
 
 private:
     std::shared_ptr<MessageQueue<double>> _mqData;

@@ -7,7 +7,7 @@ HistoricData::HistoricData()
 }
 
 // retrieve Data from message queue. Median of data with a size of lookbackperiod
-double HistoricData::retrieveData(double &lookbackperiod)
+double HistoricData::retrieveData(int &lookbackperiod)
 {
     double value = 0;
     std::deque<double> data = _mqData->MessageQueue::receive(lookbackperiod);
@@ -73,7 +73,7 @@ void HistoricData::fetchData()
 void HistoricData::createHistoricData(std::shared_ptr<Binance> data)
 {
     // this will be always 1 in this method in order to retrieve raw data from Binance.
-    double lookbackperiod = 1;
+    int lookbackperiod = 1;
 
     // data to be saved in file
     std::string ref_time;

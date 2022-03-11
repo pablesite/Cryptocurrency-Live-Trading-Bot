@@ -46,7 +46,7 @@ The strategy programmed is named 'standar strategy' and is based basically in tr
 
 Below you can see an example that show how it works with historical data.
 
-![](https://github.com/pablesite/Cryptocurrency-Live-Trading-Bot/blob/master/images/CryptoBotPicture.png){width='600px'}
+![](https://github.com/pablesite/Cryptocurrency-Live-Trading-Bot/blob/master/images/CryptoBotPicture.png)
 
 
 ## Dependencies for Running Locally (TO UPDATE)

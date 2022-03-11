@@ -7,7 +7,7 @@ SimulateData::SimulateData()
 }
 
 // retrieve Data from message queue. Median of data with a size of lookbackperiod
-double SimulateData::retrieveData(double &lookbackperiod)
+double SimulateData::retrieveData(int &lookbackperiod)
 {
     double value = 0;
     std::deque<double> data = _mqData->MessageQueue::receive(lookbackperiod);

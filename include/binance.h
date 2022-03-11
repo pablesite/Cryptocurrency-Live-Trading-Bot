@@ -23,7 +23,7 @@ public:
     
     // fetch and from Binance and retrieve data from messageQueue 
     void fetchData() override;
-    double retrieveData(double &lookbackperiod) override;
+    double retrieveData(int &lookbackperiod) override;
 
     // propietary function
     void configureAPI(const char * URL);

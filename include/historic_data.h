@@ -26,7 +26,7 @@ public:
     HistoricData();
 
     // fetch and from Historical Data and retrieve data from messageQueue
-    double retrieveData(double &lookbackperiod);
+    double retrieveData(int &lookbackperiod);
     void fetchData() override;
 
     // create Historical Data

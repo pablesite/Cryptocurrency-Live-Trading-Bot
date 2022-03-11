@@ -10,7 +10,7 @@ Binance::Binance()
 }
 
 // retrieve Data from message queue. Median of data with a size of lookbackperiod
-double Binance::retrieveData(double &lookbackperiod)
+double Binance::retrieveData(int &lookbackperiod)
 {
     double value = 0;
     std::deque<double> data = _mqData->MessageQueue::receive(lookbackperiod);

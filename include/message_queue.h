@@ -18,7 +18,7 @@ public:
 
     // propietary functions
     void send(T &&msg);
-    std::deque<T> receive(double &lookbackperiod);
+    std::deque<T> receive(int &lookbackperiod);
 
 private:
     // queue for data of type <T>
@@ -40,7 +40,7 @@ MessageQueue<T>::MessageQueue()
 
 // obtain data from the shared queue
 template <typename T>
-std::deque<T> MessageQueue<T>::receive(double &lookbackperiod)
+std::deque<T> MessageQueue<T>::receive(int &lookbackperiod)
 {
     // lock shared data
     std::unique_lock<std::mutex> lck(_mtxMQ);

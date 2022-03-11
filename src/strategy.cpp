@@ -33,7 +33,7 @@ void Strategy::SetCryptoGuiPanelHandle(std::shared_ptr<CryptoGuiPanel> cryptoGui
 }
 
 // getters
-double Strategy::getData(double lookBackPeriod)
+double Strategy::getData(int lookBackPeriod)
 {
     switch (_type)
     {
