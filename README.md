@@ -45,7 +45,8 @@ The strategy programmed is named 'standar strategy' and is based basically in tr
 -  **Create historical Data**. Functionallity to create historical data in a text file. A request to API from Binance is used in order to fetch real data from Bitcoint in real time. 
 
 Below you can see an example that show how it works with historical data.
-/home/pablo/Escritorio/Captura de pantalla de 2022-03-11 19-31-03.png
+
+![](https://github.com/pablesite/Cryptocurrency-Live-Trading-Bot/blob/master/images/CryptoBotPicture.png){width='600px'}
 
 
 ## Dependencies for Running Locally (TO UPDATE)
