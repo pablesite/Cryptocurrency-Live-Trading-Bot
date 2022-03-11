@@ -153,7 +153,8 @@ The project uses at least one smart pointer: unique_ptr, shared_ptr, or weak_ptr
 - The project uses multithreading: **Check**
 The project uses multiple threads in the execution. For example in: `void CryptoGuiPanel::StartStrategy(std::string dataThrName, std::string strategyThrName, wxButton *stopBtn)`
 
-- A promise and future is used in the project: **It has not been necessary.**
+- A promise and future is used in the project: **Check**
+A promise is generated in `CryptoGuiPanel` --> `void CryptoGuiPanel::OnCreateHistoricalData(wxCommandEvent &event)` and the future is captured in `historicData` --> `void HistoricData::closeFile(std::future<int> &fut)`
 
 - A mutex or lock is used in the project: **Check**
 A mutex or lock (e.g. std::lock_guard or `std::unique_lock) is used to protect data that is shared across multiple threads in the project code. In: `void CryptoGraphic::setActualValue(double value)`

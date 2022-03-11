@@ -37,6 +37,7 @@ enum
 {
   ID_CONFIGURE_STRATEGY = wxID_HIGHEST + 1,
   ID_CREATE_HISTORICAL_DATA,
+  ID_STOP_HISTORICAL_DATA,
   ID_SIMULATE_DATA,
   ID_SIMULATE_DATA_STOP,
   ID_HISTORICAL_DATA,
@@ -83,6 +84,7 @@ public:
  
   // events
   void OnCreateHistoricalData(wxCommandEvent &event);
+  void OnStopCreationData(wxCommandEvent &event);
   void OnStartSimulatedData(wxCommandEvent &event);
   void OnStopSimulatedData(wxCommandEvent &event);
   void OnStartHistoricalData(wxCommandEvent &event);

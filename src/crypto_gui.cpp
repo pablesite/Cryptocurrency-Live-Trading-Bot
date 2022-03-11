@@ -4,6 +4,10 @@
 typedef std::unordered_map<std::string, pthread_t> ThreadMap;
 ThreadMap thrMap;
 
+std::promise<int> prom;
+
+wxButton *createData;
+wxButton *stopData;
 wxButton *simulateBtn;
 wxButton *stopSimulateSimDataBtn;
 wxButton *historicBtn;
@@ -11,6 +15,7 @@ wxButton *stopSimulateHistDataBtn;
 wxButton *realdataBtn;
 wxButton *stopSimulateRealDataBtn;
 
+std::string writeHistoricData = "writeHistoricData";
 std::string dataSimulated = "dataSimulated";
 std::string strategyDataSimulatedBot = "strategyDataSimulatedBot";
 std::string historicData = "historicData";
@@ -26,6 +31,7 @@ EVT_MENU(wxID_EXIT, CryptoGui::OnExit)
 EVT_MENU(wxID_ABOUT, CryptoGui::OnAbout)
 
 EVT_BUTTON(ID_CREATE_HISTORICAL_DATA, CryptoGuiPanel::OnCreateHistoricalData)
+EVT_BUTTON(ID_STOP_HISTORICAL_DATA, CryptoGuiPanel::OnStopCreationData)
 EVT_BUTTON(ID_SIMULATE_DATA, CryptoGuiPanel::OnStartSimulatedData)
 EVT_BUTTON(ID_SIMULATE_DATA_STOP, CryptoGuiPanel::OnStopSimulatedData)
 EVT_BUTTON(ID_HISTORICAL_DATA, CryptoGuiPanel::OnStartHistoricalData)
@@ -139,7 +145,9 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent)
   // inside create_box
   wxStaticText *createTitleLabel = new wxStaticText(parent, -1, wxT("Create historic data "));
   wxStaticText *textCreate = new wxStaticText(parent, -1, wxT("Push to create data: "));
-  wxButton *createData = new wxButton(parent, ID_CREATE_HISTORICAL_DATA, wxT("Create Data"));
+  createData = new wxButton(parent, ID_CREATE_HISTORICAL_DATA, wxT("Create Data"));
+  stopData = new wxButton(parent, ID_STOP_HISTORICAL_DATA, wxT("Stop and Save"));
+  stopData->Enable(false);
 
   wxStaticLine *lineHor1 = new wxStaticLine(parent, -1);
 
@@ -262,6 +270,7 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent)
   createLabelBox->Add(createTitleLabel, 1, wxALIGN_CENTER_HORIZONTAL | wxLEFT, 10);
   createActionBox->Add(textCreate, 1, wxALIGN_CENTER_VERTICAL | wxLEFT, 10);
   createActionBox->Add(createData, 1, wxALIGN_CENTER, 10);
+  createActionBox->Add(stopData, 1, wxALIGN_CENTER, 10);
 
   // inside simulateLabelBox
   simulateLabelBox->Add(simulateLabel, 1, wxALIGN_CENTER_VERTICAL | wxLEFT | wxRIGHT, 10);
@@ -344,12 +353,35 @@ void CryptoGuiPanel::OnCreateHistoricalData(wxCommandEvent &event)
   std::shared_ptr<Binance> binancePtr = std::make_shared<Binance>();
   std::thread binanceData = std::thread(&Binance::fetchData, binancePtr);
 
+  // std::promise<int> prom;                      // create promise
+  std::future<int> fut = prom.get_future();    // engagement with future
+
   // create new data series
   std::shared_ptr<HistoricData> dataFilePtr = std::make_shared<HistoricData>();
   std::thread writeHistoricData = std::thread(&HistoricData::createHistoricData, dataFilePtr, binancePtr);
+  std::thread closeFile = std::thread(&HistoricData::closeFile, dataFilePtr, std::ref(fut));
+  
+  // save reference for threads. Necessary to kill later
+  thrMap["binanceData"] = binanceData.native_handle();
+  thrMap["writeHistoricData"] = writeHistoricData.native_handle();
+  thrMap["closeFile"] = closeFile.native_handle();
+
+  // manage buttons
+  stopData->Enable(true);
+  createData->Enable(false);
 
   writeHistoricData.detach();
   binanceData.detach();
+  closeFile.detach();
+  
+}
+
+// on stop historical data
+void CryptoGuiPanel::OnStopCreationData(wxCommandEvent &event)
+{
+  std::cout << "\nStopping Creation of Data" << std::endl;
+  stopData->Enable(false);
+  prom.set_value(1); 
 }
 
 // on start simulated data
@@ -435,14 +467,17 @@ void CryptoGuiPanel::KillThreads(std::vector<std::string> threadsToKill, wxButto
 {
   ThreadMap::const_iterator it;
 
+  
   for (std::string thrToKill : threadsToKill)
   {
+    std::cout << "test " << thrToKill <<std::endl;
     // FOR THE FUTURE: Kill also strategy threads
     if (thrToKill != "strategyDataSimulatedBot" && thrToKill != "strategyHistoricBot" && thrToKill != "strategyBinanceBot")
     {
       it = thrMap.find(thrToKill);
       if (it != thrMap.end())
       {
+        std::cout << thrToKill << std::endl;
         pthread_cancel(it->second);
         thrMap.erase(thrToKill);
       }

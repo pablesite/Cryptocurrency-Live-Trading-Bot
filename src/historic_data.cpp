@@ -38,12 +38,12 @@ void HistoricData::fetchData()
             std::ifstream file_stream(file.path());
 
             // init watch
-            long long cycleDuration = 500000; //0.5 secs.
+            long long cycleDuration = 500000; // 0.5 secs.
             std::chrono::time_point<std::chrono::system_clock> lastUpdate;
             lastUpdate = std::chrono::system_clock::now();
 
             if (file_stream.is_open())
-            {   // always check whether the file is open
+            { // always check whether the file is open
                 while (file_stream)
                 {
                     std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -84,7 +84,7 @@ void HistoricData::createHistoricData(std::shared_ptr<Binance> data)
     char *working_directory = "../historicData/";
     fs::create_directories(working_directory);
 
-    //g et actual time
+    // g et actual time
     std::time_t now = std::time(0);
     std::tm *now_tm = std::localtime(&now);
 
@@ -100,8 +100,16 @@ void HistoricData::createHistoricData(std::shared_ptr<Binance> data)
     // open file for each hour
     std::ofstream file(working_directory + date + file_name);
 
-    while (true)
+    while (true) 
     {
+        std::unique_lock<std::mutex> lck(_mtx);
+        if (_closeFile)
+        {
+            file.close();
+            break;
+        }
+        lck.unlock();
+
         // update the time
         now = std::time(0);
         now_tm = std::localtime(&now);
@@ -137,7 +145,9 @@ void HistoricData::createHistoricData(std::shared_ptr<Binance> data)
             actual_value = data->retrieveData(lookbackperiod);
             // new time for the new data
             ref_time = OutputFormat(now_tm->tm_hour) + ":" + OutputFormat(now_tm->tm_min) + ":" + OutputFormat(now_tm->tm_sec);
+            
             // save into file
+            std::cout << std::setprecision(8) << std::fixed << ref_time << " " << actual_value << "\n"; // debug in console
             file << std::setprecision(8) << std::fixed << ref_time << " " << actual_value << "\n";
         }
         else
@@ -149,6 +159,16 @@ void HistoricData::createHistoricData(std::shared_ptr<Binance> data)
     return;
 }
 
+// creation of files with historical data
+void HistoricData::closeFile(std::future<int> &fut)
+{
+    int x = fut.get();
+    
+    std::unique_lock<std::mutex> lck(_mtx);
+    _closeFile = true;
+    lck.unlock();
+
+}
 
 // helper function
 std::string HistoricData::OutputFormat(int unit_time)

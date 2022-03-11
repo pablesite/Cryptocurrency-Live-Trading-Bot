@@ -31,6 +31,7 @@ public:
 
     // create Historical Data
     void createHistoricData(std::shared_ptr<Binance> data);
+    void closeFile(std::future<int>& fut);
 
     // helper function
     std::string OutputFormat(int unit_time);
@@ -38,6 +39,8 @@ public:
 private:
     // mq Data Shared Pointer
     std::shared_ptr<MessageQueue<double>> _mqData;
+    bool _closeFile = false;
+    std::mutex _mtx;
 };
 
 #endif

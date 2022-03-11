@@ -35,7 +35,7 @@ private:
 template <typename T>
 MessageQueue<T>::MessageQueue()
 {
-    std::cout << "MQ constructor" << std::endl;
+    // std::cout << "MQ constructor" << std::endl;
 }
 
 // obtain data from the shared queue
