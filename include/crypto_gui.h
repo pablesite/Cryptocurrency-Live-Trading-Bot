@@ -19,8 +19,8 @@ class CryptoGuiPanel;
 class Strategy;
 
 // globals shared pointers
-static std::shared_ptr<CryptoGraphic> _cryptoGraphic;
-static std::shared_ptr<CryptoGuiPanel> _cryptoGuiPanel;
+static CryptoGraphic * _cryptoGraphic;
+static CryptoGuiPanel * _cryptoGuiPanel;
 static std::shared_ptr<Strategy> _strategyPtr;
 
 // globals protection variables
@@ -152,6 +152,7 @@ class CryptoGraphic : public wxPanel
 public:
   // constructor / destructor
   CryptoGraphic(wxWindow *parent, wxWindowID id);
+  ~CryptoGraphic();
 
   // setter
   void setActualValue(double value);

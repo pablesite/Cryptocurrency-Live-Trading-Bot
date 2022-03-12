@@ -15,6 +15,7 @@ class MessageQueue
 public:
     // constructor
     MessageQueue();
+    ~MessageQueue();
 
     // propietary functions
     void send(T &&msg);
@@ -35,8 +36,15 @@ private:
 template <typename T>
 MessageQueue<T>::MessageQueue()
 {
-    // std::cout << "MQ constructor" << std::endl;
+    std::cout << "MQ constructor" << std::endl;
 }
+
+template <typename T>
+MessageQueue<T>::~MessageQueue()
+{
+    std::cout << "MQ destructor" << std::endl;
+}
+
 
 // obtain data from the shared queue
 template <typename T>

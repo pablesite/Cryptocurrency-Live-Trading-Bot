@@ -22,12 +22,13 @@ Strategy::Strategy(std::shared_ptr<HistoricData> data) : _dataHistoric(move(data
 }
 
 // handlers
-void Strategy::SetCryptoGraphicHandle(std::shared_ptr<CryptoGraphic> cryptoGraphic)
+void Strategy::SetCryptoGraphicHandle(CryptoGraphic *cryptoGraphic)
 {
     _cryptoGraphic = cryptoGraphic;
 }
 
-void Strategy::SetCryptoGuiPanelHandle(std::shared_ptr<CryptoGuiPanel> cryptoGuiPanel)
+// void Strategy::SetCryptoGuiPanelHandle(std::shared_ptr<CryptoGuiPanel> cryptoGuiPanel)
+ void Strategy::SetCryptoGuiPanelHandle(CryptoGuiPanel * cryptoGuiPanel)
 {
     _cryptoGuiPanel = cryptoGuiPanel;
 }

@@ -26,22 +26,22 @@ std::string strategyBinanceBot = "strategyBinanceBot";
 // event table
 wxBEGIN_EVENT_TABLE(CryptoGui, wxFrame)
 
-EVT_MENU(ID_CONFIGURE_STRATEGY, CryptoGui::OnConfigureStrategy)
-EVT_MENU(wxID_EXIT, CryptoGui::OnExit)
-EVT_MENU(wxID_ABOUT, CryptoGui::OnAbout)
+    EVT_MENU(ID_CONFIGURE_STRATEGY, CryptoGui::OnConfigureStrategy)
+        EVT_MENU(wxID_EXIT, CryptoGui::OnExit)
+            EVT_MENU(wxID_ABOUT, CryptoGui::OnAbout)
 
-EVT_BUTTON(ID_CREATE_HISTORICAL_DATA, CryptoGuiPanel::OnCreateHistoricalData)
-EVT_BUTTON(ID_STOP_HISTORICAL_DATA, CryptoGuiPanel::OnStopCreationData)
-EVT_BUTTON(ID_SIMULATE_DATA, CryptoGuiPanel::OnStartSimulatedData)
-EVT_BUTTON(ID_SIMULATE_DATA_STOP, CryptoGuiPanel::OnStopSimulatedData)
-EVT_BUTTON(ID_HISTORICAL_DATA, CryptoGuiPanel::OnStartHistoricalData)
-EVT_BUTTON(ID_HISTORICAL_DATA_STOP, CryptoGuiPanel::OnStopHistoricalData)
-EVT_BUTTON(ID_REAL_DATA, CryptoGuiPanel::OnStartRealData)
-EVT_BUTTON(ID_REAL_DATA_STOP, CryptoGuiPanel::OnStopRealData)
+                EVT_BUTTON(ID_CREATE_HISTORICAL_DATA, CryptoGuiPanel::OnCreateHistoricalData)
+                    EVT_BUTTON(ID_STOP_HISTORICAL_DATA, CryptoGuiPanel::OnStopCreationData)
+                        EVT_BUTTON(ID_SIMULATE_DATA, CryptoGuiPanel::OnStartSimulatedData)
+                            EVT_BUTTON(ID_SIMULATE_DATA_STOP, CryptoGuiPanel::OnStopSimulatedData)
+                                EVT_BUTTON(ID_HISTORICAL_DATA, CryptoGuiPanel::OnStartHistoricalData)
+                                    EVT_BUTTON(ID_HISTORICAL_DATA_STOP, CryptoGuiPanel::OnStopHistoricalData)
+                                        EVT_BUTTON(ID_REAL_DATA, CryptoGuiPanel::OnStartRealData)
+                                            EVT_BUTTON(ID_REAL_DATA_STOP, CryptoGuiPanel::OnStopRealData)
 
-wxEND_EVENT_TABLE()
+                                                wxEND_EVENT_TABLE()
 
-wxIMPLEMENT_APP(CryptoBot);
+                                                    wxIMPLEMENT_APP(CryptoBot);
 
 // entry point of CryptoBot
 bool CryptoBot::OnInit()
@@ -79,7 +79,7 @@ CryptoGui::CryptoGui(const wxString &title, const wxPoint &pos, const wxSize &si
 
   // new CryptoGuiPanel
   wxPanel *panel = new wxPanel(this, -1);
-  _cryptoGuiPanel = std::make_shared<CryptoGuiPanel>(panel);
+  _cryptoGuiPanel = new CryptoGuiPanel(panel);
 }
 
 // menu On Configure Strategy
@@ -339,8 +339,9 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent)
   interestAccBox->Add(_interestAccValue, 1, wxALIGN_LEFT);
 
   // new area for graphics
-  _cryptoGraphic = std::make_shared<CryptoGraphic>(parent, wxID_ANY);
-  hrighttbox2->Add(_cryptoGraphic.get(), 1, wxEXPAND | wxTOP | wxDOWN | wxLEFT | wxRIGHT, 20);
+  _cryptoGraphic = new CryptoGraphic(parent, wxID_ANY);
+  hrighttbox2->Add(_cryptoGraphic, 1, wxEXPAND | wxTOP | wxDOWN | wxLEFT | wxRIGHT, 20);
+  
   parent->SetSizer(hbox);
 }
 
@@ -354,13 +355,13 @@ void CryptoGuiPanel::OnCreateHistoricalData(wxCommandEvent &event)
   std::thread binanceData = std::thread(&Binance::fetchData, binancePtr);
 
   // std::promise<int> prom;                      // create promise
-  std::future<int> fut = prom.get_future();    // engagement with future
+  std::future<int> fut = prom.get_future(); // engagement with future
 
   // create new data series
   std::shared_ptr<HistoricData> dataFilePtr = std::make_shared<HistoricData>();
   std::thread writeHistoricData = std::thread(&HistoricData::createHistoricData, dataFilePtr, binancePtr);
   std::thread closeFile = std::thread(&HistoricData::closeFile, dataFilePtr, std::ref(fut));
-  
+
   // save reference for threads. Necessary to kill later
   thrMap["binanceData"] = binanceData.native_handle();
   thrMap["writeHistoricData"] = writeHistoricData.native_handle();
@@ -373,7 +374,6 @@ void CryptoGuiPanel::OnCreateHistoricalData(wxCommandEvent &event)
   writeHistoricData.detach();
   binanceData.detach();
   closeFile.detach();
-  
 }
 
 // on stop historical data
@@ -381,7 +381,7 @@ void CryptoGuiPanel::OnStopCreationData(wxCommandEvent &event)
 {
   std::cout << "\nStopping Creation of Data" << std::endl;
   stopData->Enable(false);
-  prom.set_value(1); 
+  prom.set_value(1);
 }
 
 // on start simulated data
@@ -440,7 +440,7 @@ void CryptoGuiPanel::StartStrategy(std::string dataThrName, std::string strategy
   // strategy thread
   std::shared_ptr<Strategy> strategyPtr = std::make_shared<Strategy>(dataPtr);
   strategyPtr->SetCryptoGraphicHandle(_cryptoGraphic);
-  strategyPtr->SetCryptoGuiPanelHandle(_cryptoGuiPanel); 
+  strategyPtr->SetCryptoGuiPanelHandle(_cryptoGuiPanel);
   std::thread strategyThr = std::thread(&Strategy::cryptoBot, strategyPtr);
 
   // save reference for threads. Necessary to kill later
@@ -467,10 +467,9 @@ void CryptoGuiPanel::KillThreads(std::vector<std::string> threadsToKill, wxButto
 {
   ThreadMap::const_iterator it;
 
-  
   for (std::string thrToKill : threadsToKill)
   {
-    std::cout << "test " << thrToKill <<std::endl;
+    std::cout << "test " << thrToKill << std::endl;
     // FOR THE FUTURE: Kill also strategy threads
     if (thrToKill != "strategyDataSimulatedBot" && thrToKill != "strategyHistoricBot" && thrToKill != "strategyBinanceBot")
     {
@@ -484,7 +483,7 @@ void CryptoGuiPanel::KillThreads(std::vector<std::string> threadsToKill, wxButto
     }
   }
 
-  // Manage buttons
+  // manage buttons
   simulateBtn->Enable(true);
   historicBtn->Enable(true);
   realdataBtn->Enable(true);
@@ -558,6 +557,13 @@ CryptoGraphic::CryptoGraphic(wxWindow *parent, wxWindowID id)
 {
   this->Connect(wxEVT_PAINT, wxPaintEventHandler(CryptoGraphic::OnPaint));
   this->createTicks();
+}
+
+// destructor
+CryptoGraphic::~CryptoGraphic()
+{
+  // delete unmanaged dynamically allocated memory
+  delete(_cryptoGuiPanel);
 }
 
 // update of value from the cryptoconcurrency

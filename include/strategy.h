@@ -35,8 +35,9 @@ public:
     Strategy(std::shared_ptr<HistoricData> data);
 
     // handlers
-    void SetCryptoGraphicHandle(std::shared_ptr<CryptoGraphic> cryptoGraphic);
-    void SetCryptoGuiPanelHandle(std::shared_ptr<CryptoGuiPanel> cryptoGuiPanel);
+    void SetCryptoGraphicHandle(CryptoGraphic *cryptoGraphic);
+    // void SetCryptoGuiPanelHandle(std::shared_ptr<CryptoGuiPanel> cryptoGuiPanel);
+    void SetCryptoGuiPanelHandle(CryptoGuiPanel * cryptoGuiPanel);
 
     // getters
     double getData(int lookBackPeriod);

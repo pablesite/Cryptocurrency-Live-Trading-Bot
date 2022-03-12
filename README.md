@@ -133,8 +133,8 @@ One function is declared with a template that allows it to accept a generic para
 - The project makes use of references in function declarations: **Check**
 At least two variables are defined as references, or two functions use pass-by-reference in the project code. FOr example in: `double retrieveData(double &lookbackperiod);` or in ` CryptoGui(const wxString &title, const wxPoint &pos, const wxSize &size);`
 
-- The project uses destructors appropriately: TODO
-[At least one class that uses unmanaged dynamically allocated memory, along with any class that otherwise needs to modify state upon the termination of an object, uses a destructor.]
+- The project uses destructors appropriately: **Check**
+At least one class that uses unmanaged dynamically allocated memory, along with any class that otherwise needs to modify state upon the termination of an object, uses a destructor. In: `CryptoGraphic::~CryptoGraphic()`
 
 - The project uses scope / Resource Acquisition Is Initialization (RAII) where appropriate: TODO
 [The project follows the Resource Acquisition Is Initialization pattern where appropriate, by allocating objects at compile-time, initializing objects when they are declared, and utilizing scope to ensure their automatic destruction.]
