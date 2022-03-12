@@ -20,7 +20,20 @@ class Binance : public FetchData
 public:
     // constructor
     Binance();
-    
+    Binance(const char *url);
+    //Rule of Five
+    // destructor
+    ~Binance();
+    // copy constructor
+    Binance(const Binance &source);
+    // copy assignment operator
+    Binance &operator=(const Binance &source);
+    // move constructor
+    Binance(Binance &&source);
+    // move assignment operator
+    Binance &operator=(Binance &&source);
+
+
     // fetch and from Binance and retrieve data from messageQueue 
     void fetchData() override;
     double retrieveData(int &lookbackperiod) override;

@@ -5,19 +5,16 @@
 // constructors
 Strategy::Strategy(std::shared_ptr<Binance> data) : _dataBinance(move(data))
 {
-    std::cout << "Constructor of Strategy with real data from Binance " << std::endl;
     _type = TypesOfData::Binance;
 }
 
 Strategy::Strategy(std::shared_ptr<SimulateData> data) : _dataSimulated(move(data))
 {
-    std::cout << "Constructor of Strategy with data simulated " << std::endl;
     _type = TypesOfData::SimulateData;
 }
 
 Strategy::Strategy(std::shared_ptr<HistoricData> data) : _dataHistoric(move(data))
 {
-    std::cout << "Constructor of Strategy with historic data " << std::endl;
     _type = TypesOfData::HistoricData;
 }
 

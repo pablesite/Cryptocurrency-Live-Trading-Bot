@@ -73,7 +73,7 @@ private:
     double _bottomBreak = -1.5 * _commission;
     double _recession = -1.25 * _commission;
     double _topBreak = 1.0 * _commission;
-    int _lookBackPeriod = 5;
+    int _lookBackPeriod = 3;
 
     // output data of strategy
     double _value;

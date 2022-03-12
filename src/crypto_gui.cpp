@@ -341,7 +341,7 @@ CryptoGuiPanel::CryptoGuiPanel(wxPanel *parent)
   // new area for graphics
   _cryptoGraphic = new CryptoGraphic(parent, wxID_ANY);
   hrighttbox2->Add(_cryptoGraphic, 1, wxEXPAND | wxTOP | wxDOWN | wxLEFT | wxRIGHT, 20);
-  
+
   parent->SetSizer(hbox);
 }
 
@@ -351,10 +351,10 @@ void CryptoGuiPanel::OnCreateHistoricalData(wxCommandEvent &event)
   std::cout << "\nCreating new data series with real data: " << std::endl;
 
   // real data in real time
-  std::shared_ptr<Binance> binancePtr = std::make_shared<Binance>();
+  const char * url = "https://api.binance.com/api/v3/ticker/price?symbol=BTCBUSD";
+  std::shared_ptr<Binance> binancePtr = std::make_shared<Binance>(url); //using constructor with argument
   std::thread binanceData = std::thread(&Binance::fetchData, binancePtr);
 
-  // std::promise<int> prom;                      // create promise
   std::future<int> fut = prom.get_future(); // engagement with future
 
   // create new data series
@@ -379,7 +379,7 @@ void CryptoGuiPanel::OnCreateHistoricalData(wxCommandEvent &event)
 // on stop historical data
 void CryptoGuiPanel::OnStopCreationData(wxCommandEvent &event)
 {
-  std::cout << "\nStopping Creation of Data" << std::endl;
+  std::cout << "\nStopping Creation of Data " << std::endl;
   stopData->Enable(false);
   prom.set_value(1);
 }
@@ -387,14 +387,14 @@ void CryptoGuiPanel::OnStopCreationData(wxCommandEvent &event)
 // on start simulated data
 void CryptoGuiPanel::OnStartSimulatedData(wxCommandEvent &event)
 {
-  std::cout << "\nOn Start Simulated Data: " << std::endl;
+  std::cout << "\nOn Start Simulated Data " << std::endl;
   StartStrategy<SimulateData>(dataSimulated, strategyDataSimulatedBot, stopSimulateSimDataBtn);
 }
 
 // on stop simulated data
 void CryptoGuiPanel::OnStopSimulatedData(wxCommandEvent &event)
 {
-  std::cout << "\nStopping Simulated Data Threads" << std::endl;
+  std::cout << "\nStopping Simulated Data Threads " << std::endl;
   std::vector<std::string> threadsToKill = {dataSimulated, strategyDataSimulatedBot};
   KillThreads(threadsToKill, stopSimulateSimDataBtn);
 }
@@ -402,14 +402,14 @@ void CryptoGuiPanel::OnStopSimulatedData(wxCommandEvent &event)
 // on start historical data
 void CryptoGuiPanel::OnStartHistoricalData(wxCommandEvent &event)
 {
-  std::cout << "\nOn Start Historical Data: " << std::endl;
+  std::cout << "\nOn Start Historical Data " << std::endl;
   StartStrategy<HistoricData>(historicData, strategyHistoricBot, stopSimulateHistDataBtn);
 }
 
 // on stop historical data
 void CryptoGuiPanel::OnStopHistoricalData(wxCommandEvent &event)
 {
-  std::cout << "\nStopping Historical Data Threads" << std::endl;
+  std::cout << "\nStopping Historical Data Threads " << std::endl;
   std::vector<std::string> threadsToKill = {historicData, strategyHistoricBot};
   KillThreads(threadsToKill, stopSimulateHistDataBtn);
 }
@@ -417,14 +417,14 @@ void CryptoGuiPanel::OnStopHistoricalData(wxCommandEvent &event)
 // on start real data
 void CryptoGuiPanel::OnStartRealData(wxCommandEvent &event)
 {
-  std::cout << "\nOn Start Real Data: " << std::endl;
+  std::cout << "\nOn Start Real Data " << std::endl;
   StartStrategy<Binance>(binanceData, strategyBinanceBot, stopSimulateRealDataBtn);
 }
 
 // on stop real data
 void CryptoGuiPanel::OnStopRealData(wxCommandEvent &event)
 {
-  std::cout << "\nStopping Real Data Threads" << std::endl;
+  std::cout << "\nStopping Real Data Threads " << std::endl;
   std::vector<std::string> threadsToKill = {binanceData, strategyBinanceBot};
   KillThreads(threadsToKill, stopSimulateRealDataBtn);
 }
@@ -469,14 +469,12 @@ void CryptoGuiPanel::KillThreads(std::vector<std::string> threadsToKill, wxButto
 
   for (std::string thrToKill : threadsToKill)
   {
-    std::cout << "test " << thrToKill << std::endl;
     // FOR THE FUTURE: Kill also strategy threads
     if (thrToKill != "strategyDataSimulatedBot" && thrToKill != "strategyHistoricBot" && thrToKill != "strategyBinanceBot")
     {
       it = thrMap.find(thrToKill);
       if (it != thrMap.end())
       {
-        std::cout << thrToKill << std::endl;
         pthread_cancel(it->second);
         thrMap.erase(thrToKill);
       }
@@ -563,7 +561,7 @@ CryptoGraphic::CryptoGraphic(wxWindow *parent, wxWindowID id)
 CryptoGraphic::~CryptoGraphic()
 {
   // delete unmanaged dynamically allocated memory
-  delete(_cryptoGuiPanel);
+  delete (_cryptoGuiPanel);
 }
 
 // update of value from the cryptoconcurrency

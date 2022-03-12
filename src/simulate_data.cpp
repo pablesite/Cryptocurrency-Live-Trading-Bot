@@ -30,7 +30,7 @@ void SimulateData::fetchData()
     double x = myCoinBase;
     
     // init watch
-    long long cycleDuration = 50; //0.5 secs
+    long long cycleDuration = 10; //0.01 secs each data --> To see the strategy simulated quickly
     std::chrono::time_point<std::chrono::system_clock> lastUpdate;
     lastUpdate = std::chrono::system_clock::now();
 

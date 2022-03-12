@@ -42,6 +42,8 @@ The strategy programmed is named 'standar strategy' and is based basically in tr
     - With **historical data**: A functions that read data from a textfile has been developed. In this way different configuration parameters in the strategy can be tested with the same input data in order to compare results.
     - With **real data in real time**: A request to API from Binance is used to fetch real data in real time. In this case we can simulate our strategy in a real case in real time.
 
+    HABLAR SOBRE EL TIEMPO DE REFRESCO DE CADA UNA Y DE CÓMO AFECTA LOOKBACKPERIOD
+
 -  **Create historical Data**. Functionallity to create historical data in a text file. A request to API from Binance is used in order to fetch real data from Bitcoint in real time. 
 
 Below you can see an example that show how it works with historical data.

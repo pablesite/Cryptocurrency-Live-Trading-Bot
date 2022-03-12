@@ -25,7 +25,7 @@ void HistoricData::fetchData()
 {
     // configure working directory
     namespace fs = std::filesystem;
-    char *working_directory = "../historicData/";
+    const char *working_directory = "../historicData/";
 
     // go into every files in working directory. FOR THE FUTURE: Replace directory_iterator because the iteration order is unspecified.
     for (const auto &file_date : fs::directory_iterator(working_directory))
@@ -38,7 +38,7 @@ void HistoricData::fetchData()
             std::ifstream file_stream(file.path());
 
             // init watch
-            long long cycleDuration = 500000; // 0.5 secs.
+            long long cycleDuration = 100000; // 0.1 secs.
             std::chrono::time_point<std::chrono::system_clock> lastUpdate;
             lastUpdate = std::chrono::system_clock::now();
 
@@ -81,7 +81,7 @@ void HistoricData::createHistoricData(std::shared_ptr<Binance> data)
 
     // create working directory if this doesn't exist.
     namespace fs = std::filesystem;
-    char *working_directory = "../historicData/";
+    const char *working_directory = "../historicData/";
     fs::create_directories(working_directory);
 
     // g et actual time

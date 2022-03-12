@@ -9,6 +9,70 @@ Binance::Binance()
     configureAPI("https://api.binance.com/api/v3/ticker/price?symbol=BTCBUSD");
 }
 
+// constructor
+Binance::Binance(const char *url)
+{
+    _mqData = std::make_shared<MessageQueue<double>>();
+
+    // GET for Bitcoint in Binance
+    configureAPI(url);
+}
+
+// destructor
+Binance::~Binance()
+{
+    if (_curl != nullptr)
+    {
+        _curl = nullptr;
+    }
+}
+
+// copy constructor
+Binance::Binance(const Binance &source)
+{
+    if (source._curl != nullptr)
+    {
+        configureAPI("https://api.binance.com/api/v3/ticker/price?symbol=BTCBUSD");
+    }
+}
+
+// copy assignment operator
+Binance &Binance::operator=(const Binance &source)
+{
+    if (this == &source)
+        return *this;
+
+    if (source._curl != nullptr)
+    {
+        configureAPI("https://api.binance.com/api/v3/ticker/price?symbol=BTCBUSD");
+    }
+    return *this;
+}
+
+// move constructor
+Binance::Binance(Binance &&source)
+{
+    if (source._curl != nullptr)
+    {
+        configureAPI("https://api.binance.com/api/v3/ticker/price?symbol=BTCBUSD");
+    }
+}
+
+// move assignment operator
+Binance &Binance::operator=(Binance &&source)
+{
+    if (this == &source)
+        return *this;
+
+    if (source._curl != nullptr)
+    {
+        configureAPI("https://api.binance.com/api/v3/ticker/price?symbol=BTCBUSD");
+    }
+
+    source._curl = nullptr;
+    return *this;
+}
+
 // retrieve Data from message queue. Median of data with a size of lookbackperiod
 double Binance::retrieveData(int &lookbackperiod)
 {
@@ -73,7 +137,7 @@ void Binance::fetchData()
         if (timeSinceLastUpdate >= cycleDuration)
         {
             // perform request and storage in _readBuffer
-            _res = curl_easy_perform(_curl); 
+            _res = curl_easy_perform(_curl);
             if (_res == CURLE_OK)
             {
                 const auto rawJsonLength = static_cast<int>(_readBuffer.length());

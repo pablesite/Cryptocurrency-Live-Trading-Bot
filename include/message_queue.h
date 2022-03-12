@@ -14,8 +14,8 @@ class MessageQueue
 {
 public:
     // constructor
-    MessageQueue();
-    ~MessageQueue();
+    // MessageQueue();
+    // ~MessageQueue();
 
     // propietary functions
     void send(T &&msg);
@@ -32,18 +32,18 @@ private:
 
 ///// The declarations and definitions of the class template member functions should all be in the same header file /////
 
-// constructor
-template <typename T>
-MessageQueue<T>::MessageQueue()
-{
-    std::cout << "MQ constructor" << std::endl;
-}
+// // constructor
+// template <typename T>
+// MessageQueue<T>::MessageQueue()
+// {
+//     std::cout << "MQ constructor" << std::endl;
+// }
 
-template <typename T>
-MessageQueue<T>::~MessageQueue()
-{
-    std::cout << "MQ destructor" << std::endl;
-}
+// template <typename T>
+// MessageQueue<T>::~MessageQueue()
+// {
+//     std::cout << "MQ destructor" << std::endl;
+// }
 
 
 // obtain data from the shared queue
