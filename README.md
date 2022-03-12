@@ -35,14 +35,12 @@ The strategy programmed is named 'standar strategy' and is based basically in tr
     `double _bottomBreak = -1.5 * _commission;`
     `double _recession = -1.25 * _commission;`
     `double _topBreak = 1.0 * _commission;`
-    `int _lookBackPeriod = 5;`
+    `int _lookBackPeriod = 3;`
 
 - **Start/Stop of three types of simulations**. Each of the three types works in a similar way. Two threads are launched at the same time: one to fetch data and store it in a shared queue (message_queue), and another to get the data from the queue when it is available and apply the logic of the strategy.
-    - With **simulated data**: A function has been programmed that randomly simulates data trying to simulate the behavior of a cryptocurrency.
-    - With **historical data**: A functions that read data from a textfile has been developed. In this way different configuration parameters in the strategy can be tested with the same input data in order to compare results.
-    - With **real data in real time**: A request to API from Binance is used to fetch real data in real time. In this case we can simulate our strategy in a real case in real time.
-
-    HABLAR SOBRE EL TIEMPO DE REFRESCO DE CADA UNA Y DE CÓMO AFECTA LOOKBACKPERIOD
+    - With **simulated data**: A function has been programmed that randomly simulates data trying to simulate the behavior of a cryptocurrency. In this case, it is prepared to simulate data each 0.01 secs in order to understand how CryptoBot works. You can change the speed of data simulated in `void SimulateData::fetchData()`
+    - With **historical data**: A functions that read data from a textfile has been developed. In this way different configuration parameters in the strategy can be tested with the same input data in order to compare results. In this case, it is prepared to read historical data each 0.1 secs in order to understand how CryptoBot works. You can change the speed of data reading in `void HistoricData::fetchData()`
+    - With **real data in real time**: A request to API from Binance is used to fetch real data in real time. In this case we can simulate our strategy in a real case in real time. In this cae, each data is fetch every second from Binance. Furthermore, lookBacKPeriod is setted to 3, so when start, it is delayed a few seconds before to see CryptoBot works.
 
 -  **Create historical Data**. Functionallity to create historical data in a text file. A request to API from Binance is used in order to fetch real data from Bitcoint in real time. 
 
@@ -138,11 +136,11 @@ At least two variables are defined as references, or two functions use pass-by-r
 - The project uses destructors appropriately: **Check**
 At least one class that uses unmanaged dynamically allocated memory, along with any class that otherwise needs to modify state upon the termination of an object, uses a destructor. In: `CryptoGraphic::~CryptoGraphic()`
 
-- The project uses scope / Resource Acquisition Is Initialization (RAII) where appropriate: TODO
-[The project follows the Resource Acquisition Is Initialization pattern where appropriate, by allocating objects at compile-time, initializing objects when they are declared, and utilizing scope to ensure their automatic destruction.]
+- The project uses scope / Resource Acquisition Is Initialization (RAII) where appropriate: **It has not been considered necessary** 
+The project follows the Resource Acquisition Is Initialization pattern where appropriate, by allocating objects at compile-time, initializing objects when they are declared, and utilizing scope to ensure their automatic destruction.
 
-- The project follows the Rule of 5: TODO
-[For all classes, if any one of the copy constructor, copy assignment operator, move constructor, move assignment operator, and destructor are defined, then all of these functions are defined.]
+- The project follows the Rule of 5:  **Check** 
+For all classes, if any one of the copy constructor, copy assignment operator, move constructor, move assignment operator, and destructor are defined, then all of these functions are defined. --> Rule of five has been implemented on `Binance` for the purpose of proving knowledge. However, it is not used. Shared pointer has been used.
 
 - The project uses move semantics to move data, instead of copying it, where possible: **Check**
 For classes with move constructors, the project returns objects of that class by value, and relies on the move constructor, instead of copying the object. For example in: historic_data.cpp --> `_mqData->MessageQueue::send(std::move(std::stod(value)));`
