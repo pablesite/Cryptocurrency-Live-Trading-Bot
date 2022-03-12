@@ -49,7 +49,7 @@ Below you can see an example that show how it works with historical data.
 ![](https://github.com/pablesite/Cryptocurrency-Live-Trading-Bot/blob/master/images/CryptoBotPicture.png)
 
 
-## Dependencies for Running Locally (TO UPDATE)
+## Dependencies for Running Locally
 * cmake >= 3.7
   * All OSes: [click here for installation instructions](https://cmake.org/install/)
 * make >= 4.1 (Linux, Mac), 3.81 (Windows)
@@ -70,7 +70,7 @@ Below you can see an example that show how it works with historical data.
   * Windows: recommended installed with vpckg
   * Linux: sudo apt-get install libwxgtk3.0-gtk3-dev libwxgtk3.0-gtk3-0v5
 
-## Basic Build Instructions (TO UPDATE)
+## Basic Build Instructions
 1. Clone this repo.
 2. Make a build directory in the top level directory: `mkdir build && cd build`
 3. Compile: `cmake .. && make`
@@ -79,6 +79,12 @@ Below you can see an example that show how it works with historical data.
 ## Concurrency Scheme
 ![](https://github.com/pablesite/Cryptocurrency-Live-Trading-Bot/blob/master/images/CryptoBot.drawio.png)
 
+Color legend:
+- Blue: Buttons actions
+- Green: New threads
+- Red: Interaction between threads (promise, futures, conditionals...)
+- Yellow: Refresh CryptoGraphics
+- Gray: Refresh info values in CryptoGuiPanel
 
 ## Information about each rubric point addressed
 
