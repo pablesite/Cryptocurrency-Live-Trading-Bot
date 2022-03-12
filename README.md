@@ -76,9 +76,9 @@ Below you can see an example that show how it works with historical data.
 3. Compile: `cmake .. && make`
 4. Run it: `./CryptoTradingBot`.
 
-## Class Structure
-To upload with some schemas
-Esquema drawio
+## Concurrency Scheme
+![](https://github.com/pablesite/Cryptocurrency-Live-Trading-Bot/blob/master/images/CryptoBot.drawio.png)
+
 
 ## Information about each rubric point addressed
 
